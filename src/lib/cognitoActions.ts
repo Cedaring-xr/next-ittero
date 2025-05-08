@@ -2,10 +2,6 @@ import { redirect } from 'next/navigation'
 import { signUp, confirmSignUp, signIn, signOut, resendSignUpCode } from 'aws-amplify/auth'
 import { getErrorMessage } from '@/utils/get-error-message'
 
-// export async function handleSignUp(prevState: string | undefined, formData: FormData) {
-// 	console.log('signing up')
-// 	return 'Error creating an account'
-// }
 export async function handleSignUp(prevState: string | undefined, formData: FormData) {
 	try {
 		const { isSignUpComplete, userId, nextStep } = await signUp({
@@ -47,10 +43,6 @@ export async function handleSendEmailVerificationCode(
 	return currentState
 }
 
-// export async function confirmSignUp(prevState: string | undefined, formData: FormData) {
-// 	console.log('confirming sign up')
-// 	return 'Invalid code'
-// }
 export async function handleConfirmSignUp(prevState: string | undefined, formData: FormData) {
 	try {
 		const { isSignUpComplete, nextStep } = await confirmSignUp({
@@ -63,10 +55,6 @@ export async function handleConfirmSignUp(prevState: string | undefined, formDat
 	redirect('/auth/login')
 }
 
-// export async function handleSignIn(prevState: string | undefined, formData: FormData) {
-// 	console.log('signing in')
-// 	return 'Error logging in'
-// }
 export async function handleSignIn(prevState: string | undefined, formData: FormData) {
 	let redirectLink = '/dashboard'
 	try {

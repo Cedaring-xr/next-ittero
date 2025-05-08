@@ -31,13 +31,39 @@ export default function Page() {
 						alt="Screenshots of the dashboard project showing desktop version"
 					/>
 					<Image
-						src="/hero-mobile.png"
+						src="/journal.png"
 						width={560}
 						height={620}
 						className="block md:hidden"
 						alt="Screenshots of the dashboard project showing mobile version"
 					/>
 				</div>
+			</div>
+			<div>
+				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal text-center`}>
+					<strong>List, itterate, review, write</strong>
+				</p>
+			</div>
+			<div className="m-6 ">
+				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
+					<strong>
+						A personal daily journal and todo list all in one app with detailed feedback for improving
+						organization and workflow.
+					</strong>
+				</p>
+			</div>
+			<div className="m-6">
+				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
+					<strong>
+						Encrypted data ensure that what you write remains personal to you. We will never monitize or
+						sell your data.
+					</strong>
+				</p>
+			</div>
+			<div className="m-6">
+				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
+					<strong>Monthly content download available for retaining your information yourself.</strong>
+				</p>
 			</div>
 		</main>
 	)
