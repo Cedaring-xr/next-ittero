@@ -3,11 +3,12 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { lusitana } from '@/ui/fonts'
 import Image from 'next/image'
+import LandingInfo from '@/ui/info/landing-info'
 
 export default function Page() {
 	return (
 		<main className="flex min-h-screen flex-col p-6">
-			<div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
+			<div className="flex h-24 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-32">
 				<AcmeLogo />
 			</div>
 			<div className="mt-4 flex grow flex-col gap-4 md:flex-row">
@@ -39,32 +40,12 @@ export default function Page() {
 					/>
 				</div>
 			</div>
-			<div>
-				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal text-center`}>
-					<strong>List, itterate, review, write</strong>
-				</p>
+			
+			<div className="">
+				<LandingInfo />
+				
 			</div>
-			<div className="m-6 ">
-				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-					<strong>
-						A personal daily journal and todo list all in one app with detailed feedback for improving
-						organization and workflow.
-					</strong>
-				</p>
-			</div>
-			<div className="m-6">
-				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-					<strong>
-						Encrypted data ensure that what you write remains personal to you. We will never monitize or
-						sell your data.
-					</strong>
-				</p>
-			</div>
-			<div className="m-6">
-				<p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-					<strong>Monthly content download available for retaining your information yourself.</strong>
-				</p>
-			</div>
+			
 		</main>
 	)
 }

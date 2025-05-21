@@ -9,11 +9,11 @@ import { usePathname } from 'next/navigation'
 const links = [
 	{ name: 'Home', href: '/dashboard', icon: HomeIcon },
 	{
-		name: 'Invoices',
-		href: '/dashboard/invoices',
+		name: 'Lists',
+		href: '/dashboard/lists',
 		icon: DocumentDuplicateIcon
 	},
-	{ name: 'Customers', href: '/dashboard/customers', icon: UserGroupIcon }
+	{ name: 'Feedback', href: '/dashboard/feedback', icon: UserGroupIcon }
 ]
 
 export default function NavLinks() {
@@ -27,7 +27,7 @@ export default function NavLinks() {
 						key={link.name}
 						href={link.href}
 						className={clsx(
-							'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
+							'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm text-gray-900 font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3',
 							{
 								'bg-sky-100 text-blue-600': pathname === link.href
 							}
