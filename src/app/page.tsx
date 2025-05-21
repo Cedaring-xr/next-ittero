@@ -3,11 +3,12 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { lusitana } from '@/ui/fonts'
 import Image from 'next/image'
+import LandingInfo from '@/ui/info/landing-info'
 
 export default function Page() {
 	return (
 		<main className="flex min-h-screen flex-col p-6">
-			<div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
+			<div className="flex h-24 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-32">
 				<AcmeLogo />
 			</div>
 			<div className="mt-4 flex grow flex-col gap-4 md:flex-row">
@@ -31,7 +32,7 @@ export default function Page() {
 						alt="Screenshots of the dashboard project showing desktop version"
 					/>
 					<Image
-						src="/hero-mobile.png"
+						src="/journal.png"
 						width={560}
 						height={620}
 						className="block md:hidden"
@@ -39,6 +40,12 @@ export default function Page() {
 					/>
 				</div>
 			</div>
+			
+			<div className="">
+				<LandingInfo />
+				
+			</div>
+			
 		</main>
 	)
 }
