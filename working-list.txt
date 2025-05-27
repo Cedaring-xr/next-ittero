@@ -1,0 +1,24 @@
+Working list of additions
+
+Testing
+    -- debug why webkit tests are failing
+        -- may be do to outdated version of macOS because of older laptop
+            -- Try to run tests on desktop and see if same errors occur
+
+    -- setup test account with maps email
+        -- need password to email
+    -- create playwright tests for sign-up
+    -- create playwright tests for sign-out
+
+
+    future : create tests around sign-up process that deletes user after completion
+
+
+
+API integration
+    -- create lambda api connection based on ride-share demo
+    -- create API gateway endpoints for basic list crud opperations
+
+    -- create dynamoDB table for list items
+
+
