@@ -5,9 +5,7 @@ export default function Dashboard() {
 	return (
 		<>
 			<div className="flex justify-center gap-6 my-4 rounded-lg bg-emerald-300 text-gray-900 px-2 py-4 w-full">
-				<Link href="/dashboard" className="flex">
-					<HiDocumentText className="h-[30px] w-[30px]" /> <p>Your Dashboard</p>
-				</Link>
+					<HiDocumentText className="h-[30px] w-[30px]" /> <h2>Your Dashboard</h2>
 			</div>
 			<div className="flex justify-left gap-6 my-4 rounded-lg bg-gray-50 text-gray-900 px-2 py-4 md:w-2/5">
 				<Link href="/todo-list" className="flex">

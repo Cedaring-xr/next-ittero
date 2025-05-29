@@ -5,10 +5,10 @@ Testing
         -- may be do to outdated version of macOS because of older laptop
             -- Try to run tests on desktop and see if same errors occur
 
-    -- setup test account with maps email
-        -- need password to email
-    -- create playwright tests for sign-up
-    -- create playwright tests for sign-out
+    -- setup test account with maps email (done)
+    -- create playwright tests for sign-up (failing)
+    -- create playwright tests for sign-out (failing)
+    -- switch tests to using variable names for URL instead of hard coding them
 
 
     future : create tests around sign-up process that deletes user after completion
