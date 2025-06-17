@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { signUp, confirmSignUp, signIn, signOut, resendSignUpCode } from 'aws-amplify/auth'
+import { signUp, confirmSignUp, signIn, signOut, resendSignUpCode, autoSignIn } from 'aws-amplify/auth'
 import { getErrorMessage } from '@/utils/get-error-message'
 
 export async function handleSignUp(prevState: string | undefined, formData: FormData) {
@@ -49,6 +49,7 @@ export async function handleConfirmSignUp(prevState: string | undefined, formDat
 			username: String(formData.get('email')),
 			confirmationCode: String(formData.get('code'))
 		})
+		autoSignIn()
 	} catch (error) {
 		return getErrorMessage(error)
 	}
