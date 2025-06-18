@@ -1,7 +1,7 @@
 export default function AdminArea() {
 	return (
 		<>
-			<p>Admin Access Only</p>
+			<h2>Admin Access Only</h2>
 		</>
 	)
 }
