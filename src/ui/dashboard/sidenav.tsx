@@ -11,8 +11,8 @@ export default function SideNav() {
 	const pathname = usePathname
 	return (
 		<div className="flex h-full flex-col px-3 py-4 md:px-2">
-			<Link className="mb-2 flex h-20 items-end justify-start rounded-md bg-blue-600 p-4 md:h-40" href="/">
-				<div className="w-32 text-white md:w-40">
+			<Link className="mb-2 flex h-24 items-end justify-start  rounded-md bg-indigo-700  md:h-28" href="/">
+				<div className=" text-white overflow-hidden">
 					<AcmeLogo />
 				</div>
 			</Link>
@@ -22,7 +22,7 @@ export default function SideNav() {
 				<Link
 					href="/dashboard/profile"
 					className={clsx(
-						'flex h-[48px] grow items-center text-black justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3'
+						'flex h-[48px] grow items-center text-black justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-indigo-700 md:flex-none md:justify-start md:p-2 md:px-3'
 					)}
 				>
 					<UserCircleIcon className="w-6" />
