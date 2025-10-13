@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 function Footer() {
 	return (
-		<div className="mt-4 pt-2 pb-2 bg-slate-900 text-white">
+		<div className="pt-2 pb-2 bg-slate-900 text-white">
 			<div className="flex justify-between max-w-[1500px] mx-auto">
 				<div className="ml-2 flex flex-col">
 					<span>version 1.02.1</span>
