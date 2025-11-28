@@ -22,10 +22,12 @@ test('should be able to sign-in as an admin account and view the admin section o
 	await expect(page).toHaveURL('http://localhost:3000/dashboard')
 	// verify thet the user is on the dashboad page (successful sign-in
 	await expect(page.locator('h2')).toContainText('Your Dashboard')
-    // click on the admin section from sidenavs
-    await page.click("text=Admin Area")
-    // verify that admin section is open
-    await expect(page).toHaveURL('http://localhost:3000/dashboard/admins')
-    // verify that text on admin page is visible
-    await expect(page.locator('h2')).toContainText('Admin Access Only')
+	// click on the admin section from sidenavs
+	await page.click('text=Admin Area')
+	// verify that admin section is open
+	await expect(page).toHaveURL('http://localhost:3000/dashboard/admins')
+	// verify that text on admin page is visible
+	await expect(page.locator('h2')).toContainText('Admin Access Only')
 })
+
+// testing commit stuff
