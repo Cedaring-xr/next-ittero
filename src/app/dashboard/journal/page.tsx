@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import React, { useState } from 'react'
 
 interface JournalEntry {
@@ -45,13 +46,16 @@ function JournalPage() {
 			<div id="overview-container" className="p-6">
 				<h2 className="text-3xl font-bold mb-6 text-black">Journal Overview</h2>
 
-				<div className="mb-6">
+				<div className="mb-6 flex gap-4">
 					<button
 						onClick={fetchJournalEntries}
 						disabled={loading}
 						className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed"
 					>
 						{loading ? 'Loading...' : 'View all Journal entries'}
+					</button>
+					<button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+						<Link href="/dashboard/journal/newJournal">Create new Entry</Link>
 					</button>
 				</div>
 
