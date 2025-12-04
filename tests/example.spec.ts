@@ -13,5 +13,3 @@ import { test, expect } from '@playwright/test'
 // 	// The new page should contain an h1 with "Please log in to continue."
 // 	await expect(page.locator('h1')).toContainText('Please log in to continue.')
 // })
-
-// test
