@@ -5,7 +5,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList } from 'react-icons/hi'
 import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
-import ElegantButton from '@/app/ui/elegant-button'
+import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 
 export default function Lists() {
