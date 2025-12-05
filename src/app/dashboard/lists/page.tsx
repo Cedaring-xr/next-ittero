@@ -4,9 +4,13 @@ import { DivideIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList } from 'react-icons/hi'
+import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
+import ElegantButton from '@/app/ui/elegant-button'
+import { useRouter } from 'next/navigation'
 
 export default function Lists() {
 	const [categories, setCategories] = useState<string[]>([])
+	const router = useRouter()
 
 	const handleCategoryCreate = () => {
 		// open modal for creating a category
@@ -14,31 +18,46 @@ export default function Lists() {
 
 	const handleCategoryModify = () => {}
 
+	const handleCreateNewList = () => {
+		router.push('/dashboard/lists/newList')
+	}
+
 	useEffect(() => {
 		// fetch call for categories here
 	}, [categories])
 
 	return (
 		<>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-				<div className="bg-gray-50 text-gray-900 hover:border-2 hover:border-indigo-700 p-4 flex flex-col hover:text-indigo-700 rounded-lg cursor-pointer transition-all">
-					<Link href="/dashboard/lists/newList" className="flex">
-						<HiOutlineClipboardList className="h-[30px] w-[40px] mb-2" />
-						<h3 className="text-lg md:text-xl font-semibold">Create New List</h3>
-					</Link>
-				</div>
-				<div
-					className="bg-gray-50 text-gray-900 hover:border-2 hover:border-indigo-700 p-4 flex flex-col hover:text-indigo-700 rounded-lg cursor-pointer transition-all"
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4">
+				<ElegantButton
+					variant="primary"
+					size="lg"
+					icon={<HiOutlineClipboardList className="h-6 w-6" />}
+					onClick={handleCreateNewList}
+					className="h-20"
+				>
+					Create New List
+				</ElegantButton>
+
+				<ElegantButton
+					variant="secondary"
+					size="lg"
+					icon={<FolderPlusIcon className="h-6 w-6" />}
 					onClick={handleCategoryCreate}
+					className="h-20"
 				>
-					<h3 className="text-lg md:text-xl font-semibold">Create New Category</h3>
-				</div>
-				<div
-					className="bg-gray-50 text-gray-900 hover:border-2 hover:border-indigo-700 p-4 flex flex-col hover:text-indigo-700 rounded-lg cursor-pointer transition-all"
+					Create New Category
+				</ElegantButton>
+
+				<ElegantButton
+					variant="outline"
+					size="lg"
+					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
 					onClick={handleCategoryModify}
+					className="h-20"
 				>
-					<h3 className="text-lg md:text-xl font-semibold">Re-arrange Categories</h3>
-				</div>
+					Re-arrange Categories
+				</ElegantButton>
 			</div>
 			<h3 className="text-white text-3xl">Current List Categories</h3>
 			<div className={`${lusitana.className} font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6`}>
