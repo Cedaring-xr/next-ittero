@@ -4,20 +4,65 @@ import { lusitana } from '@/ui/fonts'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { MdArrowRightAlt } from 'react-icons/md'
+import { MdNotificationsActive } from 'react-icons/md'
+import Link from 'next/link'
 
 const Banner = dynamic(() => import('@/ui/info/banner'), { ssr: false })
 
 export type FormData = {
 	name: string
-	email: string
-	message: string
+	text: string
 }
 
 export default function NewJournal() {
 	const [sendForm, setSendForm] = useState(false)
-	const { register, handleSubmit } = useForm<FormData>()
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+	const { register, handleSubmit, reset } = useForm<FormData>()
 
-	function onSubmit(data: FormData) {}
+	async function onSubmit(data: FormData) {
+		setLoading(true)
+		setError(null)
+
+		try {
+			// Send POST request to Next.js API route (which proxies to AWS API Gateway)
+			// This avoids CORS issues since the server-side route can call AWS directly
+			const response = await fetch('/api/journal', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: data.name,
+					text: data.text
+				})
+			})
+
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(errorData.error || 'Failed to create journal entry')
+			}
+
+			const result = await response.json()
+			console.log('Journal entry created:', result)
+
+			// Show success message
+			setSendForm(true)
+
+			// Reset form
+			reset()
+
+			// Hide success message after 5 seconds
+			setTimeout(() => {
+				setSendForm(false)
+			}, 5000)
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'An error occurred')
+			console.error('Error creating journal entry:', err)
+		} finally {
+			setLoading(false)
+		}
+	}
 
 	return (
 		<>
@@ -31,10 +76,9 @@ export default function NewJournal() {
                                  low-pressure. Instead of writing long, detailed entries, a quick journal focuses on jotting down
                                  short notes, key thoughts, or highlights from your day."
 						title="How Quick Journal Works"
-						color="green-banner"
+						color="teal-banner"
 					/>
 				</div>
-				<Banner message="test" title="test" color="green-banner" />
 				<div className="banner-2">
 					<h5>Tips:</h5>
 					<ul className="list-disc">
@@ -44,69 +88,63 @@ export default function NewJournal() {
 						<li>Note one successful thing that was acomplised</li>
 						<li>Note any challenges or road-blocks</li>
 					</ul>
-				</div>
-
-				<div id="entry-form-container">
-					<form action="submit">
+					<div className="invisible">
 						<p>toggle for free form or template</p>
+
 						<select name="date" id="date">
 							date dropdown
 						</select>
-					</form>
+					</div>
+				</div>
+				<div id="entry-form-container">
 					<form onSubmit={handleSubmit(onSubmit)}>
-						<h2 className="flex justify-center text-xl serif-font text-cyan-400">office@radiantpine.com</h2>
 						{sendForm ? (
-							<div className="h-[350px] mt-24">
-								<h3 className="mx-4 serif-font text-xl">
-									<span className="font-bold">Thank you for your interest! </span>
+							<div className="h-[350px] mt-24 bg-green-100 border border-green-400 rounded-md p-6">
+								<h3 className="serif-font text-xl text-green-800">
+									<span className="font-bold">Success! </span>
 									<br />
-									Your message has been recieved and I will respond by email as soon as I am able.
+									Your journal entry has been saved successfully.
 								</h3>
 							</div>
 						) : (
-							<div>
+							<div className="border-[1px] border-black p-4 m-4">
+								{error && (
+									<div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md">
+										<strong>Error:</strong> {error}
+									</div>
+								)}
 								<div className="my-2">
 									<label htmlFor="name" className="mb-2 block text-base font-medium">
-										Name
+										Title
 									</label>
 									<input
 										type="text"
-										placeholder="Full Name"
+										placeholder="Entry title"
 										className="w-full rounded-md border border-gray-300 bg-[#f7f4fb] pt-2 px-4 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
 										{...register('name', { required: true })}
 									/>
 								</div>
 								<div className="mb-5">
-									<label htmlFor="email" className="mb-2 block text-base font-medium text-white">
-										Email Address
-									</label>
-									<input
-										type="email"
-										placeholder="example@domain.com"
-										className="w-full rounded-md border border-gray-300 bg-[#f7f4fb] pt-2 px-4 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('email', { required: true })}
-									/>
-								</div>
-								<div className="mb-5">
-									<label htmlFor="message" className="mb-2 block text-base font-medium text-white">
-										Message
+									<label htmlFor="text" className="mb-2 block text-base font-medium text-black">
+										Journal Entry
 									</label>
 									<textarea
 										rows={4}
-										placeholder="Type your message"
+										placeholder="Write your journal entry here..."
 										className="w-full resize-none rounded-md border border-gray-300 bg-white pt-2 px-6 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('message', { required: true })}
+										{...register('text', { required: true })}
 									></textarea>
 								</div>
 								<div>
 									<button
-										className="hover:shadow-form text-xl  headline-font text-black"
+										className="hover:shadow-form text-xl headline-font text-black border-[1px] border-black disabled:opacity-50 disabled:cursor-not-allowed"
 										type="submit"
+										disabled={loading}
 									>
 										<div id="button-wrapper" className="button-wrap-shadow">
-											<div className="button-gradient button-clip button-shadow p-1">
+											<div className="button-gradient button-clip button-shadow">
 												<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe]">
-													Submit
+													{loading ? 'Saving...' : 'Submit'}
 													<MdArrowRightAlt className="text-4xl ml-2"> </MdArrowRightAlt>
 												</div>
 											</div>
@@ -117,9 +155,29 @@ export default function NewJournal() {
 						)}
 					</form>
 				</div>
-				<div>
-					<button>View past entries</button>
-					<button>Setup notifications</button>
+				<div className="flex gap-6 m-8 mt-20">
+					<button className="hover:shadow-form text-xl  headline-font text-black border-[1px] border-black">
+						<Link href="/dashboard/journal">
+							<div id="button-wrapper" className="button-wrap-shadow">
+								<div className="button-gradient button-clip button-shadow">
+									<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe] font-bold">
+										View Past Entries
+										<MdArrowRightAlt className="text-4xl ml-2"> </MdArrowRightAlt>
+									</div>
+								</div>
+							</div>
+						</Link>
+					</button>
+					<button className="hover:shadow-form text-xl  headline-font text-black border-[1px] border-black">
+						<div id="button-wrapper" className="button-wrap-shadow">
+							<div className="button-gradient button-clip button-shadow">
+								<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe] font-bold">
+									Set Up Notifications
+									<MdNotificationsActive className="text-4xl ml-2"></MdNotificationsActive>
+								</div>
+							</div>
+						</div>
+					</button>
 				</div>
 			</div>
 		</>

@@ -18,11 +18,11 @@ export default function Banner({ message, title, color }: Props) {
 	return (
 		<>
 			{bannerVisible && (
-				<div className={`banner ${color} text-black`}>
+				<div className={`banner ${color}`}>
 					<div className="flex justify-between">
 						<h4 className={`${lusitana.className} justify-start text-xl font-bold`}>{title}</h4>
 						<div className="flex">
-							<div className="close flex" onClick={() => setBannerVisible(false)}>
+							<div className="close flex cursor-pointer" onClick={() => setBannerVisible(false)}>
 								<HiOutlineBackspace className="text-2xl mt-1 mr-1" />
 								<span className="mt-[5px]">Close</span>
 							</div>
