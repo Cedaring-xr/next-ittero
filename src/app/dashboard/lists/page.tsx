@@ -1,31 +1,83 @@
+'use client'
 import { lusitana } from '@/ui/fonts'
+import { DivideIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList } from 'react-icons/hi'
+import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
+import ElegantButton from '@/ui/elegant-button'
+import { useRouter } from 'next/navigation'
 
-function page() {
+export default function Lists() {
+	const [categories, setCategories] = useState<string[]>([])
+	const router = useRouter()
+
+	const handleCategoryCreate = () => {
+		// open modal for creating a category
+	}
+
+	const handleCategoryModify = () => {}
+
+	const handleCreateNewList = () => {
+		router.push('/dashboard/lists/newList')
+	}
+
+	useEffect(() => {
+		// fetch call for categories here
+	}, [categories])
+
 	return (
 		<>
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4">
+				<ElegantButton
+					variant="primary"
+					size="lg"
+					icon={<HiOutlineClipboardList className="h-6 w-6" />}
+					onClick={handleCreateNewList}
+					className="h-20"
+				>
+					Create New List
+				</ElegantButton>
+
+				<ElegantButton
+					variant="secondary"
+					size="lg"
+					icon={<FolderPlusIcon className="h-6 w-6" />}
+					onClick={handleCategoryCreate}
+					className="h-20"
+				>
+					Create New Category
+				</ElegantButton>
+
+				<ElegantButton
+					variant="outline"
+					size="lg"
+					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
+					onClick={handleCategoryModify}
+					className="h-20"
+				>
+					Re-arrange Categories
+				</ElegantButton>
+			</div>
+			<h3 className="text-white text-3xl">Current List Categories</h3>
 			<div className={`${lusitana.className} font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6`}>
-				<Link href="/todo-list">
-					<div className="bg-gray-50 text-gray-900 rounded-lg h-[100px] hover:border-2 hover:border-indigo-700 pt-6 pl-4 flex hover:text-indigo-700">
-						<HiOutlineClipboardList className="h-[40px] w-[40px]" />
-						<h3 className="md:text-xl mt-2">Create New List</h3>
-					</div>
-				</Link>
 				<div className="bg-gray-50 text-gray-900 rounded-lg  hover:border-2 hover:border-indigo-700 pt-6 pl-4 flex flex-col hover:text-indigo-700">
-					<h3>Current Active lists</h3>
-					<div className="flex flex-col">
-						<ul>
-							<li>placeholder list 1</li>
-							<li>placeholder list 2</li>
-							<li>placeholder list 3</li>
-						</ul>
-					</div>
+					<p>auto fetch list categories from api</p>
+					{!categories.length ? (
+						<div>
+							<p>There are currently no categories listed</p>
+							<button className="button" onClick={handleCategoryCreate}>
+								Create new Category
+							</button>
+							<button>
+								<Link href="/dashboard/lists/newList">Create New List</Link>
+							</button>
+						</div>
+					) : (
+						<div>show if there are categories found</div>
+					)}
 				</div>
 			</div>
 		</>
 	)
 }
-
-export default page
