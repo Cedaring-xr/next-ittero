@@ -16,11 +16,21 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
 export async function POST(request: NextRequest) {
 	try {
 		const response = NextResponse.next()
+
+		// Get authenticated user and session with tokens
 		const user = await authenticatedUser({ request, response })
 
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
+
+		// Get Cognito tokens from the authenticated user session
+		const idToken = user.idToken
+		const accessToken = user.accessToken
+
+		console.log('User ID:', user.userId)
+		console.log('ID Token exists:', !!idToken)
+		console.log('Access Token exists:', !!accessToken)
 
 		const body = await request.json()
 		const { name, text } = body
@@ -50,24 +60,71 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Send POST request to AWS API Gateway
+		console.log('Sending to AWS API Gateway:', apiGatewayUrl)
+		console.log('Journal Entry Data:', journalEntryData)
+
+		// Build headers with Authorization token
+		const headers: HeadersInit = {
+			'Content-Type': 'application/json'
+		}
+
+		// Add Authorization header with ID token (Bearer format for AWS API Gateway)
+		if (idToken) {
+			headers['Authorization'] = `Bearer ${idToken}`
+			console.log('Including ID token in Authorization header')
+		} else if (accessToken) {
+			headers['Authorization'] = `Bearer ${accessToken}`
+			console.log('Including Access token in Authorization header')
+		} else {
+			console.warn('No Cognito token found')
+		}
+
 		const apiResponse = await fetch(apiGatewayUrl, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
+			headers: headers,
 			body: JSON.stringify(journalEntryData)
 		})
 
+		console.log('AWS Response Status:', apiResponse.status)
+		console.log('AWS Response Headers:', Object.fromEntries(apiResponse.headers.entries()))
+
+		// Get response text first to see what we're dealing with
+		const responseText = await apiResponse.text()
+		console.log('AWS Response Text:', responseText)
+
 		if (!apiResponse.ok) {
-			const errorData = await apiResponse.json().catch(() => ({}))
-			console.error('AWS API Gateway error:', errorData)
+			console.error('AWS API Gateway returned error status:', apiResponse.status)
+
+			// Try to parse as JSON, but if it fails, return the raw text
+			let errorData
+			try {
+				errorData = JSON.parse(responseText)
+			} catch (e) {
+				errorData = { rawResponse: responseText }
+			}
+
+			console.error('AWS API Gateway error data:', errorData)
 			return NextResponse.json(
-				{ error: 'Failed to create journal entry', details: errorData },
+				{
+					error: 'Failed to create journal entry',
+					details: errorData,
+					status: apiResponse.status
+				},
 				{ status: apiResponse.status }
 			)
 		}
 
-		const responseData = await apiResponse.json()
+		// Parse successful response
+		let responseData
+		try {
+			responseData = JSON.parse(responseText)
+		} catch (e) {
+			console.error('Failed to parse AWS response as JSON:', responseText)
+			return NextResponse.json(
+				{ error: 'Invalid response from AWS API Gateway', details: responseText },
+				{ status: 500 }
+			)
+		}
 
 		return NextResponse.json(
 			{
