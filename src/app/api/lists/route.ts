@@ -6,16 +6,13 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
  * Body:
  *   - name: string (required) - Name/title of the list
  *   - description: string (optional) - Description of the list
- *   - category: string (optional) - Category the list belongs to
- *   - items: array (optional) - Initial list items
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
  *   - name: list name/title
  *   - description: list description
- *   - category: list category
- *   - items: list items
  *   - createdAt: timestamp
+ *   - updatedAt: timestamp
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -36,7 +33,7 @@ export async function POST(request: NextRequest) {
 		console.log('ID Token exists:', !!idToken)
 
 		const body = await request.json()
-		const { name, description, category, items } = body
+		const { name, description } = body
 
 		// Validation
 		if (!name) {
@@ -51,8 +48,6 @@ export async function POST(request: NextRequest) {
 			user: user.userId,
 			name: name.trim(),
 			description: description?.trim() || '',
-			category: category || 'Uncategorized',
-			items: items || [],
 			createdAt: currentDate,
 			updatedAt: currentDate
 		}
@@ -152,7 +147,6 @@ export async function POST(request: NextRequest) {
  * GET - Fetch all lists for the authenticated user
  * Query params:
  *   - user: string (automatically added from auth)
- *   - category: string (optional) - Filter by category
  *
  * Returns array of lists from AWS API Gateway (Aurora database)
  */
@@ -182,18 +176,10 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Get query parameters
-		const { searchParams } = new URL(request.url)
-		const category = searchParams.get('category')
-
 		// Build URL with query parameters
 		const queryParams = new URLSearchParams({
 			user: user.userId
 		})
-
-		if (category) {
-			queryParams.append('category', category)
-		}
 
 		const url = `${apiGatewayUrl}?${queryParams.toString()}`
 

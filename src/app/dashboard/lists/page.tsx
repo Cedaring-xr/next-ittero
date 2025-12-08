@@ -9,7 +9,7 @@ import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 
 export default function Lists() {
-	const [categories, setCategories] = useState<string[]>([])
+	const [userLists, setUserLists] = useState<string[]>([])
 	const router = useRouter()
 
 	const handleCategoryCreate = () => {
@@ -19,12 +19,13 @@ export default function Lists() {
 	const handleCategoryModify = () => {}
 
 	const handleCreateNewList = () => {
+		// copy code from create page or create a re-usable component
 		router.push('/dashboard/lists/newList')
 	}
 
 	useEffect(() => {
-		// fetch call for categories here
-	}, [categories])
+		// fetch call for lists
+	}, [userLists])
 
 	return (
 		<>
