@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 			text: text.trim()
 		}
 
-		const apiGatewayUrl = process.env.AWS_API_GATEWAY_URL
+		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
 			console.error('AWS_API_GATEWAY_URL is not configured')
@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
 		console.log('ID Token exists:', !!idToken)
 
 		// Get AWS API Gateway URL from environment variables
-		const apiGatewayUrl = process.env.AWS_API_GATEWAY_URL
+		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
 			console.error('AWS_API_GATEWAY_URL is not configured')
