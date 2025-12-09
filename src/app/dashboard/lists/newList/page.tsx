@@ -1,57 +1,71 @@
 'use client'
 import React, { useState } from 'react'
-import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useRouter } from 'next/navigation'
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { lusitana } from '@/ui/fonts'
-
-interface TodoItem {
-	id: string
-	text: string
-	completed: boolean
-}
 
 export default function NewListPage() {
 	const [listName, setListName] = useState('')
 	const [listDescription, setListDescription] = useState('')
-	const [category, setCategory] = useState('General')
-	const [items, setItems] = useState<TodoItem[]>([])
-	const [currentItem, setCurrentItem] = useState('')
-	const [showNewCategory, setShowNewCategory] = useState(false)
-	const [newCategory, setNewCategory] = useState('')
+	const [category, setCategory] = useState('')
+	const [tags, setTags] = useState<string[]>([])
+	const [currentTag, setCurrentTag] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+	const router = useRouter()
 
-	const handleAddItem = () => {
-		if (currentItem.trim()) {
-			const newItem: TodoItem = {
-				id: Date.now().toString(),
-				text: currentItem.trim(),
-				completed: false
-			}
-			setItems([...items, newItem])
-			setCurrentItem('')
+	const handleAddTag = () => {
+		if (currentTag.trim() && !tags.includes(currentTag.trim())) {
+			setTags([...tags, currentTag.trim()])
+			setCurrentTag('')
 		}
 	}
 
-	const handleRemoveItem = (id: string) => {
-		setItems(items.filter((item) => item.id !== id))
+	const handleRemoveTag = (tagToRemove: string) => {
+		setTags(tags.filter((tag) => tag !== tagToRemove))
 	}
 
-	const handleToggleItem = (id: string) => {
-		setItems(
-			items.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item))
-		)
-	}
-
-	const handleKeyPress = (e: React.KeyboardEvent) => {
+	const handleTagKeyPress = (e: React.KeyboardEvent) => {
 		if (e.key === 'Enter') {
 			e.preventDefault()
-			handleAddItem()
+			handleAddTag()
 		}
 	}
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		// TODO: Connect to API
-		console.log('Form submitted:', { listName, listDescription, category, items })
+		setIsLoading(true)
+		setError(null)
+
+		try {
+			const response = await fetch('/api/lists', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: listName,
+					description: listDescription,
+					category: category,
+					tags: tags
+				})
+			})
+
+			const data = await response.json()
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to create list')
+			}
+
+			console.log('List created successfully:', data)
+			// Redirect back to lists page on success
+			router.push('/dashboard/lists')
+		} catch (err) {
+			console.error('Error creating list:', err)
+			setError(err instanceof Error ? err.message : 'Failed to create list')
+			setIsLoading(false)
+		}
 	}
 
 	return (
@@ -92,135 +106,104 @@ export default function NewListPage() {
 					/>
 				</div>
 
-				{/* Category Selection */}
+				{/* Category */}
 				<div>
 					<label htmlFor="category" className="block text-sm font-medium text-gray-200 mb-2">
-						Category
+						Category (Optional)
 					</label>
-					<div className="flex gap-2">
-						<select
-							id="category"
-							value={category}
-							onChange={(e) => setCategory(e.target.value)}
-							className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-						>
-							<option value="General">General</option>
-							<option value="Work">Work</option>
-							<option value="Personal">Personal</option>
-							<option value="Shopping">Shopping</option>
-							<option value="Home">Home</option>
-						</select>
-						<ElegantButton
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() => setShowNewCategory(!showNewCategory)}
-						>
-							{showNewCategory ? 'Cancel' : 'New Category'}
-						</ElegantButton>
-					</div>
-
-					{/* New Category Input */}
-					{showNewCategory && (
-						<div className="mt-3 flex gap-2">
-							<input
-								type="text"
-								value={newCategory}
-								onChange={(e) => setNewCategory(e.target.value)}
-								placeholder="Enter new category name"
-								className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-							/>
-							<ElegantButton
-								type="button"
-								variant="primary"
-								size="sm"
-								onClick={() => {
-									if (newCategory.trim()) {
-										setCategory(newCategory.trim())
-										setNewCategory('')
-										setShowNewCategory(false)
-									}
-								}}
-							>
-								Add
-							</ElegantButton>
-						</div>
-					)}
+					<input
+						type="text"
+						id="category"
+						value={category}
+						onChange={(e) => setCategory(e.target.value)}
+						placeholder="e.g., Work, Personal, Shopping"
+						maxLength={100}
+						className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+					/>
+					<p className="text-xs text-gray-400 mt-1">
+						{category.length}/100 characters
+					</p>
 				</div>
 
-				{/* Todo Items */}
+				{/* Tags */}
 				<div>
-					<label className="block text-sm font-medium text-gray-200 mb-2">List Items</label>
+					<label className="block text-sm font-medium text-gray-200 mb-2">
+						Tags (Optional)
+					</label>
 
-					{/* Add Item Input */}
-					<div className="flex gap-2 mb-4">
+					{/* Add Tag Input */}
+					<div className="flex gap-2 mb-3">
 						<input
 							type="text"
-							value={currentItem}
-							onChange={(e) => setCurrentItem(e.target.value)}
-							onKeyPress={handleKeyPress}
-							placeholder="Add an item..."
+							value={currentTag}
+							onChange={(e) => setCurrentTag(e.target.value)}
+							onKeyPress={handleTagKeyPress}
+							placeholder="Add a tag..."
 							className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
 						/>
 						<ElegantButton
 							type="button"
 							variant="primary"
+							size="sm"
 							icon={<PlusIcon className="w-5 h-5" />}
-							onClick={handleAddItem}
-							disabled={!currentItem.trim()}
+							onClick={handleAddTag}
+							disabled={!currentTag.trim()}
 						>
 							Add
 						</ElegantButton>
 					</div>
 
-					{/* Items List */}
-					{items.length > 0 ? (
-						<div className="space-y-2 bg-slate-600 rounded-lg p-4 max-h-96 overflow-y-auto">
-							{items.map((item) => (
-								<div
-									key={item.id}
-									className="flex items-center gap-3 p-3 bg-slate-700 rounded-lg hover:bg-slate-650 transition-colors"
+					{/* Tags Display */}
+					{tags.length > 0 && (
+						<div className="flex flex-wrap gap-2 p-3 bg-slate-600 rounded-lg">
+							{tags.map((tag, index) => (
+								<span
+									key={index}
+									className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded-full text-sm"
 								>
-									<input
-										type="checkbox"
-										checked={item.completed}
-										onChange={() => handleToggleItem(item.id)}
-										className="w-5 h-5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-700 cursor-pointer"
-									/>
-									<span
-										className={`flex-1 text-white ${
-											item.completed ? 'line-through text-gray-400' : ''
-										}`}
-									>
-										{item.text}
-									</span>
+									{tag}
 									<button
 										type="button"
-										onClick={() => handleRemoveItem(item.id)}
-										className="text-red-400 hover:text-red-300 transition-colors"
+										onClick={() => handleRemoveTag(tag)}
+										className="hover:bg-indigo-700 rounded-full p-0.5 transition-colors"
 									>
-										<TrashIcon className="w-5 h-5" />
+										<XMarkIcon className="w-4 h-4" />
 									</button>
-								</div>
+								</span>
 							))}
 						</div>
-					) : (
-						<div className="text-center py-8 text-gray-400 bg-slate-600 rounded-lg">
-							No items added yet. Start adding items above!
-						</div>
 					)}
-
-					<p className="text-sm text-gray-400 mt-2">
-						{items.length} item{items.length !== 1 ? 's' : ''} added
+					<p className="text-xs text-gray-400 mt-1">
+						{tags.length} tag{tags.length !== 1 ? 's' : ''} added
 					</p>
 				</div>
 
+				{/* Error Message */}
+				{error && (
+					<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
+						{error}
+					</div>
+				)}
+
 				{/* Action Buttons */}
 				<div className="flex gap-4 pt-4 border-t border-slate-600">
-					<ElegantButton type="submit" variant="primary" size="lg" fullWidth disabled={!listName.trim()}>
-						Create List
+					<ElegantButton
+						type="submit"
+						variant="primary"
+						size="lg"
+						fullWidth
+						disabled={!listName.trim() || isLoading}
+						isLoading={isLoading}
+					>
+						{isLoading ? 'Creating...' : 'Create List'}
 					</ElegantButton>
-					<ElegantButton type="button" variant="outline" size="lg" onClick={() => window.history.back()}>
+					<ElegantButton
+						type="button"
+						variant="outline"
+						size="lg"
+						onClick={() => window.history.back()}
+						disabled={isLoading}
+					>
 						Cancel
 					</ElegantButton>
 				</div>

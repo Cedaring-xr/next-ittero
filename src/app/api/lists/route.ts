@@ -6,16 +6,17 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
  * Body:
  *   - name: string (required) - Name/title of the list
  *   - description: string (optional) - Description of the list
- *   - category: string (optional) - Category the list belongs to
- *   - items: array (optional) - Initial list items
+ *   - category: string (optional) - Category (max 100 chars)
+ *   - tags: array of strings (optional) - Tags for the list
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
  *   - name: list name/title
  *   - description: list description
- *   - category: list category
- *   - items: list items
+ *   - category: category string
+ *   - tags: array of tags
  *   - createdAt: timestamp
+ *   - updatedAt: timestamp
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -36,11 +37,21 @@ export async function POST(request: NextRequest) {
 		console.log('ID Token exists:', !!idToken)
 
 		const body = await request.json()
-		const { name, description, category, items } = body
+		const { name, description, category, tags } = body
 
 		// Validation
 		if (!name) {
 			return NextResponse.json({ error: 'List name is required' }, { status: 400 })
+		}
+
+		// Validate category length
+		if (category && category.length > 100) {
+			return NextResponse.json({ error: 'Category must be 100 characters or less' }, { status: 400 })
+		}
+
+		// Validate tags is an array
+		if (tags && !Array.isArray(tags)) {
+			return NextResponse.json({ error: 'Tags must be an array' }, { status: 400 })
 		}
 
 		// Get current timestamp
@@ -50,15 +61,14 @@ export async function POST(request: NextRequest) {
 		const listData = {
 			user: user.userId,
 			name: name.trim(),
-			description: description?.trim() || '',
-			category: category || 'Uncategorized',
-			items: items || [],
+			description: description?.trim() || 'none',
+			category: category?.trim() || 'undefined',
+			tags: tags || [],
 			createdAt: currentDate,
-			updatedAt: currentDate
+			updatedAt: currentDate,
+			archived: false
 		}
 
-		// Get AWS API Gateway URL from environment variables
-		// TODO: Set AWS_API_GATEWAY_LISTS_URL in your .env.local file
 		const apiGatewayUrl = process.env.AWS_API_GATEWAY_LISTS_URL || process.env.AWS_API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
@@ -152,7 +162,6 @@ export async function POST(request: NextRequest) {
  * GET - Fetch all lists for the authenticated user
  * Query params:
  *   - user: string (automatically added from auth)
- *   - category: string (optional) - Filter by category
  *
  * Returns array of lists from AWS API Gateway (Aurora database)
  */
@@ -182,18 +191,10 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Get query parameters
-		const { searchParams } = new URL(request.url)
-		const category = searchParams.get('category')
-
 		// Build URL with query parameters
 		const queryParams = new URLSearchParams({
 			user: user.userId
 		})
-
-		if (category) {
-			queryParams.append('category', category)
-		}
 
 		const url = `${apiGatewayUrl}?${queryParams.toString()}`
 

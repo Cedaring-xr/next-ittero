@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticatedUser } from '@/utils/amplify-server-utils'
 
-/**
+/*
  * POST - Create a new journal entry via AWS API Gateway
  * Body:
  *   - name: string (required) - Name/title of the journal entry
  *   - text: string (required) - Paragraph text of the journal entry
+ * GET - fetch all journal entries related to user_id
+ * Body:
+ * 	- name: string
+ * 	- text: string
+ * 	- date: string
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
@@ -16,15 +21,12 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
 export async function POST(request: NextRequest) {
 	try {
 		const response = NextResponse.next()
-
-		// Get authenticated user and session with tokens
 		const user = await authenticatedUser({ request, response })
 
 		if (!user) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
 
-		// Get Cognito tokens from the authenticated user session
 		const idToken = user.idToken
 		const accessToken = user.accessToken
 
@@ -40,7 +42,6 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Name and text are required' }, { status: 400 })
 		}
 
-		// Get current date in YYYY-MM-DD format
 		const currentDate = new Date().toISOString().split('T')[0]
 
 		// Prepare journal entry data for AWS API Gateway
@@ -51,7 +52,6 @@ export async function POST(request: NextRequest) {
 			text: text.trim()
 		}
 
-		// Get AWS API Gateway URL from environment variables
 		const apiGatewayUrl = process.env.AWS_API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
