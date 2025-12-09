@@ -3,9 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        - npm ci
     build:
       commands:
+        - env | grep -i api
         - npm run build
   artifacts:
     baseDirectory: .next
@@ -13,5 +14,5 @@ frontend:
       - '**/*'
   cache:
     paths:
+      - node_modules/**/*
       - .next/cache/**/*
-      - .npm/**/*
