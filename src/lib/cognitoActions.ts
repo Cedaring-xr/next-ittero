@@ -70,22 +70,25 @@ export async function handleConfirmSignUp(prevState: string | undefined, formDat
 }
 
 export async function handleSignIn(prevState: string | undefined, formData: FormData) {
-	let redirectLink = '/dashboard'
 	try {
 		const { isSignedIn, nextStep } = await signIn({
 			username: String(formData.get('email')),
 			password: String(formData.get('password'))
 		})
+		console.log('Sign in successful, nextStep:', nextStep)
 		if (nextStep.signInStep === 'CONFIRM_SIGN_UP') {
 			await resendSignUpCode({
 				username: String(formData.get('email'))
 			})
-			redirectLink = '/auth/confirm-signup'
+			console.log('Redirecting to confirm-signup')
+			redirect('/auth/confirm-signup')
 		}
 	} catch (error) {
+		console.error('Sign in error:', error)
 		return getErrorMessage(error)
 	}
-	redirect(redirectLink)
+	console.log('Redirecting to dashboard')
+	redirect('/dashboard')
 }
 
 export async function handleSignOut() {

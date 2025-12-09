@@ -35,6 +35,11 @@ export async function POST(request: NextRequest) {
 
 		console.log('Creating list for User ID:', user.userId)
 		console.log('ID Token exists:', !!idToken)
+		console.log('Environment check:', {
+			TASKS_API_GATEWAY_LISTS_URL: !!process.env.TASKS_API_GATEWAY_LISTS_URL,
+			NODE_ENV: process.env.NODE_ENV,
+			allEnvKeys: Object.keys(process.env).filter(key => key.includes('API') || key.includes('TASKS'))
+		})
 
 		const body = await request.json()
 		const { name, description, category, tags } = body
