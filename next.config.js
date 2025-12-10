@@ -7,6 +7,11 @@ const nextConfig = {
       allowedOrigins: ['*'],
     },
   },
+  // Expose environment variables to serverless functions at runtime
+  env: {
+    JOURNAL_API_GATEWAY_URL: process.env.JOURNAL_API_GATEWAY_URL,
+    TASKS_API_GATEWAY_LISTS_URL: process.env.TASKS_API_GATEWAY_LISTS_URL,
+  },
   async headers() {
     return [
       {
