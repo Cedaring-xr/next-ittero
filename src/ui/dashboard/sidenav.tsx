@@ -4,11 +4,11 @@ import NavLinks from '@/ui/dashboard/nav-links'
 import AcmeLogo from '@/ui/acme-logo'
 import LogoutForm from '@/ui/dashboard/logout-form'
 import clsx from 'clsx'
-import { UserCircleIcon } from '@heroicons/react/24/outline'
-import { usePathname } from 'next/navigation'
+import { UserCircleIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import useAuthUser from '@/app/hooks/user-auth-user'
 
 export default function SideNav() {
-	const pathname = usePathname
+	const user = useAuthUser()
 	return (
 		<div className="flex h-full flex-col px-3 py-4 md:px-2">
 			<Link className="mb-2 flex h-24 items-end justify-start  rounded-md bg-indigo-700  md:h-28" href="/">
@@ -19,6 +19,17 @@ export default function SideNav() {
 			<div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
 				<NavLinks />
 				<div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
+				{user && user.isAdmin && (
+					<Link
+						href="/dashboard/admins"
+						className={clsx(
+							'flex h-[48px] grow items-center text-black justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-indigo-700 md:flex-none md:justify-start md:p-2 md:px-3'
+						)}
+					>
+						<BuildingOfficeIcon className="w-6" />
+						<p className="hidden md:block">Admin Area</p>
+					</Link>
+				)}
 				<Link
 					href="/dashboard/profile"
 					className={clsx(
