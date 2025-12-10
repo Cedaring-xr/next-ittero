@@ -1,15 +1,13 @@
 'use client'
-import { UserGroupIcon, HomeIcon, DocumentDuplicateIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
+import { UserGroupIcon, HomeIcon, DocumentDuplicateIcon, BookOpenIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import useAuthUser from '@/app/hooks/user-auth-user'
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 
 export default function NavLinks() {
-	const user = useAuthUser()
 	const links = [
 		{ name: 'Home', href: '/dashboard', icon: HomeIcon },
 		{
@@ -17,18 +15,15 @@ export default function NavLinks() {
 			href: '/dashboard/lists',
 			icon: DocumentDuplicateIcon
 		},
+		{
+			name: 'Journal',
+			href: '/dashboard/journal',
+			icon: BookOpenIcon
+		},
 		{ name: 'Feedback', href: '/dashboard/feedback', icon: UserGroupIcon }
 	]
 
 	const pathname = usePathname()
-
-	if (user && user.isAdmin) {
-		links.push({
-			name: 'Admin Area',
-			href: '/dashboard/admins',
-			icon: BuildingOfficeIcon
-		})
-	}
 
 	return (
 		<>

@@ -2,7 +2,7 @@ import SideNav from '@/ui/dashboard/sidenav'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="flex min-h-screen flex-col md:flex-row bg-stone-700">
+		<div className="flex min-h-screen flex-col md:flex-row" style={{ background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)' }}>
 			<div className="w-full flex-none md:w-64">
 				<SideNav />
 			</div>
