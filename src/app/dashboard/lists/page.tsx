@@ -34,6 +34,10 @@ export default function Lists() {
 		router.push('/dashboard/lists/newList')
 	}
 
+	const handleItemCreate = () => {
+		router.push('/dashboard/lists/items')
+	}
+
 	const handleFetchLists = async () => {
 		setIsLoading(true)
 		setError(null)
@@ -96,6 +100,15 @@ export default function Lists() {
 					className="h-20"
 				>
 					Re-arrange Categories
+				</ElegantButton>
+				<ElegantButton
+					variant="outline"
+					size="lg"
+					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
+					onClick={handleItemCreate}
+					className="h-20"
+				>
+					Create to-do items
 				</ElegantButton>
 			</div>
 			<h3 className="text-white text-3xl">Current List Categories</h3>
