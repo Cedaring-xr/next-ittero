@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { PlusIcon, CheckIcon, TrashIcon, FolderPlusIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, CheckIcon, TrashIcon, FolderPlusIcon, XMarkIcon, TagIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { lusitana } from '@/ui/fonts'
 
@@ -12,6 +12,7 @@ interface TodoItem {
 	description: string
 	category: string
 	priority: Priority
+	tags: string[]
 	completed: boolean
 	createdAt: Date
 }
@@ -26,6 +27,15 @@ export default function TodoItemsPage() {
 	const [newCategory, setNewCategory] = useState('')
 	const [isCreatingCategory, setIsCreatingCategory] = useState(false)
 
+	// Tags state
+	const [knownTags, setKnownTags] = useState<string[]>(['urgent-task', 'low-priority', 'recurring', 'important', 'quick-win'])
+	const [selectedTags, setSelectedTags] = useState<string[]>([])
+	const [currentTag, setCurrentTag] = useState('')
+
+	// Form state for API submission
+	const [isLoading, setIsLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+
 	const handleAddCategory = () => {
 		if (newCategory.trim() && !categories.includes(newCategory.trim())) {
 			setCategories([...categories, newCategory.trim()])
@@ -35,22 +45,85 @@ export default function TodoItemsPage() {
 		}
 	}
 
-	const handleAddTodo = () => {
-		if (inputValue.trim()) {
-			const newTodo: TodoItem = {
-				id: Date.now().toString(),
+	const handleAddTag = () => {
+		const tagValue = currentTag.trim()
+		if (tagValue && !selectedTags.includes(tagValue)) {
+			setSelectedTags([...selectedTags, tagValue])
+			// Add to known tags if it's new
+			if (!knownTags.includes(tagValue)) {
+				setKnownTags([...knownTags, tagValue])
+			}
+			setCurrentTag('')
+		}
+	}
+
+	const handleRemoveTag = (tagToRemove: string) => {
+		setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove))
+	}
+
+	const handleSelectKnownTag = (tag: string) => {
+		if (!selectedTags.includes(tag)) {
+			setSelectedTags([...selectedTags, tag])
+		}
+	}
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		setIsLoading(true)
+		setError(null)
+
+		try {
+			// Prepare data for API submission
+			const todoData = {
 				text: inputValue.trim(),
 				description: description.trim(),
 				category: selectedCategory,
 				priority: priority,
+				tags: selectedTags,
+				completed: false
+			}
+
+			// Send POST request to API
+			const response = await fetch('/api/lists/items', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(todoData)
+			})
+
+			const data = await response.json()
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to create todo item')
+			}
+
+			console.log('Todo item created successfully:', data)
+
+			// Add the new todo to local state with data from API response
+			const newTodo: TodoItem = {
+				id: data.data.id || Date.now().toString(),
+				text: todoData.text,
+				description: todoData.description,
+				category: todoData.category,
+				priority: todoData.priority,
+				tags: todoData.tags,
 				completed: false,
-				createdAt: new Date()
+				createdAt: new Date(data.data.createdAt || Date.now())
 			}
 			setTodos([...todos, newTodo])
+
+			// Reset form
 			setInputValue('')
 			setDescription('')
 			setPriority('none')
 			setSelectedCategory('')
+			setSelectedTags([])
+		} catch (err) {
+			console.error('Error creating todo:', err)
+			setError(err instanceof Error ? err.message : 'Failed to create todo item')
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
@@ -64,13 +137,6 @@ export default function TodoItemsPage() {
 
 	const handleDeleteTodo = (id: string) => {
 		setTodos(todos.filter((todo) => todo.id !== id))
-	}
-
-	const handleKeyPress = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter') {
-			e.preventDefault()
-			handleAddTodo()
-		}
 	}
 
 	const getPriorityColor = (priority: Priority) => {
@@ -100,7 +166,7 @@ export default function TodoItemsPage() {
 			{/* Add Todo Form */}
 			<div className="bg-slate-700 rounded-lg shadow-lg p-6 mb-6">
 				<h2 className="text-xl font-semibold text-white mb-4">Add New Todo Item</h2>
-				<div className="space-y-4">
+				<form onSubmit={handleSubmit} className="space-y-4">
 					{/* Todo Title */}
 					<div>
 						<label htmlFor="todoTitle" className="block text-sm font-medium text-gray-200 mb-2">
@@ -230,21 +296,110 @@ export default function TodoItemsPage() {
 						</div>
 					</div>
 
+					{/* Tags */}
+					<div>
+						<label className="block text-sm font-medium text-gray-200 mb-2">
+							Tags (Optional)
+						</label>
+
+						{/* Known Tags - Quick Select */}
+						{knownTags.length > 0 && (
+							<div className="mb-3">
+								<p className="text-xs text-gray-400 mb-2">Quick Select:</p>
+								<div className="flex flex-wrap gap-2">
+									{knownTags.map((tag) => (
+										<button
+											key={tag}
+											type="button"
+											onClick={() => handleSelectKnownTag(tag)}
+											disabled={selectedTags.includes(tag)}
+											className={`px-3 py-1 rounded-full text-sm transition-colors ${
+												selectedTags.includes(tag)
+													? 'bg-indigo-600 text-white cursor-not-allowed opacity-50'
+													: 'bg-slate-600 text-gray-300 hover:bg-indigo-600 hover:text-white'
+											}`}
+										>
+											{tag}
+										</button>
+									))}
+								</div>
+							</div>
+						)}
+
+						{/* Add Tag Input */}
+						<div className="flex gap-2 mb-3">
+							<input
+								type="text"
+								value={currentTag}
+								onChange={(e) => setCurrentTag(e.target.value)}
+								onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										e.preventDefault()
+										handleAddTag()
+									}
+								}}
+								placeholder="Add a tag or create new..."
+								className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+							/>
+							<ElegantButton
+								type="button"
+								variant="primary"
+								size="sm"
+								icon={<TagIcon className="w-5 h-5" />}
+								onClick={handleAddTag}
+								disabled={!currentTag.trim()}
+							>
+								Add
+							</ElegantButton>
+						</div>
+
+						{/* Selected Tags Display */}
+						{selectedTags.length > 0 && (
+							<div className="flex flex-wrap gap-2 p-3 bg-slate-600 rounded-lg">
+								{selectedTags.map((tag, index) => (
+									<span
+										key={index}
+										className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded-full text-sm"
+									>
+										{tag}
+										<button
+											type="button"
+											onClick={() => handleRemoveTag(tag)}
+											className="hover:bg-indigo-700 rounded-full p-0.5 transition-colors"
+										>
+											<XMarkIcon className="w-4 h-4" />
+										</button>
+									</span>
+								))}
+							</div>
+						)}
+						<p className="text-xs text-gray-400 mt-1">
+							{selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} added
+						</p>
+					</div>
+
+					{/* Error Message */}
+					{error && (
+						<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
+							{error}
+						</div>
+					)}
+
 					{/* Submit Button */}
 					<div className="pt-4 border-t border-slate-600">
 						<ElegantButton
-							type="button"
+							type="submit"
 							variant="primary"
 							size="lg"
 							fullWidth
 							icon={<PlusIcon className="w-5 h-5" />}
-							onClick={handleAddTodo}
-							disabled={!inputValue.trim()}
+							disabled={!inputValue.trim() || isLoading}
+							isLoading={isLoading}
 						>
-							Add Todo Item
+							{isLoading ? 'Creating...' : 'Add Todo Item'}
 						</ElegantButton>
 					</div>
-				</div>
+				</form>
 			</div>
 
 			{/* Todo Stats */}
@@ -295,6 +450,19 @@ export default function TodoItemsPage() {
 										</div>
 										{todo.description && (
 											<p className="text-gray-300 text-sm mt-1">{todo.description}</p>
+										)}
+										{todo.tags && todo.tags.length > 0 && (
+											<div className="flex flex-wrap gap-1.5 mt-2">
+												{todo.tags.map((tag, idx) => (
+													<span
+														key={idx}
+														className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600/80 text-white"
+													>
+														<TagIcon className="w-3 h-3 mr-1" />
+														{tag}
+													</span>
+												))}
+											</div>
 										)}
 									</div>
 									<button
@@ -349,6 +517,19 @@ export default function TodoItemsPage() {
 										</div>
 										{todo.description && (
 											<p className="text-gray-500 text-sm mt-1 line-through">{todo.description}</p>
+										)}
+										{todo.tags && todo.tags.length > 0 && (
+											<div className="flex flex-wrap gap-1.5 mt-2 opacity-60">
+												{todo.tags.map((tag, idx) => (
+													<span
+														key={idx}
+														className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600/60 text-gray-300 line-through"
+													>
+														<TagIcon className="w-3 h-3 mr-1" />
+														{tag}
+													</span>
+												))}
+											</div>
 										)}
 									</div>
 									<button
