@@ -4,17 +4,18 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
 /**
  * POST - Create a new list via AWS API Gateway
  * Body:
- *   - name: string (required) - Name/title of the list
+ *   - title: string (required) - Title of the list
  *   - description: string (optional) - Description of the list
- *   - category: string (optional) - Category (max 100 chars)
+ *   - category: string (optional) - Category (max 100 chars) (only one category)
  *   - tags: array of strings (optional) - Tags for the list
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
- *   - name: list name/title
+ *   - title: list name/title
  *   - description: list description
  *   - category: category string
  *   - tags: array of tags
+ *   - archived: boolean (default false)
  *   - createdAt: timestamp
  *   - updatedAt: timestamp
  */
@@ -38,14 +39,14 @@ export async function POST(request: NextRequest) {
 		console.log('Environment check:', {
 			TASKS_API_GATEWAY_LISTS_URL: !!process.env.TASKS_API_GATEWAY_LISTS_URL,
 			NODE_ENV: process.env.NODE_ENV,
-			allEnvKeys: Object.keys(process.env).filter(key => key.includes('API') || key.includes('TASKS'))
+			allEnvKeys: Object.keys(process.env).filter((key) => key.includes('API') || key.includes('TASKS'))
 		})
 
 		const body = await request.json()
-		const { name, description, category, tags } = body
+		const { title, description, category, tags } = body
 
 		// Validation
-		if (!name) {
+		if (!title) {
 			return NextResponse.json({ error: 'List name is required' }, { status: 400 })
 		}
 
@@ -63,15 +64,18 @@ export async function POST(request: NextRequest) {
 		const currentDate = new Date().toISOString()
 
 		// Prepare list data for AWS API Gateway
+		// Note: Lambda will generate the 'list-id' partition key
+		// Note: DynamoDB expects 'name' field, but we use 'title' in the frontend API
 		const listData = {
 			user: user.userId,
-			name: name.trim(),
-			description: description?.trim() || 'none',
-			category: category?.trim() || 'undefined',
+			name: title.trim(), // Required by DynamoDB
+			title: title.trim(), // Frontend field name
+			description: description?.trim() || '',
+			category: category?.trim() || '',
 			tags: tags || [],
+			archived: false,
 			createdAt: currentDate,
-			updatedAt: currentDate,
-			archived: false
+			updatedAt: currentDate
 		}
 
 		const apiGatewayUrl = process.env.TASKS_API_GATEWAY_LISTS_URL
@@ -83,7 +87,7 @@ export async function POST(request: NextRequest) {
 
 		// Send POST request to AWS API Gateway
 		console.log('Sending to AWS API Gateway:', apiGatewayUrl)
-		console.log('List Data:', listData)
+		console.log('List Data:', JSON.stringify(listData, null, 2))
 
 		// Build headers with Authorization token
 		const headers: HeadersInit = {

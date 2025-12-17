@@ -45,7 +45,7 @@ export default function NewListPage() {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					name: listName,
+					title: listName,
 					description: listDescription,
 					category: category,
 					tags: tags
@@ -70,9 +70,7 @@ export default function NewListPage() {
 
 	return (
 		<div className="max-w-3xl mx-auto p-6">
-			<h1 className={`${lusitana.className} text-3xl font-bold mb-6 text-white`}>
-				Create New List
-			</h1>
+			<h1 className={`${lusitana.className} text-3xl font-bold mb-6 text-white`}>Create New List</h1>
 
 			<form onSubmit={handleSubmit} className="bg-slate-700 rounded-lg shadow-lg p-6 space-y-6">
 				{/* List Name */}
@@ -82,7 +80,7 @@ export default function NewListPage() {
 					</label>
 					<input
 						type="text"
-						id="listName"
+						id="listTitle"
 						value={listName}
 						onChange={(e) => setListName(e.target.value)}
 						placeholder="e.g., Grocery Shopping, Weekend Tasks"
@@ -120,16 +118,12 @@ export default function NewListPage() {
 						maxLength={100}
 						className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
 					/>
-					<p className="text-xs text-gray-400 mt-1">
-						{category.length}/100 characters
-					</p>
+					<p className="text-xs text-gray-400 mt-1">{category.length}/100 characters</p>
 				</div>
 
 				{/* Tags */}
 				<div>
-					<label className="block text-sm font-medium text-gray-200 mb-2">
-						Tags (Optional)
-					</label>
+					<label className="block text-sm font-medium text-gray-200 mb-2">Tags (Optional)</label>
 
 					{/* Add Tag Input */}
 					<div className="flex gap-2 mb-3">
@@ -180,9 +174,7 @@ export default function NewListPage() {
 
 				{/* Error Message */}
 				{error && (
-					<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
-						{error}
-					</div>
+					<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">{error}</div>
 				)}
 
 				{/* Action Buttons */}
