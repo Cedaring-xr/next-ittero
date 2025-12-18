@@ -141,10 +141,10 @@ export default function Lists() {
 						<div id="list-container">
 							{userLists.length > 0
 								? userLists.map((list) => (
-										<div
+										<Link
 											key={list.id}
-											id="list-item-container"
-											className="mt-6 mb-2 p-4 bg-slate-800"
+											href={`/dashboard/lists/${list.id}`}
+											className="block mt-6 mb-2 p-4 bg-slate-800 hover:border-2 hover:border-violet-400 cursor-pointer transition-all"
 										>
 											<div className="flex justify-between">
 												<h3 className="text-white font-bold text-xl md:text-2xl underline">
@@ -167,7 +167,7 @@ export default function Lists() {
 													</ul>
 												</div>
 											</div>
-										</div>
+										</Link>
 								  ))
 								: 'put error message here'}
 						</div>
