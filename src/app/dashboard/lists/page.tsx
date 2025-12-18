@@ -9,9 +9,13 @@ import { useRouter } from 'next/navigation'
 
 interface ListEntry {
 	id: string
-	user: string
 	title: string
 	description: string
+	category: string
+	tags: string[]
+	archived: boolean
+	createdAt: string
+	updatedAt: string
 }
 
 export default function Lists() {
@@ -21,6 +25,15 @@ export default function Lists() {
 
 	// used for sending api calls via api/routes
 	const router = useRouter()
+
+	// Format timestamp to DD-MM-YYYY
+	const formatDate = (timestamp: string) => {
+		const date = new Date(timestamp)
+		const day = date.getDate().toString().padStart(2, '0')
+		const month = (date.getMonth() + 1).toString().padStart(2, '0')
+		const year = date.getFullYear()
+		return `${day}-${month}-${year}`
+	}
 
 	const handleCategoryCreate = () => {
 		// open modal for creating a category
@@ -111,10 +124,9 @@ export default function Lists() {
 					Create to-do items
 				</ElegantButton>
 			</div>
-			<h3 className="text-white text-3xl">Current List Categories</h3>
-			<div className={`${lusitana.className} font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6`}>
-				<div className="bg-gray-50 text-gray-900 rounded-lg  hover:border-2 hover:border-indigo-700 pt-6 pl-4 flex flex-col hover:text-indigo-700">
-					<p>auto fetch list categories from api</p>
+			<h3 className="text-black text-3xl">Current Lists</h3>
+			<div className={`${lusitana.className} font-bold p-6`}>
+				<div>
 					{!userLists.length ? (
 						<div>
 							<p>There are currently no categories listed</p>
@@ -126,13 +138,34 @@ export default function Lists() {
 							</button>
 						</div>
 					) : (
-						<div>
+						<div id="list-container">
 							{userLists.length > 0
 								? userLists.map((list) => (
-										<div key={list.id}>
-											<h3>{list.title}</h3>
-											<div id="list-container">
-												<p>{list.description}</p>
+										<div
+											key={list.id}
+											id="list-item-container"
+											className="mt-6 mb-2 p-4 bg-slate-800"
+										>
+											<div className="flex justify-between">
+												<h3 className="text-white font-bold text-xl md:text-2xl underline">
+													{list.title}
+												</h3>
+												<div className="border-emerald-500 border-[2px] p-1 rounded-md text-white">
+													{list.category}
+												</div>
+											</div>
+											<div className="flex justify-between mt-1">
+												<p className="text-white mb-4 italic">{list.description}</p>
+												<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+											</div>
+											<div>
+												<div id="list-container">
+													<ul>
+														<li className="text-white ml-4 list-disc">
+															preview of list items
+														</li>
+													</ul>
+												</div>
 											</div>
 										</div>
 								  ))

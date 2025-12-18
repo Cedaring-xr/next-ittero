@@ -1,6 +1,6 @@
 'use client'
-import React, { useState } from 'react'
-import { PlusIcon, CheckIcon, TrashIcon, FolderPlusIcon, XMarkIcon, TagIcon } from '@heroicons/react/24/outline'
+import React, { useState, useEffect } from 'react'
+import { PlusIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { lusitana } from '@/ui/fonts'
 
@@ -9,63 +9,59 @@ type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
 interface TodoItem {
 	id: string
 	text: string
-	description: string
-	category: string
+	listId: string
 	priority: Priority
-	tags: string[]
+	dueDate: string
 	completed: boolean
 	createdAt: Date
+}
+
+interface ListEntry {
+	id: string
+	title: string
+	description: string
 }
 
 export default function TodoItemsPage() {
 	const [todos, setTodos] = useState<TodoItem[]>([])
 	const [inputValue, setInputValue] = useState('')
-	const [description, setDescription] = useState('')
 	const [priority, setPriority] = useState<Priority>('none')
-	const [categories, setCategories] = useState<string[]>(['Work', 'Personal', 'Shopping', 'Health'])
-	const [selectedCategory, setSelectedCategory] = useState<string>('')
-	const [newCategory, setNewCategory] = useState('')
-	const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+	const [dueDate, setDueDate] = useState('')
 
-	// Tags state
-	const [knownTags, setKnownTags] = useState<string[]>(['urgent-task', 'low-priority', 'recurring', 'important', 'quick-win'])
-	const [selectedTags, setSelectedTags] = useState<string[]>([])
-	const [currentTag, setCurrentTag] = useState('')
+	// Lists state
+	const [userLists, setUserLists] = useState<ListEntry[]>([])
+	const [selectedList, setSelectedList] = useState<string>('')
 
 	// Form state for API submission
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	const handleAddCategory = () => {
-		if (newCategory.trim() && !categories.includes(newCategory.trim())) {
-			setCategories([...categories, newCategory.trim()])
-			setSelectedCategory(newCategory.trim())
-			setNewCategory('')
-			setIsCreatingCategory(false)
-		}
-	}
+	// Fetch user's lists
+	const fetchLists = async () => {
+		try {
+			const response = await fetch('/api/lists', {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			})
 
-	const handleAddTag = () => {
-		const tagValue = currentTag.trim()
-		if (tagValue && !selectedTags.includes(tagValue)) {
-			setSelectedTags([...selectedTags, tagValue])
-			// Add to known tags if it's new
-			if (!knownTags.includes(tagValue)) {
-				setKnownTags([...knownTags, tagValue])
+			const data = await response.json()
+
+			if (!response.ok) {
+				throw new Error(data.error || 'Failed to fetch lists')
 			}
-			setCurrentTag('')
+
+			setUserLists(data.lists || [])
+		} catch (err) {
+			console.error('Error fetching lists:', err)
 		}
 	}
 
-	const handleRemoveTag = (tagToRemove: string) => {
-		setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove))
-	}
-
-	const handleSelectKnownTag = (tag: string) => {
-		if (!selectedTags.includes(tag)) {
-			setSelectedTags([...selectedTags, tag])
-		}
-	}
+	// Fetch lists on component mount
+	useEffect(() => {
+		fetchLists()
+	}, [])
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -76,10 +72,9 @@ export default function TodoItemsPage() {
 			// Prepare data for API submission
 			const todoData = {
 				text: inputValue.trim(),
-				description: description.trim(),
-				category: selectedCategory,
+				listId: selectedList,
 				priority: priority,
-				tags: selectedTags,
+				dueDate: dueDate,
 				completed: false
 			}
 
@@ -104,10 +99,9 @@ export default function TodoItemsPage() {
 			const newTodo: TodoItem = {
 				id: data.data.id || Date.now().toString(),
 				text: todoData.text,
-				description: todoData.description,
-				category: todoData.category,
+				listId: todoData.listId,
 				priority: todoData.priority,
-				tags: todoData.tags,
+				dueDate: todoData.dueDate,
 				completed: false,
 				createdAt: new Date(data.data.createdAt || Date.now())
 			}
@@ -115,10 +109,9 @@ export default function TodoItemsPage() {
 
 			// Reset form
 			setInputValue('')
-			setDescription('')
 			setPriority('none')
-			setSelectedCategory('')
-			setSelectedTags([])
+			setDueDate('')
+			setSelectedList('')
 		} catch (err) {
 			console.error('Error creating todo:', err)
 			setError(err instanceof Error ? err.message : 'Failed to create todo item')
@@ -167,10 +160,10 @@ export default function TodoItemsPage() {
 			<div className="bg-slate-700 rounded-lg shadow-lg p-6 mb-6">
 				<h2 className="text-xl font-semibold text-white mb-4">Add New Todo Item</h2>
 				<form onSubmit={handleSubmit} className="space-y-4">
-					{/* Todo Title */}
+					{/* Task */}
 					<div>
 						<label htmlFor="todoTitle" className="block text-sm font-medium text-gray-200 mb-2">
-							Task Title <span className="text-red-400">*</span>
+							Task <span className="text-red-400">*</span>
 						</label>
 						<input
 							type="text"
@@ -182,89 +175,44 @@ export default function TodoItemsPage() {
 						/>
 					</div>
 
-					{/* Description */}
+					{/* List Selection */}
 					<div>
-						<label htmlFor="todoDescription" className="block text-sm font-medium text-gray-200 mb-2">
-							Description (Optional)
+						<label htmlFor="listSelect" className="block text-sm font-medium text-gray-200 mb-2">
+							List <span className="text-red-400">*</span>
 						</label>
-						<textarea
-							id="todoDescription"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							placeholder="Add more details about this task..."
-							rows={3}
-							className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-						/>
+						<select
+							id="listSelect"
+							value={selectedList}
+							onChange={(e) => setSelectedList(e.target.value)}
+							className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+							required
+						>
+							<option value="">Select a list</option>
+							{userLists.map((list) => (
+								<option key={list.id} value={list.id}>
+									{list.title}
+								</option>
+							))}
+						</select>
+						{userLists.length === 0 && (
+							<p className="text-xs text-gray-400 mt-1">
+								No lists available. Create a list first.
+							</p>
+						)}
 					</div>
 
-					{/* Category Selection */}
+					{/* Due Date */}
 					<div>
-						<label htmlFor="category" className="block text-sm font-medium text-gray-200 mb-2">
-							Category (Optional)
+						<label htmlFor="dueDate" className="block text-sm font-medium text-gray-200 mb-2">
+							Due Date (Optional)
 						</label>
-						{!isCreatingCategory ? (
-							<div className="flex gap-2">
-								<select
-									id="category"
-									value={selectedCategory}
-									onChange={(e) => setSelectedCategory(e.target.value)}
-									className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-								>
-									<option value="">Select a category</option>
-									{categories.map((cat) => (
-										<option key={cat} value={cat}>
-											{cat}
-										</option>
-									))}
-								</select>
-								<ElegantButton
-									type="button"
-									variant="secondary"
-									size="sm"
-									icon={<FolderPlusIcon className="w-5 h-5" />}
-									onClick={() => setIsCreatingCategory(true)}
-								>
-									New
-								</ElegantButton>
-							</div>
-						) : (
-							<div className="flex gap-2">
-								<input
-									type="text"
-									value={newCategory}
-									onChange={(e) => setNewCategory(e.target.value)}
-									onKeyPress={(e) => {
-										if (e.key === 'Enter') {
-											e.preventDefault()
-											handleAddCategory()
-										}
-									}}
-									placeholder="Enter new category name"
-									className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-									autoFocus
-								/>
-								<ElegantButton
-									type="button"
-									variant="primary"
-									size="sm"
-									onClick={handleAddCategory}
-									disabled={!newCategory.trim()}
-								>
-									Add
-								</ElegantButton>
-								<ElegantButton
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => {
-										setIsCreatingCategory(false)
-										setNewCategory('')
-									}}
-								>
-									Cancel
-								</ElegantButton>
-							</div>
-						)}
+						<input
+							type="date"
+							id="dueDate"
+							value={dueDate}
+							onChange={(e) => setDueDate(e.target.value)}
+							className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+						/>
 					</div>
 
 					{/* Priority */}
@@ -296,88 +244,6 @@ export default function TodoItemsPage() {
 						</div>
 					</div>
 
-					{/* Tags */}
-					<div>
-						<label className="block text-sm font-medium text-gray-200 mb-2">
-							Tags (Optional)
-						</label>
-
-						{/* Known Tags - Quick Select */}
-						{knownTags.length > 0 && (
-							<div className="mb-3">
-								<p className="text-xs text-gray-400 mb-2">Quick Select:</p>
-								<div className="flex flex-wrap gap-2">
-									{knownTags.map((tag) => (
-										<button
-											key={tag}
-											type="button"
-											onClick={() => handleSelectKnownTag(tag)}
-											disabled={selectedTags.includes(tag)}
-											className={`px-3 py-1 rounded-full text-sm transition-colors ${
-												selectedTags.includes(tag)
-													? 'bg-indigo-600 text-white cursor-not-allowed opacity-50'
-													: 'bg-slate-600 text-gray-300 hover:bg-indigo-600 hover:text-white'
-											}`}
-										>
-											{tag}
-										</button>
-									))}
-								</div>
-							</div>
-						)}
-
-						{/* Add Tag Input */}
-						<div className="flex gap-2 mb-3">
-							<input
-								type="text"
-								value={currentTag}
-								onChange={(e) => setCurrentTag(e.target.value)}
-								onKeyPress={(e) => {
-									if (e.key === 'Enter') {
-										e.preventDefault()
-										handleAddTag()
-									}
-								}}
-								placeholder="Add a tag or create new..."
-								className="flex-1 px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-							/>
-							<ElegantButton
-								type="button"
-								variant="primary"
-								size="sm"
-								icon={<TagIcon className="w-5 h-5" />}
-								onClick={handleAddTag}
-								disabled={!currentTag.trim()}
-							>
-								Add
-							</ElegantButton>
-						</div>
-
-						{/* Selected Tags Display */}
-						{selectedTags.length > 0 && (
-							<div className="flex flex-wrap gap-2 p-3 bg-slate-600 rounded-lg">
-								{selectedTags.map((tag, index) => (
-									<span
-										key={index}
-										className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white rounded-full text-sm"
-									>
-										{tag}
-										<button
-											type="button"
-											onClick={() => handleRemoveTag(tag)}
-											className="hover:bg-indigo-700 rounded-full p-0.5 transition-colors"
-										>
-											<XMarkIcon className="w-4 h-4" />
-										</button>
-									</span>
-								))}
-							</div>
-						)}
-						<p className="text-xs text-gray-400 mt-1">
-							{selectedTags.length} tag{selectedTags.length !== 1 ? 's' : ''} added
-						</p>
-					</div>
-
 					{/* Error Message */}
 					{error && (
 						<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
@@ -393,7 +259,7 @@ export default function TodoItemsPage() {
 							size="lg"
 							fullWidth
 							icon={<PlusIcon className="w-5 h-5" />}
-							disabled={!inputValue.trim() || isLoading}
+							disabled={!inputValue.trim() || !selectedList || isLoading}
 							isLoading={isLoading}
 						>
 							{isLoading ? 'Creating...' : 'Add Todo Item'}
@@ -442,27 +308,11 @@ export default function TodoItemsPage() {
 													{todo.priority}
 												</span>
 											)}
-											{todo.category && (
-												<span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-600 text-gray-300">
-													{todo.category}
-												</span>
-											)}
 										</div>
-										{todo.description && (
-											<p className="text-gray-300 text-sm mt-1">{todo.description}</p>
-										)}
-										{todo.tags && todo.tags.length > 0 && (
-											<div className="flex flex-wrap gap-1.5 mt-2">
-												{todo.tags.map((tag, idx) => (
-													<span
-														key={idx}
-														className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600/80 text-white"
-													>
-														<TagIcon className="w-3 h-3 mr-1" />
-														{tag}
-													</span>
-												))}
-											</div>
+										{todo.dueDate && (
+											<p className="text-gray-400 text-xs mt-1">
+												Due: {new Date(todo.dueDate).toLocaleDateString()}
+											</p>
 										)}
 									</div>
 									<button
@@ -509,27 +359,11 @@ export default function TodoItemsPage() {
 													{todo.priority}
 												</span>
 											)}
-											{todo.category && (
-												<span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-600 text-gray-400 opacity-60">
-													{todo.category}
-												</span>
-											)}
 										</div>
-										{todo.description && (
-											<p className="text-gray-500 text-sm mt-1 line-through">{todo.description}</p>
-										)}
-										{todo.tags && todo.tags.length > 0 && (
-											<div className="flex flex-wrap gap-1.5 mt-2 opacity-60">
-												{todo.tags.map((tag, idx) => (
-													<span
-														key={idx}
-														className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600/60 text-gray-300 line-through"
-													>
-														<TagIcon className="w-3 h-3 mr-1" />
-														{tag}
-													</span>
-												))}
-											</div>
+										{todo.dueDate && (
+											<p className="text-gray-500 text-xs mt-1 line-through">
+												Due: {new Date(todo.dueDate).toLocaleDateString()}
+											</p>
 										)}
 									</div>
 									<button
