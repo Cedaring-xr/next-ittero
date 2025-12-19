@@ -5,6 +5,7 @@ import { lusitana } from '@/ui/fonts'
 import { ArrowLeftIcon, CheckIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
+import ConfirmModal from '@/ui/confirm-modal'
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
 
@@ -45,6 +46,9 @@ export default function ListDetailPage() {
 	const [newItemDueDate, setNewItemDueDate] = useState('')
 	const [isCreating, setIsCreating] = useState(false)
 	const [createError, setCreateError] = useState<string | null>(null)
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
 
 	// Format timestamp to DD-MM-YYYY
 	const formatDate = (timestamp: string) => {
@@ -157,9 +161,17 @@ export default function ListDetailPage() {
 		}
 	}
 
-	const handleDeleteItem = async (itemId: string) => {
+	const handleDeleteClick = (itemId: string) => {
+		setItemToDelete(itemId)
+		setDeleteConfirmOpen(true)
+	}
+
+	const handleDeleteConfirm = async () => {
+		if (!itemToDelete) return
+
+		setIsDeleting(true)
 		try {
-			const response = await fetch(`/api/lists/items/${itemId}`, {
+			const response = await fetch(`/api/lists/items/${itemToDelete}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json'
@@ -171,11 +183,22 @@ export default function ListDetailPage() {
 			}
 
 			// Remove from local state
-			setItems(items.filter((i) => i.id !== itemId))
+			setItems(items.filter((i) => i.id !== itemToDelete))
+
+			// Close modal and reset
+			setDeleteConfirmOpen(false)
+			setItemToDelete(null)
 		} catch (err) {
 			console.error('Error deleting item:', err)
 			setError(err instanceof Error ? err.message : 'Failed to delete item')
+		} finally {
+			setIsDeleting(false)
 		}
+	}
+
+	const handleDeleteCancel = () => {
+		setDeleteConfirmOpen(false)
+		setItemToDelete(null)
 	}
 
 	const handleAddItem = () => {
@@ -372,7 +395,7 @@ export default function ListDetailPage() {
 										)}
 									</div>
 									<button
-										onClick={() => handleDeleteItem(item.id)}
+										onClick={() => handleDeleteClick(item.id)}
 										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 										aria-label="Delete todo"
 									>
@@ -432,7 +455,7 @@ export default function ListDetailPage() {
 										)}
 									</div>
 									<button
-										onClick={() => handleDeleteItem(item.id)}
+										onClick={() => handleDeleteClick(item.id)}
 										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 										aria-label="Delete todo"
 									>
@@ -536,6 +559,19 @@ export default function ListDetailPage() {
 					</div>
 				</form>
 			</Modal>
+
+			{/* Delete Confirmation Modal */}
+			<ConfirmModal
+				isOpen={deleteConfirmOpen}
+				onClose={handleDeleteCancel}
+				onConfirm={handleDeleteConfirm}
+				title="Delete Task"
+				message="Are you sure you want to delete this task? This action cannot be undone."
+				confirmText="Delete"
+				cancelText="Cancel"
+				variant="danger"
+				isLoading={isDeleting}
+			/>
 		</div>
 	)
 }
