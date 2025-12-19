@@ -7,6 +7,19 @@ import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 
+type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
+
+interface TodoItem {
+	id: string
+	text: string
+	listId: string
+	priority: Priority
+	dueDate: string
+	completed: boolean
+	createdAt: string
+	updatedAt: string
+}
+
 interface ListEntry {
 	id: string
 	title: string
@@ -16,6 +29,7 @@ interface ListEntry {
 	archived: boolean
 	createdAt: string
 	updatedAt: string
+	items?: TodoItem[]
 }
 
 export default function Lists() {
@@ -26,13 +40,13 @@ export default function Lists() {
 	// used for sending api calls via api/routes
 	const router = useRouter()
 
-	// Format timestamp to DD-MM-YYYY
+	// Format timestamp to MM-DD-YYYY
 	const formatDate = (timestamp: string) => {
 		const date = new Date(timestamp)
 		const day = date.getDate().toString().padStart(2, '0')
 		const month = (date.getMonth() + 1).toString().padStart(2, '0')
 		const year = date.getFullYear()
-		return `${day}-${month}-${year}`
+		return `${month}-${day}-${year}`
 	}
 
 	const handleCategoryCreate = () => {
@@ -56,6 +70,7 @@ export default function Lists() {
 		setError(null)
 
 		try {
+			// Fetch all lists
 			const response = await fetch('/api/lists', {
 				method: 'GET',
 				headers: {
@@ -64,16 +79,44 @@ export default function Lists() {
 			})
 
 			const data = await response.json()
-			setUserLists(data.lists || [])
 
 			if (!response.ok) {
 				throw new Error(data.error || 'Failed to fetch lists')
 			}
 
-			console.log('Lists fetched successfully')
+			const lists = data.lists || []
+
+			// Fetch items for each list
+			const listsWithItems = await Promise.all(
+				lists.map(async (list: ListEntry) => {
+					try {
+						const itemsResponse = await fetch(`/api/lists/items?listId=${list.id}`, {
+							method: 'GET',
+							headers: {
+								'Content-Type': 'application/json'
+							}
+						})
+
+						const itemsData = await itemsResponse.json()
+
+						if (itemsResponse.ok) {
+							return { ...list, items: itemsData.items || [] }
+						} else {
+							return { ...list, items: [] }
+						}
+					} catch (err) {
+						console.error(`Error fetching items for list ${list.id}:`, err)
+						return { ...list, items: [] }
+					}
+				})
+			)
+
+			setUserLists(listsWithItems)
+			console.log('Lists and items fetched successfully')
 		} catch (err) {
 			console.error('Error fetching lists:', err)
 			setError(err instanceof Error ? err.message : 'Failed to fetch user lists')
+		} finally {
 			setIsLoading(false)
 		}
 	}
@@ -150,6 +193,10 @@ export default function Lists() {
 												<h3 className="text-white font-bold text-xl md:text-2xl underline">
 													{list.title}
 												</h3>
+												<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+											</div>
+											<div className="flex justify-between mt-1">
+												<p className="text-white mb-4 italic">{list.description}</p>
 												{!list.category ? (
 													''
 												) : (
@@ -158,18 +205,18 @@ export default function Lists() {
 													</div>
 												)}
 											</div>
-											<div className="flex justify-between mt-1">
-												<p className="text-white mb-4 italic">{list.description}</p>
-												<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
-											</div>
-											<div>
-												<div id="list-container">
-													<ul>
-														<li className="text-white ml-4 list-disc">
-															preview of list items
-														</li>
-													</ul>
-												</div>
+
+											{/* Item counts */}
+											<div className="flex gap-4 text-sm">
+												<span className="text-gray-300">
+													Total: <span className="font-semibold text-white">{list.items?.length || 0}</span>
+												</span>
+												<span className="text-gray-300">
+													Completed:{' '}
+													<span className="font-semibold text-green-400">
+														{list.items?.filter((item) => item.completed).length || 0}
+													</span>
+												</span>
 											</div>
 										</Link>
 								  ))

@@ -2,7 +2,15 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { lusitana } from '@/ui/fonts'
-import { ArrowLeftIcon, CheckIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
+import {
+	ArrowLeftIcon,
+	CheckIcon,
+	TrashIcon,
+	PlusIcon,
+	ChevronDownIcon,
+	ChevronUpIcon,
+	ChevronRightIcon
+} from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
@@ -51,6 +59,7 @@ export default function ListDetailPage() {
 	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
+	const [isCompletedExpanded, setIsCompletedExpanded] = useState(false)
 
 	// Format timestamp to DD-MM-YYYY
 	const formatDate = (timestamp: string) => {
@@ -380,15 +389,14 @@ export default function ListDetailPage() {
 			</div>
 
 			{/* Add Item Button */}
-			<div className="mb-6">
+			<div className="mb-6 flex justify-center">
 				<ElegantButton
 					variant="primary"
 					size="lg"
 					icon={<PlusIcon className="h-5 w-5" />}
 					onClick={handleAddItem}
-					fullWidth
 				>
-					Add New Item
+					Add New Task
 				</ElegantButton>
 			</div>
 
@@ -500,55 +508,63 @@ export default function ListDetailPage() {
 			{/* Completed Todos */}
 			{completedTodos.length > 0 && (
 				<div>
-					<h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
-						Completed Tasks
-					</h2>
-					<div className="space-y-2">
-						{completedTodos.map((item) => (
-							<div
-								key={item.id}
-								className="bg-slate-700 rounded-md p-3 opacity-60 hover:opacity-100 transition-opacity"
-							>
-								<div className="flex items-start gap-2">
-									<button
-										onClick={() => handleToggleComplete(item.id)}
-										className="flex-shrink-0 w-5 h-5 mt-0.5 bg-green-500 rounded flex items-center justify-center hover:bg-green-600 transition-colors"
-										aria-label="Mark as incomplete"
-									>
-										<CheckIcon className="w-3 h-3 text-white" />
-									</button>
-									<div className="flex-1 min-w-0">
-										<div className="flex items-center gap-2 mb-1">
-											<h3 className="text-gray-400 text-sm font-normal line-through">
-												{item.text}
-											</h3>
-											{item.priority !== 'none' && (
-												<span
-													className={`px-1.5 py-0.5 rounded text-xs font-medium opacity-50 ${getPriorityColor(
-														item.priority
-													)}`}
-												>
-													{item.priority}
-												</span>
+					<button
+						onClick={() => setIsCompletedExpanded(!isCompletedExpanded)}
+						className="flex text-sm font-semibold text-black uppercase mb-3"
+					>
+						{isCompletedExpanded ? (
+							<ChevronDownIcon className="w-6 h-6" />
+						) : (
+							<ChevronRightIcon className="w-6 h-6" />
+						)}
+						<span className="ml-2">Completed Tasks ({completedTodos.length})</span>
+					</button>
+					{isCompletedExpanded && (
+						<div className="space-y-2">
+							{completedTodos.map((item) => (
+								<div
+									key={item.id}
+									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors"
+								>
+									<div className="flex items-start gap-2">
+										<button
+											onClick={() => handleToggleComplete(item.id)}
+											className="flex-shrink-0 w-5 h-5 mt-0.5 bg-green-500 rounded flex items-center justify-center hover:bg-green-600 transition-colors"
+											aria-label="Mark as incomplete"
+										>
+											<CheckIcon className="w-3 h-3 text-white" />
+										</button>
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-2 mb-1">
+												<h3 className="text-gray-300 text-sm font-normal">{item.text}</h3>
+												{item.priority !== 'none' && (
+													<span
+														className={`px-1.5 py-0.5 rounded text-xs font-medium ${getPriorityColor(
+															item.priority
+														)}`}
+													>
+														{item.priority}
+													</span>
+												)}
+											</div>
+											{item.dueDate && (
+												<p className="text-gray-400 text-xs">
+													Due: {formatDueDate(item.dueDate)}
+												</p>
 											)}
 										</div>
-										{item.dueDate && (
-											<p className="text-gray-500 text-xs line-through">
-												Due: {formatDueDate(item.dueDate)}
-											</p>
-										)}
+										<button
+											onClick={() => handleDeleteClick(item.id)}
+											className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
+											aria-label="Delete todo"
+										>
+											<TrashIcon className="w-4 h-4" />
+										</button>
 									</div>
-									<button
-										onClick={() => handleDeleteClick(item.id)}
-										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
-										aria-label="Delete todo"
-									>
-										<TrashIcon className="w-4 h-4" />
-									</button>
 								</div>
-							</div>
-						))}
-					</div>
+							))}
+						</div>
+					)}
 				</div>
 			)}
 
