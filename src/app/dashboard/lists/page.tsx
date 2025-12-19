@@ -2,10 +2,32 @@
 import { lusitana } from '@/ui/fonts'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { HiOutlineClipboardList } from 'react-icons/hi'
+import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
 import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	useSortable,
+	verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
+
+interface TodoItem {
+	id: string
+	text: string
+	listId: string
+	priority: Priority
+	dueDate: string
+	completed: boolean
+	createdAt: string
+	updatedAt: string
+}
 
 interface ListEntry {
 	id: string
@@ -16,6 +38,110 @@ interface ListEntry {
 	archived: boolean
 	createdAt: string
 	updatedAt: string
+	items?: TodoItem[]
+}
+
+// Format timestamp to MM-DD-YYYY
+const formatDate = (timestamp: string) => {
+	const date = new Date(timestamp)
+	const day = date.getDate().toString().padStart(2, '0')
+	const month = (date.getMonth() + 1).toString().padStart(2, '0')
+	const year = date.getFullYear()
+	return `${month}-${day}-${year}`
+}
+
+// Sortable List Item Component
+function SortableListItem({ list }: { list: ListEntry }) {
+	const router = useRouter()
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id: list.id
+	})
+	const isDraggingRef = React.useRef(false)
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1
+	}
+
+	// Track when dragging starts and ends using ref for immediate updates
+	React.useEffect(() => {
+		if (isDragging) {
+			isDraggingRef.current = true
+		} else if (!isDragging && isDraggingRef.current) {
+			// Dragging just ended, reset after a delay
+			setTimeout(() => {
+				isDraggingRef.current = false
+			}, 200)
+		}
+	}, [isDragging])
+
+	const handleClick = () => {
+		// Only navigate if we weren't dragging
+		if (!isDraggingRef.current) {
+			router.push(`/dashboard/lists/${list.id}`)
+		}
+	}
+
+	return (
+		<div ref={setNodeRef} style={style} {...attributes}>
+			<div
+				className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg cursor-pointer transition-all"
+				onClick={handleClick}
+			>
+				<div className="flex justify-between items-start">
+					<div className="flex items-center gap-3 flex-1">
+						{/* Drag Handle */}
+						<div
+							{...listeners}
+							className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-white transition-colors"
+							onClick={(e) => e.preventDefault()}
+						>
+							<svg
+								className="w-5 h-5"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M4 8h16M4 16h16"
+								/>
+							</svg>
+						</div>
+						<h3 className="text-white font-bold text-xl md:text-2xl underline">{list.title}</h3>
+					</div>
+					<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+				</div>
+				<div className="flex justify-between mt-1 ml-8">
+					<p className="text-white mb-4 italic">{list.description}</p>
+					{!list.category ? (
+						''
+					) : (
+						<div className="border-emerald-500 border-[2px] p-1 rounded-md text-white">
+							{list.category}
+						</div>
+					)}
+				</div>
+
+				{/* Item counts */}
+				<div className="flex gap-4 text-sm ml-8">
+					<span className="text-gray-300">
+						Total: <span className="font-semibold text-white">{list.items?.length || 0}</span>
+					</span>
+					<span className="text-gray-300">
+						Completed:{' '}
+						<span className="font-semibold text-green-400">
+							{list.items?.filter((item) => item.completed).length || 0}
+						</span>
+					</span>
+				</div>
+			</div>
+		</div>
+	)
 }
 
 export default function Lists() {
@@ -26,13 +152,30 @@ export default function Lists() {
 	// used for sending api calls via api/routes
 	const router = useRouter()
 
-	// Format timestamp to DD-MM-YYYY
-	const formatDate = (timestamp: string) => {
-		const date = new Date(timestamp)
-		const day = date.getDate().toString().padStart(2, '0')
-		const month = (date.getMonth() + 1).toString().padStart(2, '0')
-		const year = date.getFullYear()
-		return `${day}-${month}-${year}`
+	// Drag and drop sensors
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8 // Require 8px of movement before drag starts
+			}
+		}),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates
+		})
+	)
+
+	// Handle drag end
+	const handleDragEnd = (event: any) => {
+		const { active, over } = event
+
+		if (over && active.id !== over.id) {
+			setUserLists((lists) => {
+				const oldIndex = lists.findIndex((list) => list.id === active.id)
+				const newIndex = lists.findIndex((list) => list.id === over.id)
+
+				return arrayMove(lists, oldIndex, newIndex)
+			})
+		}
 	}
 
 	const handleCategoryCreate = () => {
@@ -56,6 +199,7 @@ export default function Lists() {
 		setError(null)
 
 		try {
+			// Fetch all lists
 			const response = await fetch('/api/lists', {
 				method: 'GET',
 				headers: {
@@ -64,16 +208,44 @@ export default function Lists() {
 			})
 
 			const data = await response.json()
-			setUserLists(data.lists || [])
 
 			if (!response.ok) {
 				throw new Error(data.error || 'Failed to fetch lists')
 			}
 
-			console.log('Lists fetched successfully')
+			const lists = data.lists || []
+
+			// Fetch items for each list
+			const listsWithItems = await Promise.all(
+				lists.map(async (list: ListEntry) => {
+					try {
+						const itemsResponse = await fetch(`/api/lists/items?listId=${list.id}`, {
+							method: 'GET',
+							headers: {
+								'Content-Type': 'application/json'
+							}
+						})
+
+						const itemsData = await itemsResponse.json()
+
+						if (itemsResponse.ok) {
+							return { ...list, items: itemsData.items || [] }
+						} else {
+							return { ...list, items: [] }
+						}
+					} catch (err) {
+						console.error(`Error fetching items for list ${list.id}:`, err)
+						return { ...list, items: [] }
+					}
+				})
+			)
+
+			setUserLists(listsWithItems)
+			console.log('Lists and items fetched successfully')
 		} catch (err) {
 			console.error('Error fetching lists:', err)
 			setError(err instanceof Error ? err.message : 'Failed to fetch user lists')
+		} finally {
 			setIsLoading(false)
 		}
 	}
@@ -84,13 +256,13 @@ export default function Lists() {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4">
 				<ElegantButton
-					variant="primary"
+					variant="secondary"
 					size="lg"
 					icon={<HiOutlineClipboardList className="h-6 w-6" />}
 					onClick={handleCreateNewList}
-					className="h-20"
+					className="h-12"
 				>
 					Create New List
 				</ElegantButton>
@@ -100,28 +272,28 @@ export default function Lists() {
 					size="lg"
 					icon={<FolderPlusIcon className="h-6 w-6" />}
 					onClick={handleCategoryCreate}
-					className="h-20"
+					className="h-12"
 				>
 					Create New Category
 				</ElegantButton>
 
 				<ElegantButton
-					variant="outline"
+					variant="secondary"
 					size="lg"
 					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
 					onClick={handleCategoryModify}
-					className="h-20"
+					className="h-12"
 				>
 					Re-arrange Categories
 				</ElegantButton>
 				<ElegantButton
-					variant="outline"
+					variant="secondary"
 					size="lg"
-					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
+					icon={<HiClipboardList className="h-6 w-6" />}
 					onClick={handleItemCreate}
-					className="h-20"
+					className="h-12"
 				>
-					Create to-do items
+					Create tasks
 				</ElegantButton>
 			</div>
 			<h3 className="text-black text-3xl">Current Lists</h3>
@@ -139,37 +311,17 @@ export default function Lists() {
 						</div>
 					) : (
 						<div id="list-container">
-							{userLists.length > 0
-								? userLists.map((list) => (
-										<Link
-											key={list.id}
-											href={`/dashboard/lists/${list.id}`}
-											className="block mt-6 mb-2 p-4 bg-slate-800 hover:border-2 hover:border-violet-400 cursor-pointer transition-all"
-										>
-											<div className="flex justify-between">
-												<h3 className="text-white font-bold text-xl md:text-2xl underline">
-													{list.title}
-												</h3>
-												<div className="border-emerald-500 border-[2px] p-1 rounded-md text-white">
-													{list.category}
-												</div>
-											</div>
-											<div className="flex justify-between mt-1">
-												<p className="text-white mb-4 italic">{list.description}</p>
-												<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
-											</div>
-											<div>
-												<div id="list-container">
-													<ul>
-														<li className="text-white ml-4 list-disc">
-															preview of list items
-														</li>
-													</ul>
-												</div>
-											</div>
-										</Link>
-								  ))
-								: 'put error message here'}
+							{userLists.length > 0 ? (
+								<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+									<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
+										{userLists.map((list) => (
+											<SortableListItem key={list.id} list={list} />
+										))}
+									</SortableContext>
+								</DndContext>
+							) : (
+								'put error message here'
+							)}
 						</div>
 					)}
 				</div>
