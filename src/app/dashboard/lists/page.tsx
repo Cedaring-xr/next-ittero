@@ -2,7 +2,7 @@
 import { lusitana } from '@/ui/fonts'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { HiOutlineClipboardList } from 'react-icons/hi'
+import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
 import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
@@ -84,13 +84,13 @@ export default function Lists() {
 
 	return (
 		<>
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4">
+			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4">
 				<ElegantButton
-					variant="primary"
+					variant="secondary"
 					size="lg"
 					icon={<HiOutlineClipboardList className="h-6 w-6" />}
 					onClick={handleCreateNewList}
-					className="h-20"
+					className="h-12"
 				>
 					Create New List
 				</ElegantButton>
@@ -100,28 +100,28 @@ export default function Lists() {
 					size="lg"
 					icon={<FolderPlusIcon className="h-6 w-6" />}
 					onClick={handleCategoryCreate}
-					className="h-20"
+					className="h-12"
 				>
 					Create New Category
 				</ElegantButton>
 
 				<ElegantButton
-					variant="outline"
+					variant="secondary"
 					size="lg"
 					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
 					onClick={handleCategoryModify}
-					className="h-20"
+					className="h-12"
 				>
 					Re-arrange Categories
 				</ElegantButton>
 				<ElegantButton
-					variant="outline"
+					variant="secondary"
 					size="lg"
-					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
+					icon={<HiClipboardList className="h-6 w-6" />}
 					onClick={handleItemCreate}
-					className="h-20"
+					className="h-12"
 				>
-					Create to-do items
+					Create tasks
 				</ElegantButton>
 			</div>
 			<h3 className="text-black text-3xl">Current Lists</h3>
@@ -144,15 +144,19 @@ export default function Lists() {
 										<Link
 											key={list.id}
 											href={`/dashboard/lists/${list.id}`}
-											className="block mt-6 mb-2 p-4 bg-slate-800 hover:border-2 hover:border-violet-400 cursor-pointer transition-all"
+											className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg cursor-pointer transition-all"
 										>
 											<div className="flex justify-between">
 												<h3 className="text-white font-bold text-xl md:text-2xl underline">
 													{list.title}
 												</h3>
-												<div className="border-emerald-500 border-[2px] p-1 rounded-md text-white">
-													{list.category}
-												</div>
+												{!list.category ? (
+													''
+												) : (
+													<div className="border-emerald-500 border-[2px] p-1 rounded-md text-white">
+														{list.category}
+													</div>
+												)}
 											</div>
 											<div className="flex justify-between mt-1">
 												<p className="text-white mb-4 italic">{list.description}</p>

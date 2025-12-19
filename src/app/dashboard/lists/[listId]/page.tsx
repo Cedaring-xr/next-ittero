@@ -44,6 +44,7 @@ export default function ListDetailPage() {
 	const [newItemText, setNewItemText] = useState('')
 	const [newItemPriority, setNewItemPriority] = useState<Priority>('none')
 	const [newItemDueDate, setNewItemDueDate] = useState('')
+	const [newItemDueTime, setNewItemDueTime] = useState('')
 	const [isCreating, setIsCreating] = useState(false)
 	const [createError, setCreateError] = useState<string | null>(null)
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
@@ -58,6 +59,24 @@ export default function ListDetailPage() {
 		const month = (date.getMonth() + 1).toString().padStart(2, '0')
 		const year = date.getFullYear()
 		return `${day}-${month}-${year}`
+	}
+
+	// Format due date/time for display
+	const formatDueDate = (dueDate: string) => {
+		if (!dueDate) return ''
+
+		// Check if the dueDate includes time (contains 'T' separator)
+		const hasTime = dueDate.includes('T')
+
+		if (hasTime) {
+			const date = new Date(dueDate)
+			const dateStr = date.toLocaleDateString()
+			const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+			return `${dateStr} at ${timeStr}`
+		} else {
+			// Just date, no time
+			return new Date(dueDate).toLocaleDateString()
+		}
 	}
 
 	const getPriorityColor = (priority: Priority) => {
@@ -212,6 +231,7 @@ export default function ListDetailPage() {
 		setNewItemText('')
 		setNewItemPriority('none')
 		setNewItemDueDate('')
+		setNewItemDueTime('')
 		setCreateError(null)
 	}
 
@@ -221,11 +241,23 @@ export default function ListDetailPage() {
 		setCreateError(null)
 
 		try {
+			// Combine date and time if both are provided
+			let dueDateTimeString = ''
+			if (newItemDueDate) {
+				if (newItemDueTime) {
+					// Combine date and time into ISO string
+					dueDateTimeString = `${newItemDueDate}T${newItemDueTime}:00`
+				} else {
+					// Just date, no time
+					dueDateTimeString = newItemDueDate
+				}
+			}
+
 			const todoData = {
 				text: newItemText.trim(),
 				listId: listId,
 				priority: newItemPriority,
-				dueDate: newItemDueDate,
+				dueDate: dueDateTimeString,
 				completed: false
 			}
 
@@ -393,7 +425,9 @@ export default function ListDetailPage() {
 				{activeTodos.length > 0 && (
 					<div className="mt-4 pt-4 border-t border-slate-700">
 						<div className="flex items-center justify-between mb-3">
-							<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Active Tasks</h2>
+							<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">
+								Active Tasks
+							</h2>
 							<div className="flex items-center gap-2">
 								<label htmlFor="sortBy" className="text-xs text-gray-400">
 									Sort by:
@@ -409,48 +443,48 @@ export default function ListDetailPage() {
 								</select>
 							</div>
 						</div>
-					<div className="space-y-2">
-						{activeTodos.map((item) => (
-							<div
-								key={item.id}
-								className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors"
-							>
-								<div className="flex items-start gap-2">
-									<button
-										onClick={() => handleToggleComplete(item.id)}
-										className="flex-shrink-0 w-5 h-5 mt-0.5 border-2 border-gray-400 rounded hover:border-indigo-500 transition-colors"
-										aria-label="Mark as complete"
-									/>
-									<div className="flex-1 min-w-0">
-										<div className="flex items-center gap-2 mb-1">
-											<h3 className="text-white text-sm font-normal">{item.text}</h3>
-											{item.priority !== 'none' && (
-												<span
-													className={`px-1.5 py-0.5 rounded text-xs font-medium ${getPriorityColor(
-														item.priority
-													)}`}
-												>
-													{item.priority}
-												</span>
+						<div className="space-y-2">
+							{activeTodos.map((item) => (
+								<div
+									key={item.id}
+									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors"
+								>
+									<div className="flex items-start gap-2">
+										<button
+											onClick={() => handleToggleComplete(item.id)}
+											className="flex-shrink-0 w-5 h-5 mt-0.5 border-2 border-gray-400 rounded hover:border-indigo-500 transition-colors"
+											aria-label="Mark as complete"
+										/>
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-2 mb-1">
+												<h3 className="text-white text-sm font-normal">{item.text}</h3>
+												{item.priority !== 'none' && (
+													<span
+														className={`px-1.5 py-0.5 rounded text-xs font-medium ${getPriorityColor(
+															item.priority
+														)}`}
+													>
+														{item.priority}
+													</span>
+												)}
+											</div>
+											{item.dueDate && (
+												<p className="text-gray-400 text-xs">
+													Due: {formatDueDate(item.dueDate)}
+												</p>
 											)}
 										</div>
-										{item.dueDate && (
-											<p className="text-gray-400 text-xs">
-												Due: {new Date(item.dueDate).toLocaleDateString()}
-											</p>
-										)}
+										<button
+											onClick={() => handleDeleteClick(item.id)}
+											className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
+											aria-label="Delete todo"
+										>
+											<TrashIcon className="w-4 h-4" />
+										</button>
 									</div>
-									<button
-										onClick={() => handleDeleteClick(item.id)}
-										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
-										aria-label="Delete todo"
-									>
-										<TrashIcon className="w-4 h-4" />
-									</button>
 								</div>
-							</div>
-						))}
-					</div>
+							))}
+						</div>
 					</div>
 				)}
 
@@ -466,7 +500,9 @@ export default function ListDetailPage() {
 			{/* Completed Todos */}
 			{completedTodos.length > 0 && (
 				<div>
-					<h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Completed Tasks</h2>
+					<h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
+						Completed Tasks
+					</h2>
 					<div className="space-y-2">
 						{completedTodos.map((item) => (
 							<div
@@ -483,7 +519,9 @@ export default function ListDetailPage() {
 									</button>
 									<div className="flex-1 min-w-0">
 										<div className="flex items-center gap-2 mb-1">
-											<h3 className="text-gray-400 text-sm font-normal line-through">{item.text}</h3>
+											<h3 className="text-gray-400 text-sm font-normal line-through">
+												{item.text}
+											</h3>
 											{item.priority !== 'none' && (
 												<span
 													className={`px-1.5 py-0.5 rounded text-xs font-medium opacity-50 ${getPriorityColor(
@@ -496,7 +534,7 @@ export default function ListDetailPage() {
 										</div>
 										{item.dueDate && (
 											<p className="text-gray-500 text-xs line-through">
-												Due: {new Date(item.dueDate).toLocaleDateString()}
+												Due: {formatDueDate(item.dueDate)}
 											</p>
 										)}
 									</div>
@@ -546,6 +584,28 @@ export default function ListDetailPage() {
 							className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
 						/>
 					</div>
+
+					{/* Due Time */}
+					{newItemDueDate ? (
+						<div>
+							<label htmlFor="dueTime" className="block text-sm font-medium text-gray-200 mb-2">
+								Due Time (Optional)
+							</label>
+							<input
+								type="time"
+								id="dueTime"
+								value={newItemDueTime}
+								onChange={(e) => setNewItemDueTime(e.target.value)}
+								disabled={!newItemDueDate}
+								className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+							/>
+							{!newItemDueDate && (
+								<p className="text-xs text-gray-500 mt-1">Select a due date first to set a time</p>
+							)}
+						</div>
+					) : (
+						''
+					)}
 
 					{/* Priority */}
 					<div>
