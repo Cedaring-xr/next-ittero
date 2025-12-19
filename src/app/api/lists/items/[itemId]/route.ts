@@ -70,7 +70,10 @@ export async function PATCH(
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		console.log('Updating todo item at AWS API Gateway:', apiGatewayUrl)
+		// Build URL with itemId path parameter
+		const url = `${apiGatewayUrl}/${itemId}`
+
+		console.log('Updating todo item at AWS API Gateway:', url)
 		console.log('Update Data:', updateData)
 
 		// Build headers with Authorization token
@@ -84,7 +87,7 @@ export async function PATCH(
 			headers['Authorization'] = `Bearer ${accessToken}`
 		}
 
-		const apiResponse = await fetch(apiGatewayUrl, {
+		const apiResponse = await fetch(url, {
 			method: 'PATCH',
 			headers: headers,
 			body: JSON.stringify(updateData)
@@ -184,10 +187,12 @@ export async function DELETE(
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Build URL with query parameters
-		const url = `${apiGatewayUrl}?id=${itemId}&user=${user.userId}`
+		// Build URL with itemId path parameter and user query parameter
+		const url = `${apiGatewayUrl}/${itemId}?user=${user.userId}`
 
 		console.log('Deleting from AWS API Gateway:', url)
+		console.log('ItemId:', itemId)
+		console.log('UserId:', user.userId)
 
 		// Build headers with Authorization token
 		const headers: HeadersInit = {

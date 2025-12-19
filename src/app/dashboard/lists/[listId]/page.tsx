@@ -5,6 +5,7 @@ import { lusitana } from '@/ui/fonts'
 import { ArrowLeftIcon, CheckIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
+import ConfirmModal from '@/ui/confirm-modal'
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
 
@@ -45,6 +46,10 @@ export default function ListDetailPage() {
 	const [newItemDueDate, setNewItemDueDate] = useState('')
 	const [isCreating, setIsCreating] = useState(false)
 	const [createError, setCreateError] = useState<string | null>(null)
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
+	const [isDeleting, setIsDeleting] = useState(false)
+	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
 
 	// Format timestamp to DD-MM-YYYY
 	const formatDate = (timestamp: string) => {
@@ -157,9 +162,17 @@ export default function ListDetailPage() {
 		}
 	}
 
-	const handleDeleteItem = async (itemId: string) => {
+	const handleDeleteClick = (itemId: string) => {
+		setItemToDelete(itemId)
+		setDeleteConfirmOpen(true)
+	}
+
+	const handleDeleteConfirm = async () => {
+		if (!itemToDelete) return
+
+		setIsDeleting(true)
 		try {
-			const response = await fetch(`/api/lists/items/${itemId}`, {
+			const response = await fetch(`/api/lists/items/${itemToDelete}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json'
@@ -171,11 +184,22 @@ export default function ListDetailPage() {
 			}
 
 			// Remove from local state
-			setItems(items.filter((i) => i.id !== itemId))
+			setItems(items.filter((i) => i.id !== itemToDelete))
+
+			// Close modal and reset
+			setDeleteConfirmOpen(false)
+			setItemToDelete(null)
 		} catch (err) {
 			console.error('Error deleting item:', err)
 			setError(err instanceof Error ? err.message : 'Failed to delete item')
+		} finally {
+			setIsDeleting(false)
 		}
+	}
+
+	const handleDeleteCancel = () => {
+		setDeleteConfirmOpen(false)
+		setItemToDelete(null)
 	}
 
 	const handleAddItem = () => {
@@ -266,7 +290,36 @@ export default function ListDetailPage() {
 		)
 	}
 
-	const activeTodos = items.filter((item) => !item.completed)
+	// Helper function to get priority value for sorting
+	const getPriorityValue = (priority: Priority): number => {
+		const priorityMap = { urgent: 0, high: 1, medium: 2, low: 3, none: 4 }
+		return priorityMap[priority]
+	}
+
+	// Sort active todos based on selected sort option
+	const getSortedActiveTodos = () => {
+		const active = items.filter((item) => !item.completed)
+
+		if (sortBy === 'dueDate') {
+			return [...active].sort((a, b) => {
+				// Items without due date go to the end
+				if (!a.dueDate && !b.dueDate) return 0
+				if (!a.dueDate) return 1
+				if (!b.dueDate) return -1
+				return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+			})
+		}
+
+		if (sortBy === 'priority') {
+			return [...active].sort((a, b) => {
+				return getPriorityValue(a.priority) - getPriorityValue(b.priority)
+			})
+		}
+
+		return active
+	}
+
+	const activeTodos = getSortedActiveTodos()
 	const completedTodos = items.filter((item) => item.completed)
 
 	return (
@@ -339,7 +392,23 @@ export default function ListDetailPage() {
 				{/* Active Tasks inside List Container */}
 				{activeTodos.length > 0 && (
 					<div className="mt-4 pt-4 border-t border-slate-700">
-						<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-3">Active Tasks</h2>
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Active Tasks</h2>
+							<div className="flex items-center gap-2">
+								<label htmlFor="sortBy" className="text-xs text-gray-400">
+									Sort by:
+								</label>
+								<select
+									id="sortBy"
+									value={sortBy}
+									onChange={(e) => setSortBy(e.target.value as 'dueDate' | 'priority')}
+									className="text-xs bg-slate-700 border border-slate-600 text-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+								>
+									<option value="priority">Priority</option>
+									<option value="dueDate">Due Date</option>
+								</select>
+							</div>
+						</div>
 					<div className="space-y-2">
 						{activeTodos.map((item) => (
 							<div
@@ -372,7 +441,7 @@ export default function ListDetailPage() {
 										)}
 									</div>
 									<button
-										onClick={() => handleDeleteItem(item.id)}
+										onClick={() => handleDeleteClick(item.id)}
 										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 										aria-label="Delete todo"
 									>
@@ -432,7 +501,7 @@ export default function ListDetailPage() {
 										)}
 									</div>
 									<button
-										onClick={() => handleDeleteItem(item.id)}
+										onClick={() => handleDeleteClick(item.id)}
 										className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 										aria-label="Delete todo"
 									>
@@ -536,6 +605,19 @@ export default function ListDetailPage() {
 					</div>
 				</form>
 			</Modal>
+
+			{/* Delete Confirmation Modal */}
+			<ConfirmModal
+				isOpen={deleteConfirmOpen}
+				onClose={handleDeleteCancel}
+				onConfirm={handleDeleteConfirm}
+				title="Delete Task"
+				message="Are you sure you want to delete this task? This action cannot be undone."
+				confirmText="Delete"
+				cancelText="Cancel"
+				variant="danger"
+				isLoading={isDeleting}
+			/>
 		</div>
 	)
 }
