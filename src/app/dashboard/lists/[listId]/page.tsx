@@ -49,6 +49,7 @@ export default function ListDetailPage() {
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 	const [isDeleting, setIsDeleting] = useState(false)
+	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
 
 	// Format timestamp to DD-MM-YYYY
 	const formatDate = (timestamp: string) => {
@@ -289,7 +290,36 @@ export default function ListDetailPage() {
 		)
 	}
 
-	const activeTodos = items.filter((item) => !item.completed)
+	// Helper function to get priority value for sorting
+	const getPriorityValue = (priority: Priority): number => {
+		const priorityMap = { urgent: 0, high: 1, medium: 2, low: 3, none: 4 }
+		return priorityMap[priority]
+	}
+
+	// Sort active todos based on selected sort option
+	const getSortedActiveTodos = () => {
+		const active = items.filter((item) => !item.completed)
+
+		if (sortBy === 'dueDate') {
+			return [...active].sort((a, b) => {
+				// Items without due date go to the end
+				if (!a.dueDate && !b.dueDate) return 0
+				if (!a.dueDate) return 1
+				if (!b.dueDate) return -1
+				return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+			})
+		}
+
+		if (sortBy === 'priority') {
+			return [...active].sort((a, b) => {
+				return getPriorityValue(a.priority) - getPriorityValue(b.priority)
+			})
+		}
+
+		return active
+	}
+
+	const activeTodos = getSortedActiveTodos()
 	const completedTodos = items.filter((item) => item.completed)
 
 	return (
@@ -362,7 +392,23 @@ export default function ListDetailPage() {
 				{/* Active Tasks inside List Container */}
 				{activeTodos.length > 0 && (
 					<div className="mt-4 pt-4 border-t border-slate-700">
-						<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-3">Active Tasks</h2>
+						<div className="flex items-center justify-between mb-3">
+							<h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide">Active Tasks</h2>
+							<div className="flex items-center gap-2">
+								<label htmlFor="sortBy" className="text-xs text-gray-400">
+									Sort by:
+								</label>
+								<select
+									id="sortBy"
+									value={sortBy}
+									onChange={(e) => setSortBy(e.target.value as 'dueDate' | 'priority')}
+									className="text-xs bg-slate-700 border border-slate-600 text-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+								>
+									<option value="priority">Priority</option>
+									<option value="dueDate">Due Date</option>
+								</select>
+							</div>
+						</div>
 					<div className="space-y-2">
 						{activeTodos.map((item) => (
 							<div
