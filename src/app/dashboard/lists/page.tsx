@@ -147,7 +147,7 @@ function SortableListItem({ list }: { list: ListEntry }) {
 export default function Lists() {
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
 	const [error, setError] = useState<string | null>()
-	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(true)
 
 	// used for sending api calls via api/routes
 	const router = useRouter()
@@ -299,29 +299,37 @@ export default function Lists() {
 			<h3 className="text-black text-3xl">Current Lists</h3>
 			<div className={`${lusitana.className} font-bold p-6`}>
 				<div>
-					{!userLists.length ? (
-						<div>
-							<p>There are currently no categories listed</p>
-							<button className="button" onClick={handleCategoryCreate}>
-								Create new Category
-							</button>
-							<button>
-								<Link href="/dashboard/lists/newList">Create New List</Link>
-							</button>
+					{isLoading ? (
+						// Loading state
+						<div className="flex flex-col items-center justify-center py-12">
+							<div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-indigo-600 mb-4"></div>
+							<p className="text-gray-600 text-lg">Loading your lists...</p>
+						</div>
+					) : !userLists.length ? (
+						// Empty state
+						<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
+							<HiOutlineClipboardList className="h-16 w-16 text-gray-400 mb-4" />
+							<p className="text-gray-700 text-xl mb-2">No Lists Yet</p>
+							<p className="text-gray-500 mb-6">Get started by creating your first list</p>
+							<div className="flex gap-4">
+								<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
+									Create New List
+								</ElegantButton>
+								<ElegantButton variant="secondary" size="lg" onClick={handleCategoryCreate}>
+									Create Category
+								</ElegantButton>
+							</div>
 						</div>
 					) : (
+						// Lists display
 						<div id="list-container">
-							{userLists.length > 0 ? (
-								<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-									<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
-										{userLists.map((list) => (
-											<SortableListItem key={list.id} list={list} />
-										))}
-									</SortableContext>
-								</DndContext>
-							) : (
-								'put error message here'
-							)}
+							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+								<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
+									{userLists.map((list) => (
+										<SortableListItem key={list.id} list={list} />
+									))}
+								</SortableContext>
+							</DndContext>
 						</div>
 					)}
 				</div>
