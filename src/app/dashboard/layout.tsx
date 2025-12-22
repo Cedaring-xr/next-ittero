@@ -10,10 +10,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)'
 				}}
 			>
-				<div className="w-full flex-none md:w-64">
+				<div className="w-full flex-none md:w-56">
 					<SideNav />
 				</div>
-				<div className="flex-grow p-6 md:overflow-y-auto md:p-6">{children}</div>
+				<div className="flex-grow p-6 md:p-6">{children}</div>
 			</div>
 		</Providers>
 	)
