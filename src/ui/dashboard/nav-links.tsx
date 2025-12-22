@@ -13,7 +13,7 @@ import { usePathname } from 'next/navigation'
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
 
-export default function NavLinks() {
+export default function NavLinks({ isCollapsed }: { isCollapsed: boolean }) {
 	const links = [
 		{ name: 'Home', href: '/dashboard', icon: HomeIcon },
 		{
@@ -48,11 +48,12 @@ export default function NavLinks() {
 							'flex h-[48px] grow items-center justify-center gap-2 bg-slate-800 border-b-2 border-slate-600 p-3 text-sm text-gray-100 font-medium hover:bg-slate-700 hover:text-blue-400 md:flex-none md:justify-start md:p-2 md:px-3 md:text-lg',
 							{
 								'bg-slate-700 text-blue-400': pathname === link.href
-							}
+							},
+							isCollapsed ? 'md:justify-center' : ''
 						)}
 					>
 						<LinkIcon className="w-6" />
-						<p className="hidden md:block">{link.name}</p>
+						{!isCollapsed && <p className="hidden md:block">{link.name}</p>}
 					</Link>
 				)
 			})}
