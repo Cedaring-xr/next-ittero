@@ -1,12 +1,20 @@
 import SideNav from '@/ui/dashboard/sidenav'
+import Providers from '@/app/providers'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="flex min-h-screen flex-col md:flex-row" style={{ background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)' }}>
-			<div className="w-full flex-none md:w-64">
-				<SideNav />
+		<Providers>
+			<div
+				className="flex min-h-screen flex-col md:flex-row"
+				style={{
+					background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)'
+				}}
+			>
+				<div className="w-full flex-none md:w-64">
+					<SideNav />
+				</div>
+				<div className="flex-grow p-6 md:overflow-y-auto md:p-6">{children}</div>
 			</div>
-			<div className="flex-grow p-6 md:overflow-y-auto md:p-6">{children}</div>
-		</div>
+		</Providers>
 	)
 }

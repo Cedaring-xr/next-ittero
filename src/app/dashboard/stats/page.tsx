@@ -6,11 +6,13 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { lusitana } from '@/ui/fonts'
 import { HiOutlinePresentationChartBar, HiOutlineBookOpen, HiOutlineClipboardList } from 'react-icons/hi'
+import { useListsStats } from '@/app/hooks/use-stats-queries'
 
 function Stats() {
 	const [notificationCount, setNotificationCount] = useState(0)
 
 	const user = useAuthUser()
+	const { stats, isLoading } = useListsStats()
 
 	const handleCalculateJournalStats = () => {
 		// fetch resources needed to calculate stats
@@ -103,7 +105,64 @@ function Stats() {
 							Lists & Tasks Statistics
 						</h3>
 					</div>
-					<p className="text-gray-400 text-sm mb-4">Track your productivity and task completion metrics.</p>
+					<p className="text-gray-400 text-sm mb-6">Track your productivity and task completion metrics.</p>
+
+					{/* Stats Display */}
+					{isLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-emerald-400"></div>
+						</div>
+					) : (
+						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+							{/* Total Lists */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Total Lists</p>
+								<p className="text-3xl font-bold text-white">{stats.totalLists}</p>
+							</div>
+
+							{/* Total Tasks */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Total Tasks</p>
+								<p className="text-3xl font-bold text-white">{stats.totalTasks}</p>
+							</div>
+
+							{/* Completed Tasks */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Completed</p>
+								<p className="text-3xl font-bold text-green-400">{stats.completedTasks}</p>
+							</div>
+
+							{/* Active Tasks */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Active</p>
+								<p className="text-3xl font-bold text-indigo-400">{stats.activeTasks}</p>
+							</div>
+
+							{/* Completion Rate */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Completion Rate</p>
+								<p className="text-3xl font-bold text-emerald-400">{stats.completionRate}%</p>
+							</div>
+
+							{/* Overdue Tasks */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Overdue</p>
+								<p className="text-3xl font-bold text-red-400">{stats.overdueTasks}</p>
+							</div>
+
+							{/* Tasks with Due Date */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">With Due Date</p>
+								<p className="text-3xl font-bold text-blue-400">{stats.tasksWithDueDate}</p>
+							</div>
+
+							{/* Urgent Tasks */}
+							<div className="bg-slate-700 rounded-lg p-4 text-center">
+								<p className="text-gray-400 text-xs uppercase mb-2">Urgent</p>
+								<p className="text-3xl font-bold text-orange-400">{stats.tasksByPriority.urgent}</p>
+							</div>
+						</div>
+					)}
 					<div className="flex flex-col sm:flex-row gap-4 my-4">
 						<ElegantButton variant="primary" size="lg" icon={<ChartBarIcon className="h-5 w-5" />}>
 							Run List Stats

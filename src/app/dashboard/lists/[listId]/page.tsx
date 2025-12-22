@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { lusitana } from '@/ui/fonts'
 import {
@@ -14,6 +14,13 @@ import {
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
+import {
+	useListDetails,
+	useListItems,
+	useCreateItem,
+	useToggleItemCompletion,
+	useDeleteItem
+} from '@/app/hooks/use-list-queries'
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
 
@@ -44,22 +51,26 @@ export default function ListDetailPage() {
 	const params = useParams()
 	const listId = params.listId as string
 
-	const [list, setList] = useState<ListEntry | null>(null)
-	const [items, setItems] = useState<TodoItem[]>([])
-	const [isLoading, setIsLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
+	// React Query hooks
+	const { data: list, isLoading: listLoading, error: listError } = useListDetails(listId)
+	const { data: items = [], isLoading: itemsLoading, error: itemsError } = useListItems(listId)
+	const createItemMutation = useCreateItem(listId)
+	const toggleCompletionMutation = useToggleItemCompletion(listId)
+	const deleteItemMutation = useDeleteItem(listId)
+
+	// UI state
 	const [isModalOpen, setIsModalOpen] = useState(false)
 	const [newItemText, setNewItemText] = useState('')
 	const [newItemPriority, setNewItemPriority] = useState<Priority>('none')
 	const [newItemDueDate, setNewItemDueDate] = useState('')
 	const [newItemDueTime, setNewItemDueTime] = useState('')
-	const [isCreating, setIsCreating] = useState(false)
-	const [createError, setCreateError] = useState<string | null>(null)
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
-	const [isDeleting, setIsDeleting] = useState(false)
 	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
 	const [isCompletedExpanded, setIsCompletedExpanded] = useState(false)
+
+	const isLoading = listLoading || itemsLoading
+	const error = listError || itemsError
 
 	// Format timestamp to DD-MM-YYYY
 	const formatDate = (timestamp: string) => {
@@ -103,91 +114,14 @@ export default function ListDetailPage() {
 		}
 	}
 
-	// Fetch list details
-	const fetchListDetails = useCallback(async () => {
-		try {
-			const response = await fetch(`/api/lists/${listId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch list details')
-			}
-
-			setList(data.list)
-		} catch (err) {
-			console.error('Error fetching list details:', err)
-			setError(err instanceof Error ? err.message : 'Failed to fetch list')
-		}
-	}, [listId])
-
-	// Fetch todo items for this list
-	const fetchListItems = useCallback(async () => {
-		try {
-			const response = await fetch(`/api/lists/items?listId=${listId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch list items')
-			}
-
-			setItems(data.items || [])
-		} catch (err) {
-			console.error('Error fetching list items:', err)
-			setError(err instanceof Error ? err.message : 'Failed to fetch items')
-		}
-	}, [listId])
-
-	// Fetch data on component mount
-	useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true)
-			setError(null)
-			await Promise.all([fetchListDetails(), fetchListItems()])
-			setIsLoading(false)
-		}
-
-		if (listId) {
-			fetchData()
-		}
-	}, [listId, fetchListDetails, fetchListItems])
-
-	const handleToggleComplete = async (itemId: string) => {
+	const handleToggleComplete = (itemId: string) => {
 		const item = items.find((i) => i.id === itemId)
 		if (!item) return
 
-		try {
-			const response = await fetch(`/api/lists/items/${itemId}`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					completed: !item.completed
-				})
-			})
-
-			if (!response.ok) {
-				throw new Error('Failed to update item')
-			}
-
-			// Update local state
-			setItems(items.map((i) => (i.id === itemId ? { ...i, completed: !i.completed } : i)))
-		} catch (err) {
-			console.error('Error toggling item:', err)
-			setError(err instanceof Error ? err.message : 'Failed to update item')
-		}
+		toggleCompletionMutation.mutate({
+			itemId,
+			completed: !item.completed
+		})
 	}
 
 	const handleDeleteClick = (itemId: string) => {
@@ -195,34 +129,15 @@ export default function ListDetailPage() {
 		setDeleteConfirmOpen(true)
 	}
 
-	const handleDeleteConfirm = async () => {
+	const handleDeleteConfirm = () => {
 		if (!itemToDelete) return
 
-		setIsDeleting(true)
-		try {
-			const response = await fetch(`/api/lists/items/${itemToDelete}`, {
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			if (!response.ok) {
-				throw new Error('Failed to delete item')
+		deleteItemMutation.mutate(itemToDelete, {
+			onSuccess: () => {
+				setDeleteConfirmOpen(false)
+				setItemToDelete(null)
 			}
-
-			// Remove from local state
-			setItems(items.filter((i) => i.id !== itemToDelete))
-
-			// Close modal and reset
-			setDeleteConfirmOpen(false)
-			setItemToDelete(null)
-		} catch (err) {
-			console.error('Error deleting item:', err)
-			setError(err instanceof Error ? err.message : 'Failed to delete item')
-		} finally {
-			setIsDeleting(false)
-		}
+		})
 	}
 
 	const handleDeleteCancel = () => {
@@ -232,7 +147,7 @@ export default function ListDetailPage() {
 
 	const handleAddItem = () => {
 		setIsModalOpen(true)
-		setCreateError(null)
+		createItemMutation.reset()
 	}
 
 	const handleCloseModal = () => {
@@ -241,71 +156,35 @@ export default function ListDetailPage() {
 		setNewItemPriority('none')
 		setNewItemDueDate('')
 		setNewItemDueTime('')
-		setCreateError(null)
+		createItemMutation.reset() // Reset mutation state
 	}
 
-	const handleCreateItem = async (e: React.FormEvent) => {
+	const handleCreateItem = (e: React.FormEvent) => {
 		e.preventDefault()
-		setIsCreating(true)
-		setCreateError(null)
 
-		try {
-			// Combine date and time if both are provided
-			let dueDateTimeString = ''
-			if (newItemDueDate) {
-				if (newItemDueTime) {
-					// Combine date and time into ISO string
-					dueDateTimeString = `${newItemDueDate}T${newItemDueTime}:00`
-				} else {
-					// Just date, no time
-					dueDateTimeString = newItemDueDate
-				}
+		// Combine date and time if both are provided
+		let dueDateTimeString = ''
+		if (newItemDueDate) {
+			if (newItemDueTime) {
+				dueDateTimeString = `${newItemDueDate}T${newItemDueTime}:00`
+			} else {
+				dueDateTimeString = newItemDueDate
 			}
-
-			const todoData = {
-				text: newItemText.trim(),
-				listId: listId,
-				priority: newItemPriority,
-				dueDate: dueDateTimeString,
-				completed: false
-			}
-
-			const response = await fetch('/api/lists/items', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(todoData)
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to create todo item')
-			}
-
-			// Add the new item to the local state
-			const newItem: TodoItem = {
-				id: data.data.id || Date.now().toString(),
-				text: todoData.text,
-				listId: todoData.listId,
-				priority: todoData.priority,
-				dueDate: todoData.dueDate,
-				completed: false,
-				createdAt: data.data.createdAt || new Date().toISOString(),
-				updatedAt: data.data.updatedAt || new Date().toISOString()
-			}
-
-			setItems([...items, newItem])
-
-			// Close modal and reset form
-			handleCloseModal()
-		} catch (err) {
-			console.error('Error creating todo:', err)
-			setCreateError(err instanceof Error ? err.message : 'Failed to create todo item')
-		} finally {
-			setIsCreating(false)
 		}
+
+		const todoData = {
+			text: newItemText.trim(),
+			listId: listId,
+			priority: newItemPriority,
+			dueDate: dueDateTimeString,
+			completed: false
+		}
+
+		createItemMutation.mutate(todoData, {
+			onSuccess: () => {
+				handleCloseModal()
+			}
+		})
 	}
 
 	const handleBack = () => {
@@ -321,9 +200,13 @@ export default function ListDetailPage() {
 	}
 
 	if (error || !list) {
+		const errorMessage =
+			(listError instanceof Error ? listError.message : null) ||
+			(itemsError instanceof Error ? itemsError.message : null) ||
+			'List not found'
 		return (
 			<div className="flex flex-col items-center justify-center h-screen gap-4">
-				<p className="text-red-400 text-xl">{error || 'List not found'}</p>
+				<p className="text-red-400 text-xl">{errorMessage}</p>
 				<ElegantButton variant="outline" onClick={handleBack}>
 					Back to Lists
 				</ElegantButton>
@@ -651,9 +534,9 @@ export default function ListDetailPage() {
 					</div>
 
 					{/* Error Message */}
-					{createError && (
+					{createItemMutation.error && (
 						<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
-							{createError}
+							{createItemMutation.error.message}
 						</div>
 					)}
 
@@ -663,7 +546,7 @@ export default function ListDetailPage() {
 							type="button"
 							onClick={handleCloseModal}
 							className="flex-1 px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
-							disabled={isCreating}
+							disabled={createItemMutation.isPending}
 						>
 							Cancel
 						</button>
@@ -672,11 +555,11 @@ export default function ListDetailPage() {
 							variant="primary"
 							size="lg"
 							icon={<PlusIcon className="w-5 h-5" />}
-							disabled={!newItemText.trim() || isCreating}
-							isLoading={isCreating}
+							disabled={!newItemText.trim() || createItemMutation.isPending}
+							isLoading={createItemMutation.isPending}
 							className="flex-1"
 						>
-							{isCreating ? 'Creating...' : 'Add Task'}
+							{createItemMutation.isPending ? 'Creating...' : 'Add Task'}
 						</ElegantButton>
 					</div>
 				</form>
@@ -692,7 +575,7 @@ export default function ListDetailPage() {
 				confirmText="Delete"
 				cancelText="Cancel"
 				variant="danger"
-				isLoading={isDeleting}
+				isLoading={deleteItemMutation.isPending}
 			/>
 		</div>
 	)
