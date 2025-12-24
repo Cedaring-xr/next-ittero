@@ -3,9 +3,10 @@ import { lusitana } from '@/ui/fonts'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { FolderPlusIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'
+import { FolderPlusIcon, ArrowsUpDownIcon, UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
+import useAuthUser from '@/app/hooks/user-auth-user'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import {
 	arrayMove,
@@ -145,6 +146,7 @@ function SortableListItem({ list }: { list: ListEntry }) {
 }
 
 export default function Lists() {
+	const user = useAuthUser()
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
 	const [error, setError] = useState<string | null>()
 	const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -256,6 +258,25 @@ export default function Lists() {
 
 	return (
 		<>
+			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
+				<div className="flex ml-4">
+					<HiOutlineClipboardList className="h-[30px] w-[30px]" />{' '}
+					<h2 className="md:text-xl ml-2">Your Lists</h2>
+				</div>
+				<div className="flex items-center mr-4 gap-4">
+					<div className="flex items-center">
+						<UserCircleIcon className="w-6 mr-1" />
+						<h2>{user?.name}</h2>
+					</div>
+					<div className="h-6 w-px bg-slate-400"></div>
+					<Link
+						href="/dashboard/settings"
+						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
+					>
+						<CogIcon className="w-6 h-6" />
+					</Link>
+				</div>
+			</div>
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4">
 				<ElegantButton
 					variant="secondary"
