@@ -1,7 +1,7 @@
 'use client'
 
 import { ExclamationCircleIcon, UserIcon } from '@heroicons/react/24/outline'
-import { Button } from '@/ui/button'
+import ElegantButton from '@/ui/elegant-button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { handleUpdateUserAttribute } from '@/lib/cognitoActions'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -12,9 +12,9 @@ export default function UpdateProfileForm() {
 
 	return (
 		<form action={dispatch}>
-			<div className="rounded-md bg-gray-50 p-4 md:p-6">
+			<div className="rounded-md bg-slate-800 border-2 border-slate-700 p-4 md:p-6">
 				<div className="mb-4">
-					<label htmlFor="amount" className="mb-2 block text-sm font-medium">
+					<label htmlFor="amount" className="mb-2 block text-sm font-medium text-white">
 						Name
 					</label>
 					<div className="relative mt-2 rounded-md">
@@ -42,9 +42,9 @@ export default function UpdateProfileForm() {
 						<p className="text-sm text-green-500">Name has been updated successfully</p>
 					)}
 				</div>
-			</div>
-			<div className="mt-6 flex justify-end gap-4">
-				<UpdateButton />
+				<div className="mt-6 flex justify-end gap-4">
+					<UpdateButton />
+				</div>
 			</div>
 		</form>
 	)
@@ -53,5 +53,9 @@ export default function UpdateProfileForm() {
 function UpdateButton() {
 	const { pending } = useFormStatus()
 
-	return <Button aria-disabled={pending}>Update Name</Button>
+	return (
+		<ElegantButton variant="primary" size="md" isLoading={pending} disabled={pending}>
+			Update Name
+		</ElegantButton>
+	)
 }

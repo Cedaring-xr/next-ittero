@@ -1,6 +1,6 @@
 'use client'
 import { AtSymbolIcon, ExclamationCircleIcon, KeyIcon } from '@heroicons/react/24/outline'
-import { Button } from '@/ui/button'
+import ElegantButton from '@/ui/elegant-button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { handleConfirmUserAttribute, handleUpdateUserAttribute } from '@/lib/cognitoActions'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -12,9 +12,9 @@ export default function UpdateEmailForm() {
 
 	return (
 		<form action={dispatch}>
-			<div className="rounded-md bg-gray-50 p-4 md:p-6">
+			<div className="rounded-md bg-slate-800 border-2 border-slate-700 p-4 md:p-6">
 				<div className="mb-4">
-					<label htmlFor="amount" className="mb-2 block text-sm font-medium">
+					<label htmlFor="amount" className="mb-2 block text-sm font-medium text-white">
 						Email
 					</label>
 					<div className="relative mt-2 rounded-md">
@@ -49,7 +49,7 @@ export default function UpdateEmailForm() {
 				{status?.includes('code') && (
 					<>
 						<div className="mb-1">
-							<label htmlFor="amount" className="mb-2 block text-sm font-medium">
+							<label htmlFor="amount" className="mb-2 block text-sm font-medium text-white">
 								{status}
 							</label>
 							<div className="relative mt-2 rounded-md">
@@ -80,10 +80,9 @@ export default function UpdateEmailForm() {
 						</div>
 					</>
 				)}
-			</div>
-
-			<div className="mt-6 flex justify-end gap-4">
-				{status?.includes('code') ? <VerifyButton dispatch={dispatchConfirm} /> : <UpdateButton />}
+				<div className="mt-6 flex justify-end gap-4">
+					{status?.includes('code') ? <VerifyButton dispatch={dispatchConfirm} /> : <UpdateButton />}
+				</div>
 			</div>
 		</form>
 	)
@@ -92,15 +91,19 @@ export default function UpdateEmailForm() {
 function UpdateButton() {
 	const { pending } = useFormStatus()
 
-	return <Button aria-disabled={pending}>Update Email</Button>
+	return (
+		<ElegantButton variant="primary" size="md" isLoading={pending} disabled={pending}>
+			Update Email
+		</ElegantButton>
+	)
 }
 
 function VerifyButton({ dispatch }: { dispatch: (payload: FormData) => void }) {
 	const { pending } = useFormStatus()
 
 	return (
-		<Button aria-disabled={pending} formAction={dispatch}>
+		<ElegantButton variant="primary" size="md" isLoading={pending} disabled={pending} formAction={dispatch}>
 			Verify Email
-		</Button>
+		</ElegantButton>
 	)
 }

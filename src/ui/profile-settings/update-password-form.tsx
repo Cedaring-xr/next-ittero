@@ -1,17 +1,22 @@
 'use client'
 import { ExclamationCircleIcon, KeyIcon } from '@heroicons/react/24/outline'
-import { Button } from '@/ui/button'
+import ElegantButton from '@/ui/elegant-button'
 import { useFormState, useFormStatus } from 'react-dom'
 import { handleUpdatePassword } from '@/lib/cognitoActions'
+import { useState } from 'react'
 
 export default function UpdatePasswordForm() {
 	const [status, dispatch] = useFormState(handleUpdatePassword, undefined)
+	const [newPassword, setNewPassword] = useState('')
+	const [confirmPassword, setConfirmPassword] = useState('')
+	const passwordsMatch = newPassword === confirmPassword
+	const showPasswordMismatch = confirmPassword.length > 0 && !passwordsMatch
 
 	return (
 		<form action={dispatch}>
-			<div className="rounded-md bg-gray-50 p-4 md:p-6">
+			<div className="rounded-md bg-slate-800 border-2 border-slate-700 p-4 md:p-6">
 				<div className="mb-4">
-					<label htmlFor="amount" className="mb-2 block text-sm font-medium">
+					<label htmlFor="amount" className="mb-2 block text-sm font-medium text-white">
 						Current Password
 					</label>
 					<div className="relative mt-2 rounded-md">
@@ -30,7 +35,7 @@ export default function UpdatePasswordForm() {
 					</div>
 				</div>
 				<div className="mb-4">
-					<label htmlFor="amount" className="mb-2 block text-sm font-medium">
+					<label htmlFor="new_password" className="mb-2 block text-sm font-medium text-white">
 						New Password
 					</label>
 					<div className="relative mt-2 rounded-md">
@@ -42,12 +47,41 @@ export default function UpdatePasswordForm() {
 								placeholder="Enter new password"
 								required
 								minLength={6}
+								value={newPassword}
+								onChange={(e) => setNewPassword(e.target.value)}
 								className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
 							/>
 							<KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
 						</div>
 					</div>
 				</div>
+				<div className="mb-4">
+					<label htmlFor="confirm_password" className="mb-2 block text-sm font-medium text-white">
+						Confirm New Password
+					</label>
+					<div className="relative mt-2 rounded-md">
+						<div className="relative">
+							<input
+								id="confirm_password"
+								type="password"
+								name="confirm_password"
+								placeholder="Re-type new password"
+								required
+								minLength={6}
+								value={confirmPassword}
+								onChange={(e) => setConfirmPassword(e.target.value)}
+								className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+							/>
+							<KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+						</div>
+					</div>
+				</div>
+				{showPasswordMismatch && (
+					<div className="mb-4 flex items-center space-x-1">
+						<ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+						<p className="text-sm text-red-500">Passwords do not match</p>
+					</div>
+				)}
 				<div className="flex h-8 items-end space-x-1" aria-live="polite" aria-atomic="true">
 					{status === 'error' && (
 						<>
@@ -57,17 +91,20 @@ export default function UpdatePasswordForm() {
 					)}
 					{status === 'success' && <p className="text-sm text-green-500">Password updated successfully.</p>}
 				</div>
-			</div>
-
-			<div className="mt-6 flex justify-end gap-4">
-				<UpdateButton />
+				<div className="mt-6 flex justify-end gap-4">
+					<UpdateButton passwordsMatch={passwordsMatch} />
+				</div>
 			</div>
 		</form>
 	)
 }
 
-function UpdateButton() {
+function UpdateButton({ passwordsMatch }: { passwordsMatch: boolean }) {
 	const { pending } = useFormStatus()
 
-	return <Button aria-disabled={pending}>Update Password</Button>
+	return (
+		<ElegantButton variant="primary" size="md" isLoading={pending} disabled={pending || !passwordsMatch}>
+			Update Password
+		</ElegantButton>
+	)
 }
