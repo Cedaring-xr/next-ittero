@@ -3,6 +3,10 @@ import { lusitana } from '@/ui/fonts'
 import UpdateEmailForm from '@/ui/profile-settings/update-email-form'
 import UpdatePasswordForm from '@/ui/profile-settings/update-password-form'
 import UpdateProfileForm from '@/ui/profile-settings/update-profile-form'
+import ThemeSettingsForm from '@/ui/profile-settings/theme-settings-form'
+import DateTimeSettingsForm from '@/ui/profile-settings/datetime-settings-form'
+import NotificationSettingsForm from '@/ui/profile-settings/notification-settings-form'
+import DeleteAccountForm from '@/ui/profile-settings/delete-account-form'
 import useAuthUser from '@/app/hooks/user-auth-user'
 import UserCircleIcon from '@heroicons/react/24/outline/UserCircleIcon'
 import CogIcon from '@heroicons/react/24/outline/CogIcon'
@@ -23,12 +27,50 @@ export default function Profile() {
 					</div>
 				</div>
 			</div>
-			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-				<UpdateProfileForm />
-				<UpdatePasswordForm />
+			{/* Account Information */}
+			<div className="mb-6">
+				<h3 className="text-xl font-semibold text-gray-800 mb-4">Account Information</h3>
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+					<UpdateProfileForm />
+					<UpdatePasswordForm />
+				</div>
 			</div>
-			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mt-8">
+
+			<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-6">
 				<UpdateEmailForm />
+			</div>
+
+			{/* Preferences */}
+			<div className="mb-6">
+				<h3 className="text-xl font-semibold text-gray-800 mb-4">Preferences</h3>
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+					<div className="lg:col-span-2">
+						<ThemeSettingsForm />
+					</div>
+					<div className="lg:col-span-2">
+						<DateTimeSettingsForm />
+					</div>
+				</div>
+			</div>
+
+			{/* Notifications */}
+			<div className="mb-6">
+				<h3 className="text-xl font-semibold text-gray-800 mb-4">Notifications</h3>
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+					<div className="lg:col-span-2">
+						<NotificationSettingsForm />
+					</div>
+				</div>
+			</div>
+
+			{/* Danger Zone */}
+			<div className="mb-6">
+				<h3 className="text-xl font-semibold text-red-600 mb-4">Danger Zone</h3>
+				<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+					<div className="lg:col-span-2">
+						<DeleteAccountForm />
+					</div>
+				</div>
 			</div>
 		</main>
 	)
