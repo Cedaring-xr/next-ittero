@@ -11,9 +11,11 @@ import {
 	ChevronUpIcon,
 	ChevronRightIcon
 } from '@heroicons/react/24/outline'
+import { BsPinAngle, BsPinAngleFill } from 'react-icons/bs'
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
+import { usePinnedLists } from '@/contexts/PinnedListsContext'
 import {
 	useListDetails,
 	useListItems,
@@ -57,6 +59,10 @@ export default function ListDetailPage() {
 	const createItemMutation = useCreateItem(listId)
 	const toggleCompletionMutation = useToggleItemCompletion(listId)
 	const deleteItemMutation = useDeleteItem(listId)
+
+	// Pinned lists context
+	const { isPinned, pinList, unpinList } = usePinnedLists()
+	const isListPinned = isPinned(listId)
 
 	// UI state
 	const [isModalOpen, setIsModalOpen] = useState(false)
@@ -143,6 +149,18 @@ export default function ListDetailPage() {
 	const handleDeleteCancel = () => {
 		setDeleteConfirmOpen(false)
 		setItemToDelete(null)
+	}
+
+	const handleTogglePin = async () => {
+		try {
+			if (isListPinned) {
+				await unpinList(listId)
+			} else {
+				await pinList(listId)
+			}
+		} catch (error) {
+			console.error('Error toggling pin status:', error)
+		}
 	}
 
 	const handleAddItem = () => {
@@ -287,7 +305,20 @@ export default function ListDetailPage() {
 			<div className="bg-slate-800 rounded-lg p-6 mb-6">
 				{/* List Header */}
 				<div className="flex justify-between items-start mb-4">
-					<h1 className={`${lusitana.className} text-3xl font-bold text-white`}>{list.title}</h1>
+					<div className="flex items-center gap-3">
+						<h1 className={`${lusitana.className} text-3xl font-bold text-white`}>{list.title}</h1>
+						<button
+							onClick={handleTogglePin}
+							className="p-2 rounded-md hover:bg-slate-700 transition-colors group"
+							title={isListPinned ? 'Unpin from sidebar' : 'Pin to sidebar'}
+						>
+							{isListPinned ? (
+								<BsPinAngleFill className="w-6 h-6 text-yellow-400 group-hover:text-yellow-300" />
+							) : (
+								<BsPinAngle className="w-6 h-6 text-gray-400 group-hover:text-yellow-400" />
+							)}
+						</button>
+					</div>
 					{list.category && (
 						<div className="border-emerald-500 border-[2px] px-3 py-1 rounded-md text-white">
 							{list.category}

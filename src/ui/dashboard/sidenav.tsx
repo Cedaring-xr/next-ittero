@@ -9,54 +9,45 @@ import {
 	UserCircleIcon,
 	BuildingOfficeIcon,
 	ChevronLeftIcon,
-	ChevronRightIcon
+	ChevronRightIcon,
+	XMarkIcon
 } from '@heroicons/react/24/outline'
 import { BsPinAngle } from 'react-icons/bs'
 import useAuthUser from '@/app/hooks/user-auth-user'
-import { useState, useEffect } from 'react'
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-	category: string
-	tags: string[]
-	archived: boolean
-	pinned?: boolean
-	createdAt: string
-	updatedAt: string
-}
+import { usePinnedLists } from '@/contexts/PinnedListsContext'
+import { useState } from 'react'
+import ConfirmModal from '@/ui/confirm-modal'
 
 export default function SideNav() {
 	const user = useAuthUser()
 	const [isCollapsed, setIsCollapsed] = useState(false)
-	const [pinnedLists, setPinnedLists] = useState<ListEntry[]>([])
+	const { pinnedLists, unpinList } = usePinnedLists()
+	const [unpinConfirmOpen, setUnpinConfirmOpen] = useState(false)
+	const [listToUnpin, setListToUnpin] = useState<{ id: string; title: string } | null>(null)
 
-	useEffect(() => {
-		const fetchPinnedLists = async () => {
-			try {
-				const response = await fetch('/api/lists', {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json'
-					}
-				})
+	const handleUnpinClick = (e: React.MouseEvent, listId: string, listTitle: string) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setListToUnpin({ id: listId, title: listTitle })
+		setUnpinConfirmOpen(true)
+	}
 
-				if (response.ok) {
-					const data = await response.json()
-					const lists = data.lists || []
-					// For now, show first 3 lists as "pinned" until we add pinned property
-					// Later, filter by: lists.filter(list => list.pinned && !list.archived)
-					const topLists = lists.slice(0, 3)
-					setPinnedLists(topLists)
-				}
-			} catch (error) {
-				console.error('Error fetching pinned lists:', error)
-			}
+	const handleUnpinConfirm = async () => {
+		if (!listToUnpin) return
+
+		try {
+			await unpinList(listToUnpin.id)
+			setUnpinConfirmOpen(false)
+			setListToUnpin(null)
+		} catch (error) {
+			console.error('Error unpinning list:', error)
 		}
+	}
 
-		fetchPinnedLists()
-	}, [])
+	const handleUnpinCancel = () => {
+		setUnpinConfirmOpen(false)
+		setListToUnpin(null)
+	}
 
 	return (
 		<div
@@ -106,15 +97,33 @@ export default function SideNav() {
 									<Link
 										key={list.id}
 										href={`/dashboard/lists/${list.id}`}
-										className="flex items-center gap-2 bg-slate-800 border-b-2 border-slate-600 px-3 py-2 text-sm text-gray-100 hover:bg-slate-700 hover:text-blue-400 transition-colors"
+										className="flex items-center gap-2 bg-slate-800 border-b-2 border-slate-600 px-3 py-2 text-sm text-gray-100 hover:bg-slate-700 hover:text-blue-400 transition-colors group relative"
 									>
-										<BsPinAngle className="w-5 h-5" />
-										<span className="truncate">{list.title}</span>
+										<BsPinAngle className="w-5 h-5 flex-shrink-0" />
+										<span className="truncate flex-1">{list.title}</span>
+										<button
+											onClick={(e) => handleUnpinClick(e, list.id, list.title)}
+											className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-600 rounded"
+											title="Unpin from sidebar"
+										>
+											<XMarkIcon className="w-4 h-4" />
+										</button>
 									</Link>
 								))}
 							</div>
 						</div>
 					)}
+
+					<ConfirmModal
+						isOpen={unpinConfirmOpen}
+						onClose={handleUnpinCancel}
+						onConfirm={handleUnpinConfirm}
+						title="Unpin List"
+						message={`Are you sure you want to unpin "${listToUnpin?.title}" from the sidebar?`}
+						confirmText="Unpin"
+						cancelText="Cancel"
+						variant="warning"
+					/>
 
 					<div className="hidden h-auto w-full grow md:block"></div>
 					{user && user.isAdmin && (
