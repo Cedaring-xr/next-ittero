@@ -1,6 +1,6 @@
 'use client'
 import AcmeLogo from '@/ui/acme-logo'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { lusitana } from '@/ui/fonts'
 import Image from 'next/image'
@@ -11,7 +11,7 @@ export default function Page() {
 	return (
 		<>
 			<main
-				className="flex min-h-screen flex-col p-2"
+				className="flex min-h-screen flex-col"
 				style={{
 					background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)'
 				}}
@@ -36,7 +36,7 @@ export default function Page() {
 
 					{/* Glassmorphism Box */}
 					<div
-						className="relative z-10 flex flex-col justify-center items-center gap-4 py-8 px-8 md:px-20 max-w-2xl mx-auto rounded-3xl shadow-2xl"
+						className="relative z-10 flex flex-col justify-center items-center gap-6 py-8 px-8 md:px-20 max-w-2xl mx-auto rounded-3xl shadow-2xl"
 						style={{
 							backgroundColor: 'rgba(71, 85, 105, 0.85)',
 							backdropFilter: 'blur(12px)',
@@ -51,15 +51,34 @@ export default function Page() {
 						</p>
 						<Link
 							href="/auth/login"
-							className="flex gap-5 self-center px-8 py-4 text-sm font-medium transition-colors md:text-base hover:bg-[#01ff70] bg-[#39cccc] border-[2px] border-black"
+							className="inline-flex items-center justify-center gap-2.5 px-6 py-3 text-lg font-medium rounded-lg transition-all duration-200 bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 hover:shadow-xl active:bg-indigo-800 active:scale-100 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 						>
 							<span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
 						</Link>
 						<Link
 							href="/auth/signup"
-							className="flex items-center gap-5 self-center px-8 py-4 text-sm font-medium transition-colors md:text-base hover:bg-[#01ff70] bg-[#39cccc] border-[2px] border-black"
+							className="inline-flex items-center justify-center gap-2.5 px-6 py-3 text-lg font-medium rounded-lg transition-all duration-200 bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 hover:shadow-xl active:bg-indigo-800 active:scale-100 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 						>
 							<span>Sign Up</span> <ArrowRightIcon className="w-5 md:w-6" />
+						</Link>
+					</div>
+				</div>
+
+				{/* Demo Button Section */}
+				<div className="w-full bg-gradient-to-br from-slate-800 to-slate-900 py-12 px-4 border-y-2 border-slate-700">
+					<div className="max-w-4xl mx-auto text-center">
+						<h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+							Experience Ittero Before You Sign Up
+						</h2>
+						<p className="text-gray-300 mb-8 text-lg">
+							Explore our features with a live demo - no account required
+						</p>
+						<Link
+							href="/demo"
+							className="inline-flex items-center justify-center gap-3 px-8 py-4 text-xl font-semibold rounded-lg transition-all duration-200 bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 hover:scale-105 hover:shadow-2xl active:scale-100 shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+						>
+							<PlayCircleIcon className="w-7 h-7" />
+							<span>Demo Available Features</span>
 						</Link>
 					</div>
 				</div>
