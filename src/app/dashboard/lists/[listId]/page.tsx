@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { lusitana } from '@/ui/fonts'
 import {
@@ -15,6 +15,7 @@ import { BsPinAngle, BsPinAngleFill } from 'react-icons/bs'
 import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
+import TaskFormFields from '@/ui/task-form-fields'
 import { usePinnedLists } from '@/contexts/PinnedListsContext'
 import {
 	useListDetails,
@@ -48,7 +49,7 @@ interface ListEntry {
 	updatedAt: string
 }
 
-export default function ListDetailPage() {
+export default function ListDetailPage(): JSX.Element {
 	const router = useRouter()
 	const params = useParams()
 	const listId = params.listId as string
@@ -65,15 +66,15 @@ export default function ListDetailPage() {
 	const isListPinned = isPinned(listId)
 
 	// UI state
-	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [newItemText, setNewItemText] = useState('')
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+	const [newItemText, setNewItemText] = useState<string>('')
 	const [newItemPriority, setNewItemPriority] = useState<Priority>('none')
-	const [newItemDueDate, setNewItemDueDate] = useState('')
-	const [newItemDueTime, setNewItemDueTime] = useState('')
-	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+	const [newItemDueDate, setNewItemDueDate] = useState<string>('')
+	const [newItemDueTime, setNewItemDueTime] = useState<string>('')
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false)
 	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
-	const [isCompletedExpanded, setIsCompletedExpanded] = useState(false)
+	const [isCompletedExpanded, setIsCompletedExpanded] = useState<boolean>(false)
 
 	const isLoading = listLoading || itemsLoading
 	const error = listError || itemsError
@@ -177,7 +178,7 @@ export default function ListDetailPage() {
 		createItemMutation.reset() // Reset mutation state
 	}
 
-	const handleCreateItem = (e: React.FormEvent) => {
+	const handleCreateItem = (e: React.FormEvent<HTMLFormElement>): void => {
 		e.preventDefault()
 
 		// Combine date and time if both are provided
@@ -485,93 +486,23 @@ export default function ListDetailPage() {
 			{/* Create Item Modal */}
 			<Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Add New Task">
 				<form onSubmit={handleCreateItem} className="space-y-4">
-					{/* Task Input */}
-					<div>
-						<label htmlFor="taskText" className="block text-sm font-medium text-gray-200 mb-2">
-							Task <span className="text-red-400">*</span>
-						</label>
-						<input
-							type="text"
-							id="taskText"
-							value={newItemText}
-							onChange={(e) => setNewItemText(e.target.value)}
-							placeholder="What needs to be done?"
-							className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-							required
-						/>
-					</div>
-
-					{/* Due Date */}
-					<div>
-						<label htmlFor="dueDate" className="block text-sm font-medium text-gray-200 mb-2">
-							Due Date (Optional)
-						</label>
-						<input
-							type="date"
-							id="dueDate"
-							value={newItemDueDate}
-							onChange={(e) => setNewItemDueDate(e.target.value)}
-							className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-						/>
-					</div>
-
-					{/* Due Time */}
-					{newItemDueDate ? (
-						<div>
-							<label htmlFor="dueTime" className="block text-sm font-medium text-gray-200 mb-2">
-								Due Time (Optional)
-							</label>
-							<input
-								type="time"
-								id="dueTime"
-								value={newItemDueTime}
-								onChange={(e) => setNewItemDueTime(e.target.value)}
-								disabled={!newItemDueDate}
-								className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-							/>
-							{!newItemDueDate && (
-								<p className="text-xs text-gray-500 mt-1">Select a due date first to set a time</p>
-							)}
-						</div>
-					) : (
-						''
-					)}
-
-					{/* Priority */}
-					<div>
-						<label className="block text-sm font-medium text-gray-200 mb-3">Priority</label>
-						<div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-							{(['urgent', 'high', 'medium', 'low', 'none'] as Priority[]).map((p) => (
-								<label
-									key={p}
-									className={`flex items-center justify-center px-4 py-2 rounded-lg border-2 cursor-pointer transition-all ${
-										newItemPriority === p
-											? 'border-indigo-500 bg-indigo-600/20'
-											: 'border-slate-600 bg-slate-700 hover:border-slate-500'
-									}`}
-								>
-									<input
-										type="radio"
-										name="priority"
-										value={p}
-										checked={newItemPriority === p}
-										onChange={(e) => setNewItemPriority(e.target.value as Priority)}
-										className="sr-only"
-									/>
-									<span className="text-white capitalize font-medium">{p}</span>
-								</label>
-							))}
-						</div>
-					</div>
-
-					{/* Error Message */}
-					{createItemMutation.error && (
+					<TaskFormFields
+						newItemText={newItemText}
+						setNewItemText={setNewItemText}
+						newItemDueDate={newItemDueDate}
+						setNewItemDueDate={setNewItemDueDate}
+						newItemDueTime={newItemDueTime}
+						setNewItemDueTime={setNewItemDueTime}
+						newItemPriority={newItemPriority}
+						setNewItemPriority={setNewItemPriority}
+					/>
+					{createItemMutation.error ? (
 						<div className="p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
-							{createItemMutation.error.message}
+							{createItemMutation.error instanceof Error
+								? createItemMutation.error.message
+								: 'An error occurred'}
 						</div>
-					)}
-
-					{/* Action Buttons */}
+					) : null}
 					<div className="flex gap-3 pt-4 border-t border-slate-700">
 						<button
 							type="button"
