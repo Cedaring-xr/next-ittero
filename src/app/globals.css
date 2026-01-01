@@ -59,7 +59,7 @@ body {
 
 .close {
 	font-weight: bold;
-	color: #ef4444;
+	color: #a10505;
 	transition: all 0.2s ease;
 }
 
@@ -73,5 +73,5 @@ body {
 .blue-banner .close,
 .teal-banner .close,
 .purple-banner .close {
-	color: #fca5a5;
+	color: #a10505;
 }

@@ -23,8 +23,8 @@ export default function Banner({ message, title, color }: Props) {
 						<h4 className={`${lusitana.className} justify-start text-xl font-bold`}>{title}</h4>
 						<div className="flex">
 							<div className="close flex cursor-pointer" onClick={() => setBannerVisible(false)}>
-								<HiOutlineBackspace className="text-2xl mt-1 mr-1" />
-								<span className="mt-[5px]">Close</span>
+								<HiOutlineBackspace className="text-3xl mt-1 mr-1" />
+								{/* <span className="mt-[5px]">Close</span> */}
 							</div>
 						</div>
 					</div>
