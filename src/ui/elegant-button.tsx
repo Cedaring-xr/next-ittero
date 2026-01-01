@@ -34,8 +34,7 @@ export default function ElegantButton({
 		outline:
 			'border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100 focus:ring-indigo-500',
 		ghost: 'text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100 focus:ring-indigo-500',
-		danger:
-			'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500 shadow-sm hover:shadow-md'
+		danger: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 focus:ring-red-500 shadow-sm hover:shadow-md'
 	}
 
 	const sizeStyles = {
@@ -59,7 +58,14 @@ export default function ElegantButton({
 					fill="none"
 					viewBox="0 0 24 24"
 				>
-					<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+					<circle
+						className="opacity-25"
+						cx="12"
+						cy="12"
+						r="10"
+						stroke="currentColor"
+						strokeWidth="4"
+					></circle>
 					<path
 						className="opacity-75"
 						fill="currentColor"
