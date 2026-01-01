@@ -90,7 +90,7 @@ function JournalForm() {
 
 	return (
 		<>
-			<form onSubmit={handleSubmit(onSubmit)}>
+			<form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto">
 				<div className="min-h-[400px] flex items-start">
 					{sendForm ? (
 						<div className="w-full bg-green-100 border border-green-400 rounded-md p-6 mt-36">
@@ -115,7 +115,7 @@ function JournalForm() {
 									min={getMinDate()}
 									max={getTodayDate()}
 									defaultValue={getTodayDate()}
-									className=" rounded-md border border-gray-300 bg-[#f7f4fb] pt-2 px-4 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+									className="rounded-md border border-gray-300 bg-[#f7f4fb] py-1.5 px-3 text-sm font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
 									{...register('name', { required: true })}
 								/>
 							</div>
@@ -149,7 +149,7 @@ function JournalForm() {
 								</div>
 
 								{entryMode === 'bullets' ? (
-									<div className="space-y-3">
+									<div className="space-y-2">
 										<div>
 											<label className="text-sm text-gray-300 mb-1 block">
 												How did the day feel overall?
@@ -157,7 +157,7 @@ function JournalForm() {
 											<input
 												type="text"
 												placeholder="Quick, short description"
-												className="w-full rounded-md border border-gray-300 bg-white pt-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+												className="w-full rounded-md border border-gray-300 bg-white py-1.5 px-3 text-sm text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
 												{...register('feelOverall')}
 											/>
 										</div>
@@ -168,7 +168,7 @@ function JournalForm() {
 											<input
 												type="text"
 												placeholder="What stands out for the day"
-												className="w-full rounded-md border border-gray-300 bg-white pt-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+												className="w-full rounded-md border border-gray-300 bg-white py-1.5 px-3 text-sm text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
 												{...register('surprising')}
 											/>
 										</div>
@@ -179,7 +179,7 @@ function JournalForm() {
 											<input
 												type="text"
 												placeholder="Little wins are important"
-												className="w-full rounded-md border border-gray-300 bg-white pt-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+												className="w-full rounded-md border border-gray-300 bg-white py-1.5 px-3 text-sm text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
 												{...register('accomplished')}
 											/>
 										</div>
