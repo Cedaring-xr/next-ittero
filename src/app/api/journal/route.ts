@@ -6,17 +6,23 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
  * Body:
  *   - date: string (required) - Date of the journal entry (YYYY-MM-DD)
  *   - text: string (required) - Paragraph text of the journal entry
- * GET - fetch all journal entries related to user_id
- * Body:
- * 	- name: string
- * 	- text: string
- * 	- date: string
+ *   - tag: string (optional) - Tag for categorizing entry (max 30 characters)
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
- *   - name: generated from date
  *   - date: date from request body (YYYY-MM-DD)
  *   - text: journal entry content
+ *   - tag: optional tag for categorization (max 30 characters)
+ *
+ * GET - Fetch journal entries for the authenticated user with pagination
+ * Query params:
+ *   - limit: number (optional) - Number of entries to return (default: 30)
+ *   - nextToken: string (optional) - Token for pagination to get next batch
+ *
+ * Returns:
+ *   - entries: array of journal entries
+ *   - nextToken: token for next batch (if more entries exist)
+ *   - count: number of entries returned
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
 		console.log('Access Token exists:', !!accessToken)
 
 		const body = await request.json()
-		const { date, text } = body
+		const { date, text, tag } = body
 
 		// Validation
 		if (!date || !text) {
@@ -48,12 +54,17 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Invalid date format. Expected YYYY-MM-DD' }, { status: 400 })
 		}
 
+		// Validate tag if provided (max 30 characters)
+		if (tag && tag.length > 30) {
+			return NextResponse.json({ error: 'Tag must be 30 characters or less' }, { status: 400 })
+		}
+
 		// Prepare journal entry data for AWS API Gateway
 		const journalEntryData = {
 			user: user.userId,
-			name: `Journal Entry - ${date}`,
 			date: date.trim(),
-			text: text.trim()
+			text: text.trim(),
+			...(tag && { tag: tag.trim() })
 		}
 
 		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
@@ -146,13 +157,6 @@ export async function POST(request: NextRequest) {
 	}
 }
 
-/**
- * GET - Fetch all journal entries for the authenticated user
- * Query params:
- *   - user: string (optional) - Filter by user ID (automatically added from auth)
- *
- * Returns array of journal entries from AWS API Gateway
- */
 export async function GET(request: NextRequest) {
 	try {
 		const response = NextResponse.next()
@@ -179,8 +183,16 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Build URL with user query parameter
-		const url = `${apiGatewayUrl}?user=${user.userId}`
+		// Get pagination parameters from query string
+		const { searchParams } = new URL(request.url)
+		const limit = searchParams.get('limit') || '30'
+		const nextToken = searchParams.get('nextToken')
+
+		// Build URL with query parameters
+		let url = `${apiGatewayUrl}?user=${user.userId}&limit=${limit}`
+		if (nextToken) {
+			url += `&nextToken=${encodeURIComponent(nextToken)}`
+		}
 
 		console.log('Fetching from AWS API Gateway:', url)
 
@@ -246,7 +258,8 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json(
 			{
 				entries: responseData.entries || responseData,
-				count: responseData.count || (responseData.entries ? responseData.entries.length : 0)
+				count: responseData.count || (responseData.entries ? responseData.entries.length : 0),
+				...(responseData.nextToken && { nextToken: responseData.nextToken })
 			},
 			{ status: 200 }
 		)
