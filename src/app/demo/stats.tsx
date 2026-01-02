@@ -52,40 +52,77 @@ function Stats() {
 					</div>
 				</div>
 
-				{/* Entry Times Graph */}
-				<div className="mt-6 pt-6 border-t border-slate-700">
-					<h5 className="text-lg font-semibold text-white mb-4">Entry Times - Last 30 Days</h5>
-					<ResponsiveContainer width="100%" height={300}>
-						<LineChart data={entryTimesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-							<CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-							<XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
-							<YAxis
-								stroke="#94a3b8"
-								domain={[0, 24]}
-								ticks={[0, 6, 12, 18, 24]}
-								tickFormatter={formatTime}
-								style={{ fontSize: '12px' }}
-							/>
-							<Tooltip
-								contentStyle={{
-									backgroundColor: '#1e293b',
-									border: '1px solid #475569',
-									borderRadius: '0.5rem',
-									color: '#f1f5f9'
-								}}
-								labelStyle={{ color: '#cbd5e1' }}
-								formatter={(value: any) => [formatTime(value as number), 'Time']}
-							/>
-							<Line
-								type="monotone"
-								dataKey="time"
-								stroke="#a855f7"
-								strokeWidth={2}
-								dot={{ fill: '#a855f7', r: 4 }}
-								activeDot={{ r: 6 }}
-							/>
-						</LineChart>
-					</ResponsiveContainer>
+				{/* Charts Grid */}
+				<div className="mt-6 pt-6 border-t border-slate-700 grid grid-cols-1 lg:grid-cols-3 gap-6">
+					{/* Entry Times Graph */}
+					<div className="lg:col-span-2">
+						<h5 className="text-lg font-semibold text-white mb-4">Entry Times - Last 30 Days</h5>
+						<ResponsiveContainer width="100%" height={300}>
+							<LineChart data={entryTimesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+								<CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+								<XAxis dataKey="date" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+								<YAxis
+									stroke="#94a3b8"
+									domain={[0, 24]}
+									ticks={[0, 6, 12, 18, 24]}
+									tickFormatter={formatTime}
+									style={{ fontSize: '12px' }}
+								/>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: '#1e293b',
+										border: '1px solid #475569',
+										borderRadius: '0.5rem',
+										color: '#f1f5f9'
+									}}
+									labelStyle={{ color: '#cbd5e1' }}
+									formatter={(value: any) => [formatTime(value as number), 'Time']}
+								/>
+								<Line
+									type="monotone"
+									dataKey="time"
+									stroke="#a855f7"
+									strokeWidth={2}
+									dot={{ fill: '#a855f7', r: 4 }}
+									activeDot={{ r: 6 }}
+								/>
+							</LineChart>
+						</ResponsiveContainer>
+					</div>
+
+					{/* Activity Heatmap */}
+					<div className="lg:col-span-1">
+						<h5 className="text-lg font-semibold text-white mb-4">December Activity</h5>
+						<div className="flex flex-wrap gap-1.5">
+							{Array.from({ length: 31 }, (_, i) => {
+								const day = i + 1
+								const dateStr = `12/${day.toString().padStart(2, '0')}`
+								const hasEntry = entryTimesData.some((entry) => entry.date === dateStr)
+
+								return (
+									<div
+										key={day}
+										className="group relative flex flex-col items-center"
+										style={{ width: '24px' }}
+									>
+										<div
+											className={`w-5 h-5 rounded-sm border ${
+												hasEntry
+													? 'bg-purple-500 border-purple-400'
+													: 'bg-slate-800 border-slate-700'
+											} transition-all hover:scale-110`}
+										></div>
+										<span className="text-xs text-gray-500 mt-1">{day}</span>
+										{hasEntry && (
+											<div className="absolute -top-8 hidden group-hover:block bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white whitespace-nowrap z-10">
+												{dateStr}
+											</div>
+										)}
+									</div>
+								)
+							})}
+						</div>
+					</div>
 				</div>
 			</div>
 
