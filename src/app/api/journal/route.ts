@@ -4,7 +4,7 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
 /*
  * POST - Create a new journal entry via AWS API Gateway
  * Body:
- *   - name: string (required) - Name/title of the journal entry
+ *   - date: string (required) - Date of the journal entry (YYYY-MM-DD)
  *   - text: string (required) - Paragraph text of the journal entry
  * GET - fetch all journal entries related to user_id
  * Body:
@@ -14,8 +14,8 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
  *
  * Sends to AWS API Gateway with:
  *   - user: userId from authenticated user
- *   - name: entry name/title
- *   - date: current date (YYYY-MM-DD)
+ *   - name: generated from date
+ *   - date: date from request body (YYYY-MM-DD)
  *   - text: journal entry content
  */
 export async function POST(request: NextRequest) {
@@ -35,20 +35,24 @@ export async function POST(request: NextRequest) {
 		console.log('Access Token exists:', !!accessToken)
 
 		const body = await request.json()
-		const { name, text } = body
+		const { date, text } = body
 
 		// Validation
-		if (!name || !text) {
-			return NextResponse.json({ error: 'Name and text are required' }, { status: 400 })
+		if (!date || !text) {
+			return NextResponse.json({ error: 'Date and text are required' }, { status: 400 })
 		}
 
-		const currentDate = new Date().toISOString().split('T')[0]
+		// Validate date format (YYYY-MM-DD)
+		const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+		if (!dateRegex.test(date)) {
+			return NextResponse.json({ error: 'Invalid date format. Expected YYYY-MM-DD' }, { status: 400 })
+		}
 
 		// Prepare journal entry data for AWS API Gateway
 		const journalEntryData = {
 			user: user.userId,
-			name: name.trim(),
-			date: currentDate,
+			name: `Journal Entry - ${date}`,
+			date: date.trim(),
 			text: text.trim()
 		}
 

@@ -10,21 +10,51 @@ import Link from 'next/link'
 const Banner = dynamic(() => import('@/ui/info/banner'), { ssr: false })
 
 export type FormData = {
-	name: string
+	date: string
 	text: string
+	feelOverall?: string
+	surprising?: string
+	accomplished?: string
 }
 
 export default function NewJournal() {
 	const [sendForm, setSendForm] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+	const [entryMode, setEntryMode] = useState<'bullets' | 'freeform'>('freeform')
 	const { register, handleSubmit, reset } = useForm<FormData>()
+
+	// Get today's date in YYYY-MM-DD format
+	const getTodayDate = () => {
+		const today = new Date()
+		return today.toISOString().split('T')[0]
+	}
+
+	// Get date 3 days ago in YYYY-MM-DD format
+	const getMinDate = () => {
+		const date = new Date()
+		date.setDate(date.getDate() - 3)
+		return date.toISOString().split('T')[0]
+	}
 
 	async function onSubmit(data: FormData) {
 		setLoading(true)
 		setError(null)
 
 		try {
+			// Prepare text based on entry mode
+			let entryText = ''
+			if (entryMode === 'bullets') {
+				// Combine bullet points into formatted entry
+				const bullets = []
+				if (data.feelOverall) bullets.push(`How the day felt: ${data.feelOverall}`)
+				if (data.surprising) bullets.push(`What was surprising: ${data.surprising}`)
+				if (data.accomplished) bullets.push(`What was accomplished: ${data.accomplished}`)
+				entryText = bullets.join('\n')
+			} else {
+				entryText = data.text
+			}
+
 			// Send POST request to Next.js API route (which proxies to AWS API Gateway)
 			// This avoids CORS issues since the server-side route can call AWS directly
 			const response = await fetch('/api/journal', {
@@ -33,8 +63,8 @@ export default function NewJournal() {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					name: data.name,
-					text: data.text
+					date: data.date,
+					text: entryText
 				})
 			})
 
@@ -115,25 +145,90 @@ export default function NewJournal() {
 								)}
 								<div className="my-2">
 									<label htmlFor="name" className="mb-2 block text-base font-medium">
-										Title
+										Date
 									</label>
 									<input
-										type="text"
-										placeholder="Entry title"
+										type="date"
+										min={getMinDate()}
+										max={getTodayDate()}
+										defaultValue={getTodayDate()}
 										className="w-full rounded-md border border-gray-300 bg-[#f7f4fb] pt-2 px-4 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('name', { required: true })}
+										{...register('date', { required: true })}
 									/>
 								</div>
 								<div className="mb-5">
-									<label htmlFor="text" className="mb-2 block text-base font-medium text-black">
-										Journal Entry
-									</label>
-									<textarea
-										rows={4}
-										placeholder="Write your journal entry here..."
-										className="w-full resize-none rounded-md border border-gray-300 bg-white pt-2 px-6 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('text', { required: true })}
-									></textarea>
+									<div className="flex items-center justify-between mb-4">
+										<label className="block text-base font-medium text-black">Journal Entry</label>
+										<div className="flex gap-2 bg-gray-200 rounded-lg p-1">
+											<button
+												type="button"
+												onClick={() => setEntryMode('bullets')}
+												className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+													entryMode === 'bullets'
+														? 'bg-[#c524a8] text-white'
+														: 'text-gray-700 hover:text-black'
+												}`}
+											>
+												Bullet Points
+											</button>
+											<button
+												type="button"
+												onClick={() => setEntryMode('freeform')}
+												className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+													entryMode === 'freeform'
+														? 'bg-[#c524a8] text-white'
+														: 'text-gray-700 hover:text-black'
+												}`}
+											>
+												Free-form
+											</button>
+										</div>
+									</div>
+
+									{entryMode === 'bullets' ? (
+										<div className="space-y-3">
+											<div>
+												<label className="text-sm text-gray-700 mb-1 block font-medium">
+													How did the day feel overall?
+												</label>
+												<input
+													type="text"
+													placeholder="Quick, short description"
+													className="w-full rounded-md border border-gray-300 bg-white py-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+													{...register('feelOverall')}
+												/>
+											</div>
+											<div>
+												<label className="text-sm text-gray-700 mb-1 block font-medium">
+													Anything surprising or new that you learned?
+												</label>
+												<input
+													type="text"
+													placeholder="What stands out for the day"
+													className="w-full rounded-md border border-gray-300 bg-white py-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+													{...register('surprising')}
+												/>
+											</div>
+											<div>
+												<label className="text-sm text-gray-700 mb-1 block font-medium">
+													One successful thing accomplished
+												</label>
+												<input
+													type="text"
+													placeholder="Little wins are important"
+													className="w-full rounded-md border border-gray-300 bg-white py-2 px-4 text-base text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+													{...register('accomplished')}
+												/>
+											</div>
+										</div>
+									) : (
+										<textarea
+											rows={4}
+											placeholder="Write your journal entry here..."
+											className="w-full resize-none rounded-md border border-gray-300 bg-white pt-2 px-6 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
+											{...register('text', { required: entryMode === 'freeform' })}
+										></textarea>
+									)}
 								</div>
 								<div>
 									<button
