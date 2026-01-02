@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MdRefresh } from 'react-icons/md'
 import Pagination from '@/ui/pagination'
 import LoadingSpinner from '@/ui/loading-spinner'
@@ -20,7 +20,7 @@ function JournalPage() {
 	const [error, setError] = useState<string | null>(null)
 	const [nextToken, setNextToken] = useState<string | null>(null)
 
-	const fetchJournalEntries = async (isLoadMore = false) => {
+	const fetchJournalEntries = useCallback(async (isLoadMore = false) => {
 		if (isLoadMore) {
 			setLoadingMore(true)
 		} else {
@@ -70,12 +70,12 @@ function JournalPage() {
 			setLoading(false)
 			setLoadingMore(false)
 		}
-	}
+	}, [nextToken])
 
 	// Auto-fetch entries on component mount
 	useEffect(() => {
 		fetchJournalEntries()
-	}, [])
+	}, [fetchJournalEntries])
 
 	const handleLoadMore = () => {
 		fetchJournalEntries(true)
