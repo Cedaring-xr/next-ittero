@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, Fragment } from 'react'
+import React, { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { lusitana } from '@/ui/fonts'
 import {
@@ -8,7 +8,6 @@ import {
 	TrashIcon,
 	PlusIcon,
 	ChevronDownIcon,
-	ChevronUpIcon,
 	ChevronRightIcon
 } from '@heroicons/react/24/outline'
 import { BsPinAngle, BsPinAngleFill } from 'react-icons/bs'
