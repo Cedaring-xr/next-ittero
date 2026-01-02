@@ -1,185 +1,43 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { lusitana } from '@/ui/fonts'
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { MdArrowRightAlt } from 'react-icons/md'
-import { MdNotificationsActive } from 'react-icons/md'
-import Link from 'next/link'
+import JournalEntryForm from './journal-entry-form'
 
 const Banner = dynamic(() => import('@/ui/info/banner'), { ssr: false })
 
-export type FormData = {
-	name: string
-	text: string
-}
-
 export default function NewJournal() {
-	const [sendForm, setSendForm] = useState(false)
-	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
-	const { register, handleSubmit, reset } = useForm<FormData>()
-
-	async function onSubmit(data: FormData) {
-		setLoading(true)
-		setError(null)
-
-		try {
-			// Send POST request to Next.js API route (which proxies to AWS API Gateway)
-			// This avoids CORS issues since the server-side route can call AWS directly
-			const response = await fetch('/api/journal', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					name: data.name,
-					text: data.text
-				})
-			})
-
-			if (!response.ok) {
-				const errorData = await response.json()
-				throw new Error(errorData.error || 'Failed to create journal entry')
-			}
-
-			const result = await response.json()
-			console.log('Journal entry created:', result)
-
-			// Show success message
-			setSendForm(true)
-
-			// Reset form
-			reset()
-
-			// Hide success message after 5 seconds
-			setTimeout(() => {
-				setSendForm(false)
-			}, 5000)
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'An error occurred')
-			console.error('Error creating journal entry:', err)
-		} finally {
-			setLoading(false)
-		}
-	}
 
 	return (
-		<>
-			<div id="journal container">
-				<h2 className={`${lusitana.className} text-[24px] md:text-[42px] text-center font-bold`}>
+		<div className="max-w-5xl mx-auto">
+			<div className="mb-6">
+				<h2 className={`${lusitana.className} text-2xl md:text-3xl font-bold text-black mb-2`}>
 					Quick Journal Entry
 				</h2>
-				<div id="QJ-intro">
-					<Banner
-						message="A quick journal is a simplified style of journaling that is meant to be fast, easy, and
+				<p className="text-gray-600 text-sm">
+					Bullet Journals are for quick daily feedback or highlights. The main goal is making short entries in
+					order to make daily entries more consistent.
+				</p>
+			</div>
+			<div id="QJ-intro">
+				<Banner
+					message="A quick journal is a simplified style of journaling that is meant to be fast, easy, and
                                  low-pressure. Instead of writing long, detailed entries, a quick journal focuses on jotting down
                                  short notes, key thoughts, or highlights from your day."
-						title="How Quick Journal Works"
-						color="teal-banner"
-					/>
-				</div>
-				<div className="banner-2">
-					<h5>Tips:</h5>
-					<ul className="list-disc">
-						<li>Spend less than 2 minutes writing</li>
-						<li>Note how the day felt overall</li>
-						<li>Note anything suprising or new that you learned</li>
-						<li>Note one successful thing that was acomplised</li>
-						<li>Note any challenges or road-blocks</li>
-					</ul>
-					<div className="invisible">
-						<p>toggle for free form or template</p>
-
-						<select name="date" id="date">
-							date dropdown
-						</select>
-					</div>
-				</div>
-				<div id="entry-form-container">
-					<form onSubmit={handleSubmit(onSubmit)}>
-						{sendForm ? (
-							<div className="h-[350px] mt-24 bg-green-100 border border-green-400 rounded-md p-6">
-								<h3 className="serif-font text-xl text-green-800">
-									<span className="font-bold">Success! </span>
-									<br />
-									Your journal entry has been saved successfully.
-								</h3>
-							</div>
-						) : (
-							<div className="border-[1px] border-black p-4 m-4">
-								{error && (
-									<div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md">
-										<strong>Error:</strong> {error}
-									</div>
-								)}
-								<div className="my-2">
-									<label htmlFor="name" className="mb-2 block text-base font-medium">
-										Title
-									</label>
-									<input
-										type="text"
-										placeholder="Entry title"
-										className="w-full rounded-md border border-gray-300 bg-[#f7f4fb] pt-2 px-4 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('name', { required: true })}
-									/>
-								</div>
-								<div className="mb-5">
-									<label htmlFor="text" className="mb-2 block text-base font-medium text-black">
-										Journal Entry
-									</label>
-									<textarea
-										rows={4}
-										placeholder="Write your journal entry here..."
-										className="w-full resize-none rounded-md border border-gray-300 bg-white pt-2 px-6 text-base font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"
-										{...register('text', { required: true })}
-									></textarea>
-								</div>
-								<div>
-									<button
-										className="hover:shadow-form text-xl headline-font text-black border-[1px] border-black disabled:opacity-50 disabled:cursor-not-allowed"
-										type="submit"
-										disabled={loading}
-									>
-										<div id="button-wrapper" className="button-wrap-shadow">
-											<div className="button-gradient button-clip button-shadow">
-												<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe]">
-													{loading ? 'Saving...' : 'Submit'}
-													<MdArrowRightAlt className="text-4xl ml-2"> </MdArrowRightAlt>
-												</div>
-											</div>
-										</div>
-									</button>
-								</div>
-							</div>
-						)}
-					</form>
-				</div>
-				<div className="flex gap-6 m-8 mt-20">
-					<button className="hover:shadow-form text-xl  headline-font text-black border-[1px] border-black">
-						<Link href="/dashboard/journal">
-							<div id="button-wrapper" className="button-wrap-shadow">
-								<div className="button-gradient button-clip button-shadow">
-									<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe] font-bold">
-										View Past Entries
-										<MdArrowRightAlt className="text-4xl ml-2"> </MdArrowRightAlt>
-									</div>
-								</div>
-							</div>
-						</Link>
-					</button>
-					<button className="hover:shadow-form text-xl  headline-font text-black border-[1px] border-black">
-						<div id="button-wrapper" className="button-wrap-shadow">
-							<div className="button-gradient button-clip button-shadow">
-								<div className="button-clip bg-[#f7f4fb] px-4 py-0 items-center flex hover:bg-[#121313] hover:text-[#89f7fe] font-bold">
-									Set Up Notifications
-									<MdNotificationsActive className="text-4xl ml-2"></MdNotificationsActive>
-								</div>
-							</div>
-						</div>
-					</button>
-				</div>
+					title="How Quick Journal Works"
+					color="teal-banner"
+				/>
 			</div>
-		</>
+			<div className="bg-slate-900 border border-slate-600 rounded p-6 mb-6">
+				<h5 className="text-white font-semibold mb-2">Tips:</h5>
+				<ul className="list-disc list-inside text-gray-300 space-y-1">
+					<li>Spend less than 2 minutes writing</li>
+					<li>Note how the day felt overall</li>
+					<li>Note anything surprising or new that you learned</li>
+					<li>Note one successful thing that was accomplished</li>
+					<li>Note any challenges or road-blocks</li>
+				</ul>
+			</div>
+			<JournalEntryForm />
+		</div>
 	)
 }

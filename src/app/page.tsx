@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { lusitana } from '@/ui/fonts'
 import Image from 'next/image'
 import LandingInfo from '@/ui/info/landing-info'
-import Footer from '@/ui/info/footer'
 
 export default function Page() {
 	return (
