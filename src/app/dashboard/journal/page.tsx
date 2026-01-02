@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { MdRefresh } from 'react-icons/md'
 import Pagination from '@/ui/pagination'
+import LoadingSpinner from '@/ui/loading-spinner'
 
 interface JournalEntry {
 	id: string
@@ -93,7 +94,11 @@ function JournalPage() {
 
 				{error && <div className="bg-red-500 text-white p-4 rounded-md mb-4">Error: {error}</div>}
 
-				{entries.length > 0 ? (
+				{loading && entries.length === 0 ? (
+					<div className="flex justify-center py-16">
+						<LoadingSpinner size="lg" text="Loading your journal entries..." />
+					</div>
+				) : entries.length > 0 ? (
 					<div className="space-y-4">
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-xl font-semibold text-black">Entries ({entries.length})</h3>
@@ -106,11 +111,8 @@ function JournalPage() {
 								<MdRefresh className={`w-6 h-6 text-white ${loading ? 'animate-spin' : ''}`} />
 							</button>
 						</div>
-						{entries.map((entry) => (
-							<div
-								key={entry.id}
-								className="bg-slate-600 p-6 rounded-lg shadow-md border border-slate-500"
-							>
+						{entries.map((entry, index) => (
+							<div key={index} className="bg-slate-600 p-6 rounded-lg shadow-md border border-slate-500">
 								<div className="flex justify-between items-start mb-2">
 									<span className="text-sm text-gray-300">{entry.date}</span>
 									{entry.tag && (
@@ -130,11 +132,9 @@ function JournalPage() {
 						/>
 					</div>
 				) : (
-					!loading && (
-						<div className="text-black text-center py-8">
-							No journal entries yet. Create your first entry to get started!
-						</div>
-					)
+					<div className="text-black text-center py-8">
+						No journal entries yet. Create your first entry to get started!
+					</div>
 				)}
 			</div>
 		</>
