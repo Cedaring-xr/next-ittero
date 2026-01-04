@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { ArrowLeftIcon, BookOpenIcon, ChartBarIcon, ListBulletIcon } from '@heroicons/react/24/outline'
 import { lusitana } from '@/ui/fonts'
 import ElegantButton from '@/ui/elegant-button'
-import Banner from '@/ui/info/banner'
 import JournalForm from './journalForm'
 import ListsForm from './listsForm'
-import Stats from './stats'
+import JournalStats from './journalStats'
+import ListStats from './listStats'
 
 export default function DemoPage() {
 	return (
@@ -88,7 +88,34 @@ export default function DemoPage() {
 							<ChartBarIcon className="w-10 h-10 text-green-400" />
 							<h3 className="text-2xl md:text-3xl font-semibold text-white">Stats</h3>
 						</div>
-						<Stats />
+						<JournalStats />
+						<ListStats />
+
+						{/* Export Data Section */}
+						<div className="bg-slate-900 border border-slate-600 rounded p-6 mb-6">
+							<h4 className="text-xl font-semibold text-white mb-4">Export Your Data</h4>
+							<p className="text-gray-300 mb-6">
+								Download your statistics and journal entries from the past month for your records or
+								analysis.
+							</p>
+							<button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-100 shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+								<svg
+									className="w-5 h-5"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+								<span>Export Past Month Data</span>
+							</button>
+						</div>
 					</div>
 				</div>
 
