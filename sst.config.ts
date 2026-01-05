@@ -15,7 +15,9 @@ export default {
 			const site = new NextjsSite(stack, 'Web', {
 				path: '.',
 				environment: {
-					NEXT_PUBLIC_STAGE: stage
+					NEXT_PUBLIC_STAGE: stage,
+               NEXT_PUBLIC_API_URL:
+                  stage === "prod" ? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod" : "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging",
 				}
 			})
 
