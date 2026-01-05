@@ -13,19 +13,19 @@ test('should be able to sign-in as an admin account and view the admin section o
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
 	// input email for test account into the email field
-	await page.getByRole('textbox', { name: 'email' }).fill(test_admin_email)
+	await page.getByLabel('email').fill(test_admin_email)
 	// input the password for test account into the password field
-	await page.getByRole('textbox', { name: 'password' }).fill(test_admin_password)
+	await page.getByLabel('password').fill(test_admin_password)
 	// click the log-in button
 	await page.click('text=Log In')
 	// verfiy that the url is on the dashboard page
 	await expect(page).toHaveURL('http://localhost:3000/dashboard')
 	// verify thet the user is on the dashboad page (successful sign-in
-	await expect(page.locator('h2')).toContainText('Your Dashboard')
+	await page.getByRole('heading', { name: 'Your Dashboard' })
 	// click on the admin section from sidenavs
 	await page.click('text=Admin Area')
 	// verify that admin section is open
 	await expect(page).toHaveURL('http://localhost:3000/dashboard/admins')
 	// verify that text on admin page is visible
-	await expect(page.locator('h2')).toContainText('Admin Access Only')
+	await page.getByRole('heading', { name: 'Admin Access Only' })
 })
