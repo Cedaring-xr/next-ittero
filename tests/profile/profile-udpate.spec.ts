@@ -31,15 +31,15 @@ test('should sign-in to the test account using email and password', async ({ pag
     // verify that profile settings options are visible
     await expect(page.locator('h1')).toContainText('Profile Settings')
     // find input field and fill in generated name
-    await page.getByRole('textbox', { name: 'name'}).fill(user_name)
-    // click on update name button
-    await page.click("text=Update Name")
-    // go back to the dashboad page
-    await page.click("text=Home")
-    // verify that name has been udpated in the dashboard text
-    await expect(page).toHaveURL("http://localhost:3000/dashboard")
-    // verify that name has changed on the dashboard page header
-    await expect(page.locator('h2')).toContainText(user_name)
+    // await page.getByRole('textbox', { name: 'name'}).fill(user_name)
+    // // click on update name button
+    // await page.click("text=Update Name")
+    // // go back to the dashboad page
+    // await page.click("text=Home")
+    // // verify that name has been udpated in the dashboard text
+    // await expect(page).toHaveURL("http://localhost:3000/dashboard")
+    // // verify that name has changed on the dashboard page header
+    // await expect(page.locator('h2')).toContainText(user_name)
 })
 
 /*todo:

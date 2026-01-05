@@ -27,5 +27,5 @@ test('should sign-in to the test account using email and password', async ({ pag
     // verify that the user is now on the profile page
     await expect(page).toHaveURL('http://localhost/dashboard/profile')
     // verify that profile settings options are visible
-    await expect(page.locator('h1')).toContainText('Profile Settings')
+    await expect(page.locator('h2')).toContainText('Profile Settings')
 })

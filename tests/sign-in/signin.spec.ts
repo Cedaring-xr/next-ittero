@@ -6,9 +6,9 @@ const test_password: string = process.env.PLAYWRIGHT_TEST_PASSWORD as string
 test('should navigate to the sign in page', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
-	// Find an element with the text 'About' and click on it
+	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
-	// The new URL should be "/auth/login" (baseURL is used there)
+	// The new URL should be "/auth/login"
 	await expect(page).toHaveURL('http://localhost:3000/auth/login')
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
@@ -17,9 +17,9 @@ test('should navigate to the sign in page', async ({ page }) => {
 test('should sign-in to the test account using email and password', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
-	// Find an element with the text 'About' and click on it
+	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
-	// The new URL should be "/auth/login" (baseURL is used there)
+	// The new URL should be "/auth/login"
 	await expect(page).toHaveURL('http://localhost:3000/auth/login')
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
@@ -38,7 +38,7 @@ test('should sign-in to the test account using email and password', async ({ pag
 test('should be able to sign-out of an account that has successfully signed-in', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
-	// Find an element with the text 'About' and click on it
+	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
 	// The new URL should be "/auth/login" (baseURL is used there)
 	await expect(page).toHaveURL('http://localhost:3000/auth/login')

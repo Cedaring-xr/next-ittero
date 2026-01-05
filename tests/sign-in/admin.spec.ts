@@ -6,9 +6,9 @@ const test_admin_password: string = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD a
 test('should be able to sign-in as an admin account and view the admin section of the dashboard', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
-	// Find an element with the text 'About' and click on it
+	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
-	// The new URL should be "/auth/login" (baseURL is used there)
+	// The new URL should be "/auth/login"
 	await expect(page).toHaveURL('http://localhost:3000/auth/login')
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
@@ -29,5 +29,3 @@ test('should be able to sign-in as an admin account and view the admin section o
 	// verify that text on admin page is visible
 	await expect(page.locator('h2')).toContainText('Admin Access Only')
 })
-
-// testing commit stuff
