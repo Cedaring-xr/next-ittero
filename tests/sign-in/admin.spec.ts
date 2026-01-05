@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test'
 
+// Clear storageState for sign-in tests - we're testing unauthenticated flows
+test.use({ storageState: { cookies: [], origins: [] } })
+
 const test_admin_email: string = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
 const test_admin_password: string = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
 
-test('should be able to sign-in as an admin account and view the admin section of the dashboard', async ({ page }) => {
+test('[ADMN-001] should be able to sign-in as an admin account and view the admin section of the dashboard', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
 	// Find an element with the text 'Log In' and click on it

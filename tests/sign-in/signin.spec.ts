@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test'
 
+// Clear storageState for sign-in tests - we're testing unauthenticated flows
+test.use({ storageState: { cookies: [], origins: [] } })
+
 const test_email: string = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
 const test_password: string = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
 
-test('should navigate to the sign in page', async ({ page }) => {
+test('[AUTH-001] should navigate to the sign in page', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
 	// Find an element with the text 'Log In' and click on it
@@ -14,7 +17,7 @@ test('should navigate to the sign in page', async ({ page }) => {
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
 })
 
-test('should sign-in to the test account using email and password', async ({ page }) => {
+test('[AUTH-002] should sign-in to the test account using email and password', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
 	// Find an element with the text 'Log In' and click on it
@@ -35,7 +38,7 @@ test('should sign-in to the test account using email and password', async ({ pag
 	await page.getByRole('heading', { name: 'Your Dashboard' })
 })
 
-test('should be able to sign-out of an account that has successfully signed-in', async ({ page }) => {
+test('[AUTH-003] should be able to sign-out of an account that has successfully signed-in', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
 	await page.goto('http://localhost:3000/')
 	// Find an element with the text 'Log In' and click on it
