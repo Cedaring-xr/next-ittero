@@ -44,3 +44,13 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/tests/.auth/*.json
+
+#SST / OpenNext
+.sst/
+.open-next/
+sst-env.d.ts
+
+# AWS CLI local artifacts
+aws/
+awscliv2.zip
