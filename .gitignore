@@ -44,7 +44,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-/tests/.auth/
+/tests/.auth/*.json
 
 #SST / OpenNext
 .sst/
