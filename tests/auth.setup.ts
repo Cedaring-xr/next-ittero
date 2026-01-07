@@ -1,28 +1,104 @@
-import { test as setup, expect } from '@playwright/test'
+import { test as setup } from '@playwright/test'
+import {
+	CognitoIdentityProviderClient,
+	InitiateAuthCommand
+} from '@aws-sdk/client-cognito-identity-provider'
 
 const authFile = 'tests/.auth/user.json'
 
 const test_email = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
 const test_password = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
+const userPoolClientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID as string
+const region = process.env.NEXT_PUBLIC_USER_POOL_ID?.split('_')[0] || 'us-east-1'
 
 setup('authenticate', async ({ page }) => {
-	// Go to login page
-	await page.goto('http://localhost:3000/auth/login')
+	// Authenticate via Cognito API directly
+	const client = new CognitoIdentityProviderClient({ region })
 
-	// Verify we're on the login page
-	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
+	const command = new InitiateAuthCommand({
+		AuthFlow: 'USER_PASSWORD_AUTH',
+		ClientId: userPoolClientId,
+		AuthParameters: {
+			USERNAME: test_email,
+			PASSWORD: test_password
+		}
+	})
 
-	// Fill in credentials
-	await page.getByLabel('Email').fill(test_email)
-	await page.getByLabel('Password').fill(test_password)
+	const response = await client.send(command)
 
-	// Click login
-	await page.click('text=Log In')
+	if (!response.AuthenticationResult) {
+		throw new Error('Authentication failed - no tokens returned')
+	}
 
-	// Wait for successful navigation to dashboard
-	await expect(page).toHaveURL('http://localhost:3000/dashboard')
-	await expect(page.getByRole('heading', { name: 'Your Dashboard' })).toBeVisible()
+	const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult
 
-	// Save authentication state
+	// Extract username from the access token payload
+	const accessTokenPayload = JSON.parse(
+		Buffer.from(AccessToken!.split('.')[1], 'base64').toString()
+	)
+	const username = accessTokenPayload.username || accessTokenPayload.sub
+
+	// Build the storage key prefix used by Amplify
+	const keyPrefix = `CognitoIdentityServiceProvider.${userPoolClientId}`
+
+	// Navigate to the app first to set storage on the correct origin
+	await page.goto('http://localhost:3000')
+
+	// Set localStorage items that Amplify expects
+	await page.evaluate(
+		({ keyPrefix, username, idToken, accessToken, refreshToken }) => {
+			localStorage.setItem(`${keyPrefix}.LastAuthUser`, username)
+			localStorage.setItem(`${keyPrefix}.${username}.idToken`, idToken)
+			localStorage.setItem(`${keyPrefix}.${username}.accessToken`, accessToken)
+			localStorage.setItem(`${keyPrefix}.${username}.refreshToken`, refreshToken)
+			localStorage.setItem(`${keyPrefix}.${username}.clockDrift`, '0')
+		},
+		{
+			keyPrefix,
+			username,
+			idToken: IdToken!,
+			accessToken: AccessToken!,
+			refreshToken: RefreshToken!
+		}
+	)
+
+	// Also set cookies for SSR authentication (Amplify adapter uses cookies)
+	const cookieOptions = {
+		domain: 'localhost',
+		path: '/',
+		httpOnly: false,
+		secure: false,
+		sameSite: 'Lax' as const
+	}
+
+	await page.context().addCookies([
+		{
+			name: `${keyPrefix}.LastAuthUser`,
+			value: username,
+			...cookieOptions
+		},
+		{
+			name: `${keyPrefix}.${username}.idToken`,
+			value: IdToken!,
+			...cookieOptions
+		},
+		{
+			name: `${keyPrefix}.${username}.accessToken`,
+			value: AccessToken!,
+			...cookieOptions
+		},
+		{
+			name: `${keyPrefix}.${username}.refreshToken`,
+			value: RefreshToken!,
+			...cookieOptions
+		},
+		{
+			name: `${keyPrefix}.${username}.clockDrift`,
+			value: '0',
+			...cookieOptions
+		}
+	])
+
+	// Save authentication state (includes both cookies and localStorage)
 	await page.context().storageState({ path: authFile })
 })
