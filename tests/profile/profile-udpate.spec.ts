@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test'
 import { randomName } from '../helpers/helperFunctions'
 
+const url = process.env.BASE_URL as string
 const user_name = randomName() as string
 
 test('[PROF-002] should be able to update user name from profile page', async ({ page }) => {
 	// Go directly to profile page (already authenticated via storageState)
-	await page.goto('http://localhost:3000/dashboard/profile')
+	await page.goto(`${url}/dashboard/profile`)
 
 	// Verify profile settings heading is visible
 	await expect(page.getByRole('heading', { name: 'Profile Settings' })).toBeVisible()
@@ -18,7 +19,7 @@ test('[PROF-002] should be able to update user name from profile page', async ({
 	// // go back to the dashboard page
 	// await page.click("text=Home")
 	// // verify that name has been updated in the dashboard text
-	// await expect(page).toHaveURL("http://localhost:3000/dashboard")
+	// await expect(page).toHaveURL(`${url}/dashboard`)
 	// // verify that name has changed on the dashboard page header
 	// await expect(page.locator('h2')).toContainText(user_name)
 })

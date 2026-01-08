@@ -2,55 +2,44 @@
 
 Test cases for admin-only features and access control.
 
+Statuses (completed, planned, experiment, removed)
+Priorities( high, med, low)
+
 ## Admin Access
-
 ### ADMN-001: Admin User Can Access Admin Area
-
-**Status:** `[IMPLEMENTED]`
-
+**Status:** `[completed]`
 **Priority:** High
-
 **Description:**
 Verify that users in the 'Admins' Cognito group can access the admin section.
-
 **Preconditions:**
-- User is logged in with an admin account (member of 'Admins' group)
-
+- User is logged in with an admin account (member of 'Admins' group in cognito)
 **Test Steps:**
-1. From dashboard, click "Admin Area" in sidenav
-2. Verify URL changes to /dashboard/admins
-3. Verify admin page content is displayed
-
+1. Start on dashboard of signed in user
+2. From dashboard, click "Admin Area" in sidenav
+3. Verify URL changes to /dashboard/admins
+4. Verify admin page content is displayed
 **Expected Result:**
 Admin user sees the admin section with "Admin Access Only" heading.
-
 **Playwright File:** `tests/sign-in/admin.spec.ts`
 
 ---
 
 ### ADMN-002: Non-Admin User Cannot Access Admin Area
-
-**Status:** `[PLANNED]`
-
+**Status:** `[completed]`
 **Priority:** High
-
 **Description:**
 Verify that regular users cannot access the admin section.
-
 **Preconditions:**
 - User is logged in with a non-admin account
-
 **Test Steps:**
-1. Attempt to navigate directly to /dashboard/admins
-2. Verify access is denied or redirected
-
+1. Start on dashboard of normal user
+2. Verify "Admin Area" is not present in sidebar navigation
+3. Attempt to navigate directly to /dashboard/admins
+4. Verify access is denied or redirected
 **Expected Result:**
 Non-admin user is redirected away from admin section or sees access denied message.
-
 **Playwright File:** -
-
 **Note:** Requires a non-admin test account to be configured.
-
 ---
 
 ### ADMN-003: Admin Area Link Visibility
