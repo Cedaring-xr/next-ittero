@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",
-    "deploy:staging": "npx sst@2 deploy --stage staging --no-interactive"
+    "deploy:staging": "npx sst@2 deploy --stage staging --no-interactive",
+    "deploy:prod": "npx sst@2 deploy --stage prod --no-interactive"
   },
   "dependencies": {
     "@aws-amplify/adapter-nextjs": "^1.5.8",
