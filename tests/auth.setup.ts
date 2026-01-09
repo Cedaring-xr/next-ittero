@@ -9,7 +9,18 @@ const userAuthFile = 'tests/.auth/user.json'
 
 const userPoolClientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID as string
 const region = process.env.NEXT_PUBLIC_USER_POOL_ID?.split('_')[0] || 'us-east-1'
-const url = process.env.BASE_URL || 'localhost:3000'
+const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
+
+// Extract just the hostname for cookie domain (e.g., "localhost" from "http://localhost:3000")
+const getCookieDomain = (url: string): string => {
+	try {
+		const parsed = new URL(url)
+		return parsed.hostname
+	} catch {
+		// If URL parsing fails, try to extract hostname manually
+		return url.replace(/^https?:\/\//, '').split(':')[0].split('/')[0]
+	}
+}
 
 async function authenticateUser(
 	page: Page,
@@ -46,7 +57,7 @@ async function authenticateUser(
 	const keyPrefix = `CognitoIdentityServiceProvider.${userPoolClientId}`
 
 	// Navigate to the app first to set storage on the correct origin
-	await page.goto(url)
+	await page.goto(baseUrl)
 
 	// Set localStorage items that Amplify expects
 	await page.evaluate(
@@ -67,8 +78,9 @@ async function authenticateUser(
 	)
 
 	// Also set cookies for SSR authentication (Amplify adapter uses cookies)
+	const cookieDomain = getCookieDomain(baseUrl)
 	const cookieOptions = {
-		domain: url,
+		domain: cookieDomain,
 		path: '/',
 		httpOnly: false,
 		secure: false,

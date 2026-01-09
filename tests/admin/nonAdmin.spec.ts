@@ -4,19 +4,22 @@ import { test, expect } from '@playwright/test'
 
 const url = process.env.BASE_URL as string
 
-test('[ADMN-001] should be able to view the admin section of the dashboard as an admin user', async ({ page }) => {
+// Use normal user auth for all tests in this file
+  test.use({ storageState: 'tests/.auth/user.json' })
+
+test('[ADMN-002] should not be able to view the admin section of the dashboard as a normal user', async ({ page }) => {
    // Go directly to dashboard (already authenticated via storageState)
    await page.goto(`${url}/dashboard`)
 
    // Verify we're on the dashboard (successful authentication)
    await expect(page.getByRole('heading', { name: 'Your Dashboard' })).toBeVisible()
 
-   // Click on the admin section from sidenav
-   await page.click('text=Admin Area')
+   // CSearch for text of "Admin Area"
+   await expect(page.getByText('Admin Area')).toHaveCount(0)
 
-   // Verify that admin section is open
-   await expect(page).toHaveURL(`${url}/dashboard/admins`)
+   // Navigate to admin page directly
+   await page.goto(`${url}/dashboard/admins`)
 
-   // Verify that text on admin page is visible
-   await expect(page.getByRole('heading', { name: 'Admin Access Only' })).toBeVisible()
+   // Verify that user is shown access denied or redirected back to dashboard
+   await expect(page).toHaveURL(`${url}/dashboard`)
 })

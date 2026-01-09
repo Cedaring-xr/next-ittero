@@ -1,11 +1,18 @@
 # Admin Test Cases
+# Test cases for admin-only features and access control.
 
-Test cases for admin-only features and access control.
+# Statuses (Completed, Planned, Experiment, Future Content)
+# Priorities (high, med, low)
 
-Statuses (completed, planned, experiment, removed)
-Priorities( high, med, low)
+## Test Account Requirements
+For admin tests to work properly, the following test accounts are needed:
 
-## Admin Access
+| Account Type | Environment Variable | Description |
+|-------------|---------------------|-------------|
+| Admin | `PLAYWRIGHT_TEST_ADMIN_EMAIL` | User in 'Admins' Cognito group |
+| Regular User | `PLAYWRIGHT_TEST_USER_EMAIL` | User NOT in 'Admins' group |
+
+
 ### ADMN-001: Admin User Can Access Admin Area
 **Status:** `[completed]`
 **Priority:** High
@@ -40,102 +47,43 @@ Verify that regular users cannot access the admin section.
 Non-admin user is redirected away from admin section or sees access denied message.
 **Playwright File:** -
 **Note:** Requires a non-admin test account to be configured.
----
-
-### ADMN-003: Admin Area Link Visibility
-
-**Status:** `[PLANNED]`
-
-**Priority:** Medium
-
-**Description:**
-Verify that the "Admin Area" link only appears for admin users.
-
-**Preconditions:**
-- Test with both admin and non-admin accounts
-
-**Test Steps:**
-1. Log in as admin user
-2. Verify "Admin Area" link is visible in sidenav
-3. Log out
-4. Log in as non-admin user
-5. Verify "Admin Area" link is NOT visible in sidenav
-
-**Expected Result:**
-Admin link only visible to users in Admins group.
-
-**Playwright File:** -
-
-**Note:** Requires both admin and non-admin test accounts.
 
 ---
 
-## Admin Features
-
-### ADMN-010: View Admin Dashboard
-
-**Status:** `[PLANNED]`
-
-**Priority:** Medium
-
+### ADMN-003: View Admin Dashboard
+**Status:** `[Futre Content]`
+**Priority:** Low
 **Description:**
 Verify admin dashboard displays relevant admin information.
-
 **Preconditions:**
 - User is logged in as admin
-
 **Test Steps:**
-1. Navigate to /dashboard/admins
+1. Start on dashboard page for logged in admin user
+2. Navigate to /dashboard/admins
 2. Verify admin-specific content is displayed
-
 **Expected Result:**
 Admin sees admin-specific dashboard content.
-
 **Playwright File:** -
 
 ---
 
 ### ADMN-011: Admin User Management
-
-**Status:** `[PLANNED]`
-
+**Status:** `[Future Content]`
 **Priority:** Low
-
 **Description:**
-Verify admins can view/manage users (if feature exists).
-
+Verify admins can view/manage users or acount management capabilities.
 **Preconditions:**
 - User is logged in as admin
 - User management feature exists
-
+- test user exists to manage
 **Test Steps:**
-1. Navigate to admin section
-2. Access user management
-3. Verify user list is displayed
+1. Start on dashboard page for logged in admin account
+2. Navigate to admin section
+3. Access user management
+4. Modify user features
+5. Verify user account modification is successful
 
 **Expected Result:**
-Admin can view and manage users.
-
+Admin can view and manage users account information
 **Playwright File:** -
-
-**Note:** Depends on whether user management feature is implemented.
-
----
-
-## Test Account Requirements
-
-For admin tests to work properly, the following test accounts are needed:
-
-| Account Type | Environment Variable | Description |
-|-------------|---------------------|-------------|
-| Admin | `PLAYWRIGHT_TEST_ADMIN_EMAIL` | User in 'Admins' Cognito group |
-| Regular User | `PLAYWRIGHT_TEST_USER_EMAIL` | User NOT in 'Admins' group |
-
-### Current Configuration
-
-The current `.env.local` includes:
-- `PLAYWRIGHT_TEST_ADMIN_EMAIL` - Admin test account
-- `PLAYWRIGHT_TEST_ADMIN_PASSWORD` - Admin test password
-
-**Missing:**
-- Non-admin test account for negative testing (ADMN-002, ADMN-003)
+**Note:** Depends on whether user management feature is implemented and what features exist.
