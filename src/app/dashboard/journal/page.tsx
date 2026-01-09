@@ -2,8 +2,12 @@
 import Link from 'next/link'
 import React, { useState, useEffect, useCallback } from 'react'
 import { MdRefresh } from 'react-icons/md'
+import { HiOutlineBookOpen } from 'react-icons/hi'
+import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import Pagination from '@/ui/pagination'
 import LoadingSpinner from '@/ui/loading-spinner'
+import useAuthUser from '@/app/hooks/user-auth-user'
+import { lusitana } from '@/ui/fonts'
 
 interface JournalEntry {
 	id: string
@@ -14,6 +18,7 @@ interface JournalEntry {
 }
 
 function JournalPage() {
+	const user = useAuthUser()
 	const [entries, setEntries] = useState<JournalEntry[]>([])
 	const [loading, setLoading] = useState(true)
 	const [loadingMore, setLoadingMore] = useState(false)
@@ -83,9 +88,28 @@ function JournalPage() {
 
 	return (
 		<>
-			<div id="overview-container" className="p-6">
-				<h2 className="text-3xl font-bold mb-6 text-black">Journal Overview</h2>
-
+			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
+				<div className="flex ml-4">
+					<HiOutlineBookOpen className="h-[30px] w-[30px]" />
+					<h2 className="md:text-xl ml-2">Your Journal</h2>
+				</div>
+				<div className="flex items-center mr-4 gap-4">
+					<div className="flex items-center">
+						<UserCircleIcon className="w-6 mr-1" />
+						<h2>{user?.name}</h2>
+					</div>
+					<div className="h-6 w-px bg-slate-400"></div>
+					<Link
+						id="profile-settings"
+						href="/dashboard/profile"
+						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
+					>
+						<CogIcon className="w-6 h-6" />
+					</Link>
+				</div>
+			</div>
+			<h3 className="text-black text-3xl mt-4 ml-4">Journal Entries</h3>
+			<div className={`${lusitana.className} font-bold p-6`}>
 				<div className="mb-6">
 					<button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
 						<Link href="/dashboard/journal/newJournal">Create new Entry</Link>
@@ -95,11 +119,12 @@ function JournalPage() {
 				{error && <div className="bg-red-500 text-white p-4 rounded-md mb-4">Error: {error}</div>}
 
 				{loading && entries.length === 0 ? (
-					<div className="flex justify-center py-16">
-						<LoadingSpinner size="lg" text="Loading your journal entries..." />
+					<div className="flex flex-col items-center justify-center py-12">
+						<div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-indigo-600 mb-4"></div>
+						<p className="text-gray-600 text-lg">Loading your journal entries...</p>
 					</div>
 				) : entries.length > 0 ? (
-					<div className="space-y-4">
+					<div>
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-xl font-semibold text-black">Entries ({entries.length})</h3>
 							<button
@@ -112,9 +137,12 @@ function JournalPage() {
 							</button>
 						</div>
 						{entries.map((entry, index) => (
-							<div key={index} className="bg-slate-600 p-6 rounded-lg shadow-md border border-slate-500">
-								<div className="flex justify-between items-start mb-2">
-									<span className="text-sm text-gray-300">{entry.date}</span>
+							<div
+								key={index}
+								className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg transition-all"
+							>
+								<div className="flex justify-between items-start">
+									<span className="text-white text-sm">{entry.date}</span>
 									{entry.tag && (
 										<span className="text-emerald-500 border-2 border-emerald-700 p-1 rounded-md">
 											{entry.tag}
@@ -132,8 +160,13 @@ function JournalPage() {
 						/>
 					</div>
 				) : (
-					<div className="text-black text-center py-8">
-						No journal entries yet. Create your first entry to get started!
+					<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
+						<HiOutlineBookOpen className="h-16 w-16 text-gray-400 mb-4" />
+						<p className="text-gray-700 text-xl mb-2">No Journal Entries Yet</p>
+						<p className="text-gray-500 mb-6">Get started by creating your first entry</p>
+						<button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
+							<Link href="/dashboard/journal/newJournal">Create new Entry</Link>
+						</button>
 					</div>
 				)}
 			</div>
