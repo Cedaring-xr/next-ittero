@@ -270,7 +270,8 @@ export default function Lists() {
 					</div>
 					<div className="h-6 w-px bg-slate-400"></div>
 					<Link
-						href="/dashboard/settings"
+						id="profile-settings"
+						href="/dashboard/profile"
 						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
 					>
 						<CogIcon className="w-6 h-6" />

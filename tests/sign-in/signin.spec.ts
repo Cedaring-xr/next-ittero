@@ -3,27 +3,28 @@ import { test, expect } from '@playwright/test'
 // Clear storageState for sign-in tests - we're testing unauthenticated flows
 test.use({ storageState: { cookies: [], origins: [] } })
 
+const url = process.env.BASE_URL as string
 const test_email: string = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
 const test_password: string = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
 
 test('[AUTH-001] should navigate to the sign in page', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
-	await page.goto('http://localhost:3000/')
+	await page.goto(`${url}/`)
 	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
 	// The new URL should be "/auth/login"
-	await expect(page).toHaveURL('http://localhost:3000/auth/login')
+	await expect(page).toHaveURL(`${url}/auth/login`)
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
 })
 
 test('[AUTH-002] should sign-in to the test account using email and password', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
-	await page.goto('http://localhost:3000/')
+	await page.goto(`${url}/`)
 	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
 	// The new URL should be "/auth/login"
-	await expect(page).toHaveURL('http://localhost:3000/auth/login')
+	await expect(page).toHaveURL(`${url}/auth/login`)
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
 	// input email for test account into the email field
@@ -33,18 +34,18 @@ test('[AUTH-002] should sign-in to the test account using email and password', a
 	// click the log-in button
 	await page.click('text=Log In')
 	// verfiy that the url is on the dashboard page
-	await expect(page).toHaveURL('http://localhost:3000/dashboard')
+	await expect(page).toHaveURL(`${url}/dashboard`)
 	// verify thet the user is on the dashboad page (successful sign-in
 	await page.getByRole('heading', { name: 'Your Dashboard' })
 })
 
 test('[AUTH-003] should be able to sign-out of an account that has successfully signed-in', async ({ page }) => {
 	// Start from the index page (the baseURL is set via the webServer in the playwright.config.ts)
-	await page.goto('http://localhost:3000/')
+	await page.goto(`${url}/`)
 	// Find an element with the text 'Log In' and click on it
 	await page.click('text=Log In')
 	// The new URL should be "/auth/login" (baseURL is used there)
-	await expect(page).toHaveURL('http://localhost:3000/auth/login')
+	await expect(page).toHaveURL(`${url}/auth/login`)
 	// The new page should contain an h1 with "Please log in to continue."
 	await expect(page.locator('h1')).toContainText('Please sign in to continue.')
 	// input email for test account into the email field
@@ -54,15 +55,15 @@ test('[AUTH-003] should be able to sign-out of an account that has successfully 
 	// click the log-in button
 	await page.click('text=Log In')
 	// verfiy that the url is on the dashboard page
-	await expect(page).toHaveURL('http://localhost:3000/dashboard')
+	await expect(page).toHaveURL(`${url}/dashboard`)
 	// verify thet the user is on the dashboad page (successful sign-in
 	await page.getByRole('heading', { name: 'Your Dashboard' })
 	// verify that user is on the dashoard page
-	await expect(page).toHaveURL('http://localhost:3000/dashboard')
+	await expect(page).toHaveURL(`${url}/dashboard`)
 	// click the sign-out button
 	await page.click('text=Sign Out')
 	// verify that the URL is on the login page
-	await expect(page).toHaveURL('http://localhost:3000/auth/login')
+	await expect(page).toHaveURL(`${url}/auth/login`)
 	// verify that the login page text ins visible
 	await page.getByRole('heading', {name: 'Please sign in to continue'} )
 })

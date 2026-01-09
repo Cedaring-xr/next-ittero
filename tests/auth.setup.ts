@@ -1,33 +1,48 @@
-import { test as setup } from '@playwright/test'
+import { test as setup, Page } from '@playwright/test'
 import {
 	CognitoIdentityProviderClient,
 	InitiateAuthCommand
 } from '@aws-sdk/client-cognito-identity-provider'
 
-const authFile = 'tests/.auth/user.json'
+const adminAuthFile = 'tests/.auth/admin.json'
+const userAuthFile = 'tests/.auth/user.json'
 
-const test_email = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
-const test_password = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
 const userPoolClientId = process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID as string
 const region = process.env.NEXT_PUBLIC_USER_POOL_ID?.split('_')[0] || 'us-east-1'
+const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 
-setup('authenticate', async ({ page }) => {
-	// Authenticate via Cognito API directly
+// Extract just the hostname for cookie domain (e.g., "localhost" from "http://localhost:3000")
+const getCookieDomain = (url: string): string => {
+	try {
+		const parsed = new URL(url)
+		return parsed.hostname
+	} catch {
+		// If URL parsing fails, try to extract hostname manually
+		return url.replace(/^https?:\/\//, '').split(':')[0].split('/')[0]
+	}
+}
+
+async function authenticateUser(
+	page: Page,
+	email: string,
+	password: string,
+	authFile: string
+) {
 	const client = new CognitoIdentityProviderClient({ region })
 
 	const command = new InitiateAuthCommand({
 		AuthFlow: 'USER_PASSWORD_AUTH',
 		ClientId: userPoolClientId,
 		AuthParameters: {
-			USERNAME: test_email,
-			PASSWORD: test_password
+			USERNAME: email,
+			PASSWORD: password
 		}
 	})
 
 	const response = await client.send(command)
 
 	if (!response.AuthenticationResult) {
-		throw new Error('Authentication failed - no tokens returned')
+		throw new Error(`Authentication failed for ${email} - no tokens returned`)
 	}
 
 	const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult
@@ -42,7 +57,7 @@ setup('authenticate', async ({ page }) => {
 	const keyPrefix = `CognitoIdentityServiceProvider.${userPoolClientId}`
 
 	// Navigate to the app first to set storage on the correct origin
-	await page.goto('http://localhost:3000')
+	await page.goto(baseUrl)
 
 	// Set localStorage items that Amplify expects
 	await page.evaluate(
@@ -63,8 +78,9 @@ setup('authenticate', async ({ page }) => {
 	)
 
 	// Also set cookies for SSR authentication (Amplify adapter uses cookies)
+	const cookieDomain = getCookieDomain(baseUrl)
 	const cookieOptions = {
-		domain: 'localhost',
+		domain: cookieDomain,
 		path: '/',
 		httpOnly: false,
 		secure: false,
@@ -99,6 +115,18 @@ setup('authenticate', async ({ page }) => {
 		}
 	])
 
-	// Save authentication state (includes both cookies and localStorage)
+	// Save authentication state
 	await page.context().storageState({ path: authFile })
+}
+
+setup('authenticate as admin', async ({ page }) => {
+	const email = process.env.PLAYWRIGHT_TEST_ADMIN_EMAIL as string
+	const password = process.env.PLAYWRIGHT_TEST_ADMIN_PASSWORD as string
+	await authenticateUser(page, email, password, adminAuthFile)
+})
+
+setup('authenticate as user', async ({ page }) => {
+	const email = process.env.PLAYWRIGHT_TEST_USER_EMAIL as string
+	const password = process.env.PLAYWRIGHT_TEST_USER_PASSWORD as string
+	await authenticateUser(page, email, password, userAuthFile)
 })

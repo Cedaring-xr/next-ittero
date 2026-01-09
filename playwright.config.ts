@@ -32,22 +32,43 @@ export default defineConfig({
 		trace: 'on-first-retry'
 	},
 
-	/* Configure projects for major browsers */
 	projects: [
-		// Setup project - runs first to authenticate and save state
+		// Setup project - authenticates both admin and regular user
 		{
 			name: 'setup',
 			testMatch: /auth\.setup\.ts/,
 			use: { ...devices['Desktop Chrome'] }
 		},
-		// Authenticated tests - depend on setup, use saved auth state
+
+		// Admin user tests - use admin auth state
+		{
+			name: 'chromium-admin',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: 'tests/.auth/admin.json'
+			},
+			dependencies: ['setup'],
+			testMatch: /.*admin.*\.spec\.ts/
+		},
+		{
+			name: 'firefox-admin',
+			use: {
+				...devices['Desktop Firefox'],
+				storageState: 'tests/.auth/admin.json'
+			},
+			dependencies: ['setup'],
+			testMatch: /.*admin.*\.spec\.ts/
+		},
+
+		// Regular user tests - use user auth state
 		{
 			name: 'chromium',
 			use: {
 				...devices['Desktop Chrome'],
 				storageState: 'tests/.auth/user.json'
 			},
-			dependencies: ['setup']
+			dependencies: ['setup'],
+			testIgnore: /.*admin.*\.spec\.ts/
 		},
 		{
 			name: 'firefox',
@@ -55,14 +76,8 @@ export default defineConfig({
 				...devices['Desktop Firefox'],
 				storageState: 'tests/.auth/user.json'
 			},
-			dependencies: ['setup']
+			dependencies: ['setup'],
+			testIgnore: /.*admin.*\.spec\.ts/
 		}
 	]
-
-	/* Run your local dev server before starting the tests */
-	// webServer: {
-	//   command: 'npm run start',
-	//   url: 'http://127.0.0.1:3000',
-	//   reuseExistingServer: !process.env.CI,
-	// },
 })
