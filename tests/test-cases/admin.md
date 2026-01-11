@@ -1,7 +1,7 @@
 # Admin Test Cases
 # Test cases for admin-only features and access control.
 
-# Statuses (Completed, Planned, Experiment, Future Content)
+# Statuses (Completed, Planned, Experiment, Future Content, Skipped)
 # Priorities (high, med, low)
 
 ## Test Account Requirements
@@ -16,6 +16,7 @@ For admin tests to work properly, the following test accounts are needed:
 ### ADMN-001: Admin User Can Access Admin Area
 **Status:** `[completed]`
 **Priority:** High
+**Test Suite:** smoke
 **Description:**
 Verify that users in the 'Admins' Cognito group can access the admin section.
 **Preconditions:**
@@ -27,13 +28,14 @@ Verify that users in the 'Admins' Cognito group can access the admin section.
 4. Verify admin page content is displayed
 **Expected Result:**
 Admin user sees the admin section with "Admin Access Only" heading.
-**Playwright File:** `tests/sign-in/admin.spec.ts`
+**Playwright File:** - `tests/admin/admin.spec.ts`
 
 ---
 
 ### ADMN-002: Non-Admin User Cannot Access Admin Area
 **Status:** `[completed]`
 **Priority:** High
+**Test Suite:** smoke
 **Description:**
 Verify that regular users cannot access the admin section.
 **Preconditions:**
@@ -45,7 +47,7 @@ Verify that regular users cannot access the admin section.
 4. Verify access is denied or redirected
 **Expected Result:**
 Non-admin user is redirected away from admin section or sees access denied message.
-**Playwright File:** -
+**Playwright File:** - `tests/admin/nonAdmin.spec.ts`
 **Note:** Requires a non-admin test account to be configured.
 
 ---
@@ -82,7 +84,6 @@ Verify admins can view/manage users or acount management capabilities.
 3. Access user management
 4. Modify user features
 5. Verify user account modification is successful
-
 **Expected Result:**
 Admin can view and manage users account information
 **Playwright File:** -

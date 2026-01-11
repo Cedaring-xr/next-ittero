@@ -146,7 +146,7 @@ export default function Dashboard() {
 					</div>
 				</Link>
 				<div className="md:col-span-2 border-t-2 border-slate-600 my-4"></div>
-				<Link href="/stats">
+				<Link href="/dashboard/stats">
 					<div className="relative">
 						<svg
 							className="absolute -top-2 left-0 w-full h-2"
@@ -175,7 +175,7 @@ export default function Dashboard() {
 						</div>
 					</div>
 				</Link>
-				<Link href="/faq">
+				<Link href="/dashboard/feedback">
 					<div className="relative">
 						<svg
 							className="absolute -top-2 left-0 w-full h-2"
@@ -196,7 +196,7 @@ export default function Dashboard() {
 						</svg>
 						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
 							<HiOutlineAnnotation className="h-[30px] w-[30px]" />
-							<h3 className="text-lg mt-1 ml-3">Feedback</h3>
+							<h3 className="text-lg mt-1 ml-3">User Feedback</h3>
 						</div>
 					</div>
 				</Link>
