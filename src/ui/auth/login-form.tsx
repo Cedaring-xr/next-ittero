@@ -59,7 +59,7 @@ export default function LoginForm() {
           			</Link>
         		</div>
 				<div className="flex justify-center">
-					<Link href="/auth/signup" className="mt-2 cursor-pointer text-blue-500">
+					<Link href="/auth/signup" data-testId="signup-link" className="mt-2 cursor-pointer text-blue-500">
 						{"Don't have an account? "} Sign up.
 					</Link>
 				</div>

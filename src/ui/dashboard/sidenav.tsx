@@ -59,6 +59,7 @@ export default function SideNav() {
 			<div className="flex h-full flex-col bg-gradient-to-br from-[#1e3a5f] to-slate-900">
 				<button
 					onClick={() => setIsCollapsed(!isCollapsed)}
+					data-testid="sidebar-collapse-btn"
 					className="hidden md:flex items-center justify-center absolute top-0 right-0 w-8 h-8 bg-slate-800 border-2 border-slate-600 rounded text-gray-100 hover:bg-slate-700 hover:text-blue-400 transition-colors z-10"
 					aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 				>
@@ -92,7 +93,7 @@ export default function SideNav() {
 									Pinned Lists
 								</h3>
 							</div>
-							<div>
+							<div data-testid="sidebar-pinned-lists">
 								{pinnedLists.map((list) => (
 									<Link
 										key={list.id}
@@ -129,6 +130,7 @@ export default function SideNav() {
 					{user && user.isAdmin && (
 						<Link
 							href="/dashboard/admins"
+							data-testid="sidebar-admin-btn"
 							className={clsx(
 								'flex h-[48px] grow items-center text-gray-100 justify-center gap-2 bg-slate-800 border-t-2 border-slate-600 p-3 text-sm font-medium hover:bg-slate-700 hover:text-blue-400 md:flex-none md:justify-start md:p-2 md:px-3 md:text-lg',
 								isCollapsed ? 'md:justify-center' : ''
@@ -140,6 +142,7 @@ export default function SideNav() {
 					)}
 					<Link
 						href="/dashboard/profile"
+						data-testid="sidebar-profile-btn"
 						className={clsx(
 							'flex h-[48px] grow items-center text-gray-100 justify-center gap-2 bg-slate-800 border-t-2 border-slate-600 p-3 text-sm font-medium hover:bg-slate-700 hover:text-blue-400 md:flex-none md:justify-start md:p-2 md:px-3 md:text-lg',
 							isCollapsed ? 'md:justify-center' : ''

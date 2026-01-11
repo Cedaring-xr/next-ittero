@@ -1,9 +1,7 @@
 'use client'
-import dynamic from 'next/dynamic'
 import { lusitana } from '@/ui/fonts'
 import JournalEntryForm from './journal-entry-form'
-
-const Banner = dynamic(() => import('@/ui/info/banner'), { ssr: false })
+import Banner from '@/ui/info/banner'
 
 export default function NewJournal() {
 

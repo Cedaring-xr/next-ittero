@@ -1,7 +1,7 @@
 # Profile Test Cases
 # Test cases accessing user profile settings
 
-# Statuses (Completed, Planned, Experiment, Future Content)
+# Statuses (Completed, Planned, Experiment, Future Content, Skipped)
 # Priorities (high, med, low)
 
 ## Test Account Requirements
@@ -14,6 +14,7 @@ For admin tests to work properly, the following test accounts are needed:
 ### PROF-001: Navigate to Profile Settings
 **Status:** `[Completed]`
 **Priority:** med
+**Test Suite:** smoke
 **Description:**
 Verify that authenticated users can navigate to their profile settings page from sidebar.
 **Preconditions:**
@@ -31,6 +32,7 @@ User sees the profile settings page with all settings sections visible.
 ### PROF-002: View Profile Information
 **Status:** `[Completed]`
 **Priority:** med
+**Test Suite:** smoke
 **Description:**
 Verify that user profile page is accessible from the header icon
 **Preconditions:**
@@ -69,7 +71,7 @@ Username successfully updates and is visible on other pages
 ## Name update failure
 ### PROF-004: blank field does not update username
 **Status:** `[Completed]`
-**Priority:** High
+**Priority:** med
 **Description:**
 Verify that users cannot have a blank username
 **Preconditions:**
@@ -89,7 +91,7 @@ Error message apears notifying user that blank field does not work
 
 ## Date/Time Settings
 ### PROF-005: Change Timezone
-**Status:** `[PLANNED]`
+**Status:** `[Future Content]`
 **Priority:** Low
 **Description:**
 Verify that users can change their timezone setting.
@@ -107,7 +109,7 @@ Timezone preference is updated.
 ---
 
 ### PROF-006: Change theme settings
-**Status:** `[PLANNED]`
+**Status:** `[Future Content]`
 **Priority:** Low
 **Description:**
 Verify that users can change accent color.
@@ -125,7 +127,7 @@ Application uses selected accent color.
 ---
 
 ### PROF-007: Change notification settings
-**Status:** `[PLANNED]`
+**Status:** `[Future Content]`
 **Priority:** Low
 **Description:**
 Verify that users can toggle different notification settings.
