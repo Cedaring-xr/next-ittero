@@ -97,9 +97,10 @@ export function useJournalStats() {
 		const startOfMonth = new Date(currentYear, currentMonth, 1)
 
 		// Filter entries for current month
+		// Use UTC methods because date strings like "2026-01-15" are parsed as UTC midnight
 		const currentMonthEntries = entries.filter((entry) => {
 			const entryDate = new Date(entry.date)
-			return entryDate.getFullYear() === currentYear && entryDate.getMonth() === currentMonth
+			return entryDate.getUTCFullYear() === currentYear && entryDate.getUTCMonth() === currentMonth
 		})
 
 		// Filter entries for current week
@@ -219,10 +220,11 @@ function calculateStreaks(entries: JournalEntry[]): { currentStreak: number; lon
 function generateEntryTimesData(entries: JournalEntry[]): Array<{ date: string; time: number }> {
 	// For now, since we don't have exact entry times, we'll use a placeholder
 	// When createdAt timestamps are available, we can extract the actual time
+	// Use UTC methods because date strings like "2026-01-15" are parsed as UTC midnight
 	return entries
 		.map((entry) => {
 			const date = new Date(entry.date)
-			const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`
+			const formattedDate = `${(date.getUTCMonth() + 1).toString().padStart(2, '0')}/${date.getUTCDate().toString().padStart(2, '0')}`
 
 			// If createdAt exists, extract the hour; otherwise use a default
 			let time = 12 // Default to noon
@@ -247,10 +249,11 @@ function generateActivityData(
 	daysInMonth: number
 ): Array<{ date: string; hasEntry: boolean }> {
 	// Create a set of dates that have entries
+	// Use getUTCDate() because date strings like "2026-01-15" are parsed as UTC midnight
 	const entryDates = new Set(
 		entries.map((e) => {
 			const date = new Date(e.date)
-			return date.getDate()
+			return date.getUTCDate()
 		})
 	)
 
