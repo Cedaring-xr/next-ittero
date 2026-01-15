@@ -36,11 +36,11 @@ export default function DemoPage() {
 			{/* Main Content */}
 			<div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
 				{/* Introduction */}
-				<div className="bg-slate-800 border-2 border-slate-700 rounded-lg p-6 md:p-8 mb-8 text-center">
+				<div className="bg-gradient-to-r from-indigo-500 to-purple-600 border-2 border-indigo-400 rounded-lg p-6 md:p-8 mb-8 text-center shadow-xl">
 					<h2 className="text-xl md:text-2xl font-bold text-white mb-3">
 						Welcome to the Ittero Interactive Demo
 					</h2>
-					<p className="text-gray-300 text-lg">
+					<p className="text-gray-100 text-lg">
 						Explore the core features below. Sign up to unlock full functionality and save your data!
 					</p>
 				</div>
