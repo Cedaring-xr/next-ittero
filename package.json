@@ -11,6 +11,8 @@
     "test:component": "playwright test -c playwright-ct.config.ts",
     "test:smoke": "playwright test -c playwright.config.ts --grep @smoke",
     "test:regression": "playwright test -c playwright.config.ts --grep @regression",
+    "test:a11y": "playwright test -c playwright.config.ts --grep @a11y",
+    "test:a11y-full": "playwright test -c playwright.config.ts --grep @a11y-full",
     "test:all": "npm run test:component && npm run test:e2e",
     "deploy:staging": "npx sst@2 deploy --stage staging --no-interactive",
     "deploy:prod": "npx sst@2 deploy --stage prod --no-interactive"
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.965.0",
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/experimental-ct-react": "^1.57.0",
     "@playwright/test": "^1.52.0",
     "@types/node": "^20",
