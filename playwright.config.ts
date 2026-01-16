@@ -75,6 +75,17 @@ export default defineConfig({
 			},
 			dependencies: ['setup'],
 			testIgnore: /.*admin.*\.spec\.ts/
+		},
+
+		// API tests - run with user auth, Chrome only (no browser needed for pure API tests)
+		{
+			name: 'api',
+			testDir: './tests/api',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: 'tests/.auth/user.json'
+			},
+			dependencies: ['setup']
 		}
 	]
 })
