@@ -13,13 +13,23 @@ export default {
 			const stage = app.stage // "staging" | "prod"
 
 			const site = new NextjsSite(stack, 'Web', {
-				path: '.',
+  				path: '.',
 				environment: {
 					NEXT_PUBLIC_STAGE: stage,
-               NEXT_PUBLIC_API_URL:
-                  stage === "prod" ? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod" : "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging",
-				}
+					NEXT_PUBLIC_API_URL:
+						stage === "prod"
+						? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod"
+						: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging",
+				},
+
+				customDomain: stage === "prod"
+				? {
+					domainName: "itteroapp.com",
+					hostedZone: "itteroapp.com",
+					}
+				: undefined,
 			})
+
 
 			stack.addOutputs({
 				WebUrl: site.url
