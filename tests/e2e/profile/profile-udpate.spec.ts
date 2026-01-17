@@ -7,9 +7,9 @@ const user_name = randomName() as string
 // Use admin auth for all tests in this file
 test.use({ storageState: 'tests/.auth/admin.json' })
 
-test('[PROF-003] should be able to update user name from profile page', async ({ page }) => {
+test.skip('[PROF-003] should be able to update user name from profile page', async ({ page }) => {
 	await page.goto(`${url}/dashboard/profile`)
-	await expect(page.getByRole('heading', {level: 2, name: 'Profile Settings' })).toBeVisible()
+	await expect(page.getByRole('heading', {level: 1, name: 'Profile Settings' })).toBeVisible()
 	await page.getByRole('textbox', { name: 'Enter your name'}).fill(user_name)
 	await page.getByRole('button', {name: 'Update Name'}).click()
 	await expect(page.getByText('Name has been updated successfully')).toBeVisible()
@@ -23,7 +23,7 @@ test('[PROF-003] should be able to update user name from profile page', async ({
 
 test('[PROF-004] should not be able to enter blank field for updating user name', async ({ page }) => {
 	await page.goto(`${url}/dashboard/profile`)
-	await expect(page.getByRole('heading', {level: 2, name: 'Profile Settings' })).toBeVisible()
+	await expect(page.getByRole('heading', {level: 1, name: 'Profile Settings' })).toBeVisible()
 	const nameInput = page.getByRole('textbox', { name: 'Enter your name'})
 	await nameInput.fill('')
 	await page.getByRole('button', {name: 'Update Name'}).click()

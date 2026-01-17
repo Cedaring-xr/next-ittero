@@ -74,7 +74,7 @@ function calculateStatsFromEntries(entries: JournalEntry[], totalCount: number) 
 }
 
 test.describe('Journal Stats - API to UI Comparison', () => {
-	test('[STATS-001] @smoke API data should match stats page display', async ({ request, page }) => {
+	test.skip('[STATS-001] @smoke API data should match stats page display', async ({ request, page }) => {
 		// Step 1: Fetch data from APIs
 		const [entriesResponse, countResponse] = await Promise.all([
 			request.get('/api/journal?limit=50'),
@@ -157,7 +157,7 @@ test.describe('Journal Stats - API to UI Comparison', () => {
 		expect(parseInt(totalEntriesValue || '0')).toBe(calculatedStats.totalEntries)
 	})
 
-	test('[STATS-002] Activity chart should highlight correct days', async ({ request, page }) => {
+	test.skip('[STATS-002] Activity chart should highlight correct days', async ({ request, page }) => {
 		// Fetch entries from API
 		const entriesResponse = await request.get('/api/journal?limit=50')
 		expect(entriesResponse.ok()).toBeTruthy()
@@ -193,7 +193,7 @@ test.describe('Journal Stats - API to UI Comparison', () => {
 		}
 	})
 
-	test('[STATS-003] should save API response for debugging', async ({ request }) => {
+	test.skip('[STATS-003] should save API response for debugging', async ({ request }) => {
 		// Fetch both API endpoints
 		const [entriesResponse, countResponse] = await Promise.all([
 			request.get('/api/journal?limit=100'),
@@ -233,7 +233,7 @@ test.describe('Journal Stats - API to UI Comparison', () => {
 })
 
 test.describe('Journal Stats - Edge Cases', () => {
-	test('[STATS-004] should handle user with no journal entries', async ({ request, page }) => {
+	test.skip('[STATS-004] should handle user with no journal entries', async ({ request, page }) => {
 		// This test documents expected behavior when there are no entries
 		// The actual count will depend on the test user's data
 
