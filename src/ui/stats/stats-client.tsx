@@ -95,20 +95,20 @@ export default function StatsClient({ username }: StatsClientProps) {
 						<>
 							<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-700">
 								<div className="bg-slate-700 rounded-lg p-4 text-center">
-									<p className="text-3xl font-bold text-purple-400">{journalStats.entriesThisMonth}</p>
-									<p className="text-sm text-gray-400 mt-1">This Month</p>
+									<p className="text-3xl font-bold text-rose-400">{journalStats.entriesThisMonth}</p>
+									<p className="text-sm text-gray-200 mt-1">This Month</p>
 								</div>
 								<div className="bg-slate-700 rounded-lg p-4 text-center">
 									<p className="text-3xl font-bold text-indigo-400">{journalStats.entriesThisWeek}</p>
-									<p className="text-sm text-gray-400 mt-1">This Week</p>
+									<p className="text-sm text-gray-200 mt-1">This Week</p>
 								</div>
 								<div className="bg-slate-700 rounded-lg p-4 text-center">
-									<p className="text-3xl font-bold text-blue-400">{journalStats.currentStreak}</p>
-									<p className="text-sm text-gray-400 mt-1">Day Streak</p>
+									<p className="text-3xl font-bold text-orange-400">{journalStats.currentStreak}</p>
+									<p className="text-sm text-gray-200 mt-1">Day Streak</p>
 								</div>
 								<div className="bg-slate-700 rounded-lg p-4 text-center">
 									<p className="text-3xl font-bold text-emerald-400">{journalStats.totalEntries}</p>
-									<p className="text-sm text-gray-400 mt-1">Total Entries</p>
+									<p className="text-sm text-gray-200 mt-1">Total Entries</p>
 								</div>
 							</div>
 
@@ -182,7 +182,7 @@ export default function StatsClient({ username }: StatsClientProps) {
 																: 'bg-slate-800 border-slate-600'
 														} transition-all hover:scale-110`}
 													></div>
-													<span className="text-xs text-gray-500 mt-1">{day}</span>
+													<span className="text-xs text-gray-200 mt-1">{day}</span>
 													{dayData.hasEntry && (
 														<div className="absolute -top-8 hidden group-hover:block bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white whitespace-nowrap z-10">
 															{dayData.date}
@@ -206,7 +206,7 @@ export default function StatsClient({ username }: StatsClientProps) {
 							Lists & Tasks Statistics
 						</h3>
 					</div>
-					<p className="text-gray-400 text-sm mb-6">Track your productivity and task completion metrics.</p>
+					<p className="text-gray-200 text-sm mb-6">Track your productivity and task completion metrics.</p>
 
 					{/* Stats Display */}
 					{listsLoading ? (
@@ -217,49 +217,49 @@ export default function StatsClient({ username }: StatsClientProps) {
 						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 							{/* Total Lists */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Total Lists</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Total Lists</p>
 								<p className="text-3xl font-bold text-white">{listStats.totalLists}</p>
 							</div>
 
 							{/* Total Tasks */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Total Tasks</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Total Tasks</p>
 								<p className="text-3xl font-bold text-white">{listStats.totalTasks}</p>
 							</div>
 
 							{/* Completed Tasks */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Completed</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Completed</p>
 								<p className="text-3xl font-bold text-green-400">{listStats.completedTasks}</p>
 							</div>
 
 							{/* Active Tasks */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Active</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Active</p>
 								<p className="text-3xl font-bold text-indigo-400">{listStats.activeTasks}</p>
 							</div>
 
 							{/* Completion Rate */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Completion Rate</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Completion Rate</p>
 								<p className="text-3xl font-bold text-emerald-400">{listStats.completionRate}%</p>
 							</div>
 
 							{/* Overdue Tasks */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Overdue</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Overdue</p>
 								<p className="text-3xl font-bold text-red-400">{listStats.overdueTasks}</p>
 							</div>
 
 							{/* Tasks with Due Date */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">With Due Date</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">With Due Date</p>
 								<p className="text-3xl font-bold text-blue-400">{listStats.tasksWithDueDate}</p>
 							</div>
 
 							{/* Urgent Tasks */}
 							<div className="bg-slate-700 rounded-lg p-4 text-center">
-								<p className="text-gray-400 text-xs uppercase mb-2">Urgent</p>
+								<p className="text-gray-200 text-xs uppercase mb-2">Urgent</p>
 								<p className="text-3xl font-bold text-orange-400">{listStats.tasksByPriority.urgent}</p>
 							</div>
 						</div>

@@ -22,12 +22,13 @@ test('[AUTH-002] @smoke should sign-in to the test account using email and passw
 	await page.goto(`${url}/`)
 	await page.getByRole('link', {name: 'Log in'}).click()
 	await expect(page).toHaveURL(`${url}/auth/login`)
+	await page.waitForLoadState('networkidle')  // Wait for hydration 
 	await expect(page.getByRole('heading', {level: 1, name: 'Please sign in to continue.'})).toBeVisible()
 	await page.getByRole('textbox', {name: 'Email'}).fill(test_email)
 	await page.getByRole('textbox', {name: 'Password'}).fill(test_password)
 	await page.getByRole('button', {name: 'Log in'}).click()
 	await expect(page).toHaveURL(`${url}/dashboard`)
-	await expect(page.getByRole('heading', {level: 2, name: 'Your Dashboard' })).toBeVisible()
+	await expect(page.getByRole('heading', {level: 1, name: 'Your Dashboard' })).toBeVisible()
 })
 
 test.describe('Sign out tests', () => {
@@ -36,7 +37,7 @@ test.describe('Sign out tests', () => {
 	test('[AUTH-003] @smoke should be able to sign-out of an account that has successfully signed-in', async ({ page }) => {
 		await page.goto(`${url}/dashboard`)
 		await expect(page).toHaveURL(`${url}/dashboard`)
-		await expect(page.getByRole('heading', { level: 2, name: 'Your Dashboard' })).toBeVisible()
+		await expect(page.getByRole('heading', { level: 1, name: 'Your Dashboard' })).toBeVisible()
 		await page.getByRole('button', { name: 'Sign Out' }).click()
 		await expect(page).toHaveURL(`${url}/auth/login`)
 		await expect(page.getByRole('heading', { level: 1, name: 'Please sign in to continue.' })).toBeVisible()
@@ -47,6 +48,7 @@ test('[AUTH-004] @smoke should fail to sign-in when using incorrect password', a
 	await page.goto(`${url}/`)
 	await page.getByRole('link', {name: 'Log in'}).click()
 	await expect(page).toHaveURL(`${url}/auth/login`)
+	await page.waitForLoadState('networkidle')  // Wait for hydration 
 	await expect(page.getByRole('heading', {level: 1, name: 'Please sign in to continue.'})).toBeVisible()
 	await page.getByRole('textbox', {name: 'Email'}).fill(test_email)
 	await page.getByRole('textbox', {name: 'Password'}).fill('incorrect')
@@ -60,9 +62,9 @@ test.describe('Sign out tests', () => {
 		test('[AUTH-008] @smoke should verify that authenticated users are redirected away from auth pages', async ({page}) => {
 			await page.goto(`${url}/dashboard`)
 			await expect(page).toHaveURL(`${url}/dashboard`)
-			await expect(page.getByRole('heading', { level: 2, name: 'Your Dashboard' })).toBeVisible()
+			await expect(page.getByRole('heading', { level: 1, name: 'Your Dashboard' })).toBeVisible()
 			await page.goto(`${url}/auth/login`)
 			await expect(page).toHaveURL(`${url}/dashboard`)
-			await expect(page.getByRole('heading', { level: 2, name: 'Your Dashboard' })).toBeVisible()
+			await expect(page.getByRole('heading', { level: 1, name: 'Your Dashboard' })).toBeVisible()
 	})
 })

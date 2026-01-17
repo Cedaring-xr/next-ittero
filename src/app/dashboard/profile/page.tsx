@@ -16,7 +16,7 @@ export default async function Profile() {
 		<main>
 			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
 				<div className="flex ml-4">
-					<CogIcon className="h-[30px] w-[30px]" /> <h2 data-testid="page-title" className="md:text-xl ml-2">Profile Settings</h2>
+					<CogIcon className="h-[30px] w-[30px]" /> <h1 data-testid="page-title" className="md:text-xl ml-2">Profile Settings</h1>
 				</div>
 				<div className="flex items-center mr-4 gap-4">
 					<div className="flex items-center">

@@ -257,11 +257,11 @@ export default function Lists() {
 	}, [])
 
 	return (
-		<>
+		<main>
 			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
 				<div className="flex ml-4">
 					<HiOutlineClipboardList className="h-[30px] w-[30px]" />{' '}
-					<h2 className="md:text-xl ml-2">Your Lists</h2>
+					<h1 className="md:text-xl ml-2">Your Lists</h1>
 				</div>
 				<div className="flex items-center mr-4 gap-4">
 					<div className="flex items-center">
@@ -273,6 +273,7 @@ export default function Lists() {
 						id="profile-settings"
 						href="/dashboard/profile"
 						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
+						aria-label="Profile settings"
 					>
 						<CogIcon className="w-6 h-6" />
 					</Link>
@@ -332,7 +333,7 @@ export default function Lists() {
 						<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
 							<HiOutlineClipboardList className="h-16 w-16 text-gray-400 mb-4" />
 							<p className="text-gray-700 text-xl mb-2">No Lists Yet</p>
-							<p className="text-gray-500 mb-6">Get started by creating your first list</p>
+							<p className="text-gray-600 mb-6">Get started by creating your first list</p>
 							<div className="flex gap-4">
 								<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
 									Create New List
@@ -356,6 +357,6 @@ export default function Lists() {
 					)}
 				</div>
 			</div>
-		</>
+		</main>
 	)
 }

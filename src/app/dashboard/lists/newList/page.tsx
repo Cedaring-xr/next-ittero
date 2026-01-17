@@ -70,7 +70,7 @@ export default function NewListPage() {
 
 	return (
 		<div className="max-w-3xl mx-auto p-6">
-			<h1 className={`${lusitana.className} text-3xl font-bold mb-6 text-white`}>Create New List</h1>
+			<h1 className={`${lusitana.className} text-3xl font-bold mb-6 text-slate-900`}>Create New List</h1>
 
 			<form onSubmit={handleSubmit} className="bg-slate-700 rounded-lg shadow-lg p-6 space-y-6">
 				{/* List Name */}
@@ -118,7 +118,7 @@ export default function NewListPage() {
 						maxLength={100}
 						className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
 					/>
-					<p className="text-xs text-gray-400 mt-1">{category.length}/100 characters</p>
+					<p className="text-xs text-gray-200 mt-1">{category.length}/100 characters</p>
 				</div>
 
 				{/* Tags */}
@@ -167,7 +167,7 @@ export default function NewListPage() {
 							))}
 						</div>
 					)}
-					<p className="text-xs text-gray-400 mt-1">
+					<p className="text-xs text-gray-200 mt-1">
 						{tags.length} tag{tags.length !== 1 ? 's' : ''} added
 					</p>
 				</div>
@@ -191,7 +191,7 @@ export default function NewListPage() {
 					</ElegantButton>
 					<ElegantButton
 						type="button"
-						variant="outline"
+						variant="secondary"
 						size="lg"
 						onClick={() => window.history.back()}
 						disabled={isLoading}

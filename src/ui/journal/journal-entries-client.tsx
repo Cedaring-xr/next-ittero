@@ -87,9 +87,7 @@ export default function JournalEntriesClient() {
 			<h3 className="text-black text-3xl mt-4 ml-4">Journal Entries</h3>
 			<div className={`${lusitana.className} font-bold p-6`}>
 				<div className="mb-6">
-					<button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
-						<Link href="/dashboard/journal/newJournal">Create new Entry</Link>
-					</button>
+					<Link className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md" href="/dashboard/journal/newJournal">Create new Entry</Link>
 				</div>
 
 				{error && <div className="bg-red-500 text-white p-4 rounded-md mb-4">Error: {error}</div>}
@@ -139,10 +137,8 @@ export default function JournalEntriesClient() {
 					<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
 						<HiOutlineBookOpen className="h-16 w-16 text-gray-400 mb-4" />
 						<p className="text-gray-700 text-xl mb-2">No Journal Entries Yet</p>
-						<p className="text-gray-500 mb-6">Get started by creating your first entry</p>
-						<button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
-							<Link href="/dashboard/journal/newJournal">Create new Entry</Link>
-						</button>
+						<p className="text-gray-700 mb-6">Get started by creating your first entry</p>
+							<Link className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md" href="/dashboard/journal/newJournal">Create new Entry</Link>
 					</div>
 				)}
 			</div>

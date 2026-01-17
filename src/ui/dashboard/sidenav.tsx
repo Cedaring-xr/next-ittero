@@ -50,7 +50,7 @@ export default function SideNav() {
 	}
 
 	return (
-		<div
+		<nav aria-label='main navigation'
 			className={clsx(
 				'flex h-full flex-col transition-all duration-300 relative',
 				isCollapsed ? 'w-16' : 'w-full md:w-56'
@@ -154,6 +154,6 @@ export default function SideNav() {
 					<LogoutForm isCollapsed={isCollapsed} />
 				</div>
 			</div>
-		</div>
+		</nav>
 	)
 }
