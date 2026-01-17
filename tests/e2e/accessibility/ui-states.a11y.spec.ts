@@ -7,7 +7,7 @@ const url = process.env.BASE_URL as string
  * Modal Accessibility Tests
  * Tests for modal dialogs and their accessibility compliance
  */
-test.describe('Modal Accessibility', () => {
+test.describe('@a11y Modal Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/user.json' })
 
 	test('[A11Y-030] @a11y Add Task modal should have no critical accessibility violations', async ({ page }) => {
@@ -130,7 +130,7 @@ test.describe('Modal Accessibility', () => {
  * Form State Accessibility Tests
  * Tests for forms in various states (empty, error, loading)
  */
-test.describe('Form State Accessibility', () => {
+test.describe('@a11y Form State Accessibility', () => {
 	test.use({ storageState: { cookies: [], origins: [] } })   
 
 	test('[A11Y-040] @a11y Login form with error state should be accessible', async ({ page }) => {
@@ -182,7 +182,7 @@ test.describe('Form State Accessibility', () => {
  * Empty State Accessibility Tests
  * Tests for pages/components in empty states
  */
-test.describe('Empty State Accessibility', () => {
+test.describe('@a11y Empty State Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/user.json' })
 
 	test('[A11Y-050] @a11y Lists page empty state should be accessible', async ({ page }) => {
@@ -209,7 +209,7 @@ test.describe('Empty State Accessibility', () => {
  * Loading State Accessibility Tests
  * Tests for pages during loading states
  */
-test.describe('Loading State Accessibility', () => {
+test.describe('@a11y Loading State Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/user.json' })
 
 	test('[A11Y-060] @a11y Loading spinner should be accessible', async ({ page }) => {
@@ -237,7 +237,7 @@ test.describe('Loading State Accessibility', () => {
  * Interactive Component Accessibility Tests
  * Tests for interactive components like dropdowns, accordions, etc.
  */
-test.describe('Interactive Component Accessibility', () => {
+test.describe('@a11y Interactive Component Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/user.json' })
 
 	test('[A11Y-070] @a11y Sidenav should be navigable with keyboard', async ({ page }) => {
@@ -290,7 +290,7 @@ test.describe('Interactive Component Accessibility', () => {
  * Color Contrast and Visual Accessibility
  * These tests use axe-core's color contrast rules
  */
-test.describe('Visual Accessibility', () => {
+test.describe('@a11y Visual Accessibility', () => {
 	test.skip('[A11Y-080] @a11y Demo page charts should have accessible color contrast', async ({ page }) => {
 		await page.goto(`${url}/demo`)
 		await page.waitForLoadState('networkidle')

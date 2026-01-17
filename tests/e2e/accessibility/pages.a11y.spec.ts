@@ -7,7 +7,7 @@ const url = process.env.BASE_URL as string
  * Public Pages Accessibility Tests
  * These pages are accessible without authentication
  */
-test.describe('Public Pages Accessibility', () => {
+test.describe('@a11y Public Pages Accessibility', () => {
 	test('[A11Y-001] @a11y Home page should have no critical accessibility violations', async ({ page }) => {
 		await page.goto(`${url}/`)
 		await page.waitForLoadState('networkidle')
@@ -55,7 +55,7 @@ test.describe('Public Pages Accessibility', () => {
  * Authenticated Pages Accessibility Tests
  * These require user authentication
  */
-test.describe('Authenticated Pages Accessibility', () => {
+test.describe('@a11y Authenticated Pages Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/user.json' })
 
 	test('[A11Y-010] @a11y Dashboard page should have no critical accessibility violations', async ({ page }) => {
@@ -121,7 +121,7 @@ test.describe('Authenticated Pages Accessibility', () => {
  * Admin Pages Accessibility Tests
  * These require admin authentication
  */
-test.describe('Admin Pages Accessibility', () => {
+test.describe('@a11y Admin Pages Accessibility', () => {
 	test.use({ storageState: 'tests/.auth/admin.json' })
 
 	test('[A11Y-020] @a11y Admin page should have no critical accessibility violations', async ({ page }) => {
@@ -136,7 +136,7 @@ test.describe('Admin Pages Accessibility', () => {
  * Full Scan Tests (all violations)
  * These tests report all violations for comprehensive auditing
  */
-test.describe('Full Accessibility Audit', () => {
+test.describe('@a11y Full Accessibility Audit', () => {
 	test('[A11Y-100] @a11y-full Home page full accessibility audit', async ({ page }) => {
 		await page.goto(`${url}/`)
 		await page.waitForLoadState('networkidle')
