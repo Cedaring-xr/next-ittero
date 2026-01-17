@@ -22,7 +22,7 @@ export default function Pagination({
 	return (
 		<div className="mt-8 flex flex-col items-center gap-4">
 			{currentCount > 0 && (
-				<p className="text-sm text-gray-600">Showing {currentCount} entries</p>
+				<p className="text-gray-800">Showing {currentCount} entries</p>
 			)}
 			{hasMore && (
 				<button

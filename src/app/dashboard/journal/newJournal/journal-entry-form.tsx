@@ -115,6 +115,7 @@ export default function JournalEntryForm() {
 								</label>
 								<input
 									type="date"
+									id="date"
 									min={getMinDate()}
 									max={getTodayDate()}
 									defaultValue={getTodayDate()}
@@ -128,6 +129,7 @@ export default function JournalEntryForm() {
 								</label>
 								<input
 									type="text"
+									id="tag"
 									placeholder="e.g., highlight, low point"
 									maxLength={30}
 									className="rounded-md border border-gray-300 bg-[#f7f4fb] py-1.5 px-3 text-sm font-medium text-gray-700 outline-none focus:border-2 focus:border-[#c524a8] focus:shadow-md"

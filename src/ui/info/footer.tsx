@@ -15,7 +15,7 @@ function Footer() {
 							List, Iterate, Improve. Your personal journal and task management platform to help you track
 							progress, reflect on your journey, and achieve your goals.
 						</p>
-						<div className="text-xs text-gray-500">Version 1.02.1</div>
+						<div className="text-xs text-gray-200">Version 1.02.1</div>
 					</div>
 
 					{/* Quick Links */}
@@ -70,7 +70,7 @@ function Footer() {
 						<div className="flex gap-6">
 							<a
 								href="#"
-								className="text-gray-400 hover:text-indigo-400 transition-colors"
+								className="text-teal-500 hover:text-indigo-500 transition-colors"
 								aria-label="Twitter"
 							>
 								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@ function Footer() {
 							</a>
 							<a
 								href="#"
-								className="text-gray-400 hover:text-indigo-400 transition-colors"
+								className="text-purple-500 hover:text-indigo-500 transition-colors"
 								aria-label="GitHub"
 							>
 								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ function Footer() {
 							</a>
 							<a
 								href="#"
-								className="text-gray-400 hover:text-indigo-400 transition-colors"
+								className="text-blue-500 hover:text-indigo-500 transition-colors"
 								aria-label="LinkedIn"
 							>
 								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

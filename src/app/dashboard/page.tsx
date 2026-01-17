@@ -20,7 +20,7 @@ export default async function Dashboard() {
 		<>
 			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
 				<div className="flex ml-4">
-					<HiDocumentText className="h-[30px] w-[30px]" /> <h2 className="md:text-xl ml-2">Your Dashboard</h2>
+					<HiDocumentText className="h-[30px] w-[30px]" /> <h1 className="md:text-xl ml-2">Your Dashboard</h1>
 				</div>
 				<div className="flex items-center mr-4 gap-4">
 					<div className="flex items-center">
@@ -32,6 +32,7 @@ export default async function Dashboard() {
 						id="profile-settings"
 						href="/dashboard/profile"
 						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
+						aria-label="Profile settings"
 					>
 						<CogIcon className="w-6 h-6" />
 					</Link>

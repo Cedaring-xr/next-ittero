@@ -53,13 +53,13 @@ export default function LoginForm() {
 				<div className="flex justify-center">
           			<Link
             			href="/auth/reset-password/submit"
-            			className="mt-2 cursor-pointer text-blue-500"
+            			className="mt-2 cursor-pointer text-blue-700"
           			>
             			Forgot password? Click here.
           			</Link>
         		</div>
 				<div className="flex justify-center">
-					<Link href="/auth/signup" data-testId="signup-link" className="mt-2 cursor-pointer text-blue-500">
+					<Link href="/auth/signup" data-testId="signup-link" className="mt-2 cursor-pointer text-blue-700">
 						{"Don't have an account? "} Sign up.
 					</Link>
 				</div>
@@ -83,7 +83,7 @@ function LoginButton() {
 
 	return (
 		<Button className="mt-4 w-full" aria-disabled={pending}>
-			Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+			Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-white" />
 		</Button>
 	)
 }
