@@ -25,7 +25,7 @@ export default async function Dashboard() {
 				<div className="flex items-center mr-4 gap-4">
 					<div className="flex items-center">
 						<UserCircleIcon className="w-6 mr-1" />
-						<h2 data-testid="user-display-name">{user?.username}</h2>
+						<h2 data-testid="user-display-name">{user?.name || user?.username}</h2>
 					</div>
 					<div className="h-6 w-px bg-slate-400"></div>
 					<Link
