@@ -31,6 +31,7 @@ export function useListDetails(listId: string) {
 		queryFn: async () => {
 			const response = await fetch(`/api/lists/${listId}`, {
 				method: 'GET',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' }
 			})
 
@@ -52,6 +53,7 @@ export function useListItems(listId: string) {
 		queryFn: async () => {
 			const response = await fetch(`/api/lists/items?listId=${listId}`, {
 				method: 'GET',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' }
 			})
 
@@ -80,6 +82,7 @@ export function useCreateItem(listId: string) {
 		}) => {
 			const response = await fetch('/api/lists/items', {
 				method: 'POST',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(newItem)
 			})
@@ -107,6 +110,7 @@ export function useToggleItemCompletion(listId: string) {
 		mutationFn: async ({ itemId, completed }: { itemId: string; completed: boolean }) => {
 			const response = await fetch(`/api/lists/items/${itemId}`, {
 				method: 'PATCH',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ completed })
 			})
@@ -154,6 +158,7 @@ export function useDeleteItem(listId: string) {
 		mutationFn: async (itemId: string) => {
 			const response = await fetch(`/api/lists/items/${itemId}`, {
 				method: 'DELETE',
+				credentials: 'include',
 				headers: { 'Content-Type': 'application/json' }
 			})
 

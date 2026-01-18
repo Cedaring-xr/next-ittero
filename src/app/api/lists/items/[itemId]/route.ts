@@ -81,10 +81,11 @@ export async function PATCH(
 			'Content-Type': 'application/json'
 		}
 
+		// Add Authorization header (no Bearer prefix for AWS API Gateway)
 		if (idToken) {
-			headers['Authorization'] = `Bearer ${idToken}`
+			headers['Authorization'] = idToken
 		} else if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`
+			headers['Authorization'] = accessToken
 		}
 
 		const apiResponse = await fetch(url, {
@@ -199,10 +200,11 @@ export async function DELETE(
 			'Content-Type': 'application/json'
 		}
 
+		// Add Authorization header (no Bearer prefix for AWS API Gateway)
 		if (idToken) {
-			headers['Authorization'] = `Bearer ${idToken}`
+			headers['Authorization'] = idToken
 		} else if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`
+			headers['Authorization'] = accessToken
 		}
 
 		const apiResponse = await fetch(url, {

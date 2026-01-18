@@ -41,6 +41,7 @@ export default function TodoItemsPage() {
 		try {
 			const response = await fetch('/api/lists', {
 				method: 'GET',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -81,6 +82,7 @@ export default function TodoItemsPage() {
 			// Send POST request to API
 			const response = await fetch('/api/lists/items', {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json'
 				},

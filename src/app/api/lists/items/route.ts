@@ -90,13 +90,13 @@ export async function POST(request: NextRequest) {
 			'Content-Type': 'application/json'
 		}
 
-		// Add Authorization header with ID token (Bearer format for AWS API Gateway)
+		// Add Authorization header with ID token (no Bearer prefix for AWS API Gateway)
 		if (idToken) {
-			headers['Authorization'] = `Bearer ${idToken}`
-			console.log('Including ID token in Authorization header')
+			headers['Authorization'] = idToken
+			console.log('Including ID token (no Bearer prefix)')
 		} else if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`
-			console.log('Including Access token in Authorization header')
+			headers['Authorization'] = accessToken
+			console.log('Including Access token (no Bearer prefix)')
 		} else {
 			console.warn('No Cognito token found')
 		}
