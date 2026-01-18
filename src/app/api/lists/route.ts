@@ -178,10 +178,32 @@ export async function GET(request: NextRequest) {
 	try {
 		const response = NextResponse.next()
 
+		// DEBUG: Log incoming request details
+		console.log('=== LISTS API DEBUG START ===')
+		console.log('Request URL:', request.url)
+		console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+
+		// DEBUG: Check cookies
+		const cookieHeader = request.headers.get('cookie')
+		console.log('Cookie header exists:', !!cookieHeader)
+		console.log('Cookie header length:', cookieHeader?.length || 0)
+
 		// Get authenticated user and session with tokens
 		const user = await authenticatedUser({ request, response })
 
+		// DEBUG: Log user object details
+		console.log('User object:', user ? {
+			userId: user.userId,
+			username: user.username,
+			hasIdToken: !!user.idToken,
+			hasAccessToken: !!user.accessToken,
+			idTokenLength: user.idToken?.length || 0,
+			idTokenPreview: user.idToken ? `${user.idToken.substring(0, 20)}...${user.idToken.substring(user.idToken.length - 20)}` : 'N/A',
+			idTokenParts: user.idToken?.split('.').length || 0
+		} : 'NULL')
+
 		if (!user) {
+			console.log('=== LISTS API DEBUG END (no user) ===')
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 		}
 
@@ -191,12 +213,18 @@ export async function GET(request: NextRequest) {
 
 		console.log('Fetching lists for User ID:', user.userId)
 		console.log('ID Token exists:', !!idToken)
+		console.log('Access Token exists:', !!accessToken)
 
 		// Get AWS API Gateway URL from environment variables
 		const apiGatewayUrl = process.env.TASKS_API_GATEWAY_LISTS_URL
 
+		// DEBUG: Log environment variable
+		console.log('TASKS_API_GATEWAY_LISTS_URL exists:', !!apiGatewayUrl)
+		console.log('TASKS_API_GATEWAY_LISTS_URL value:', apiGatewayUrl)
+
 		if (!apiGatewayUrl) {
 			console.error('AWS_API_GATEWAY_LISTS_URL is not configured')
+			console.log('=== LISTS API DEBUG END (no URL) ===')
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
@@ -218,10 +246,22 @@ export async function GET(request: NextRequest) {
 		if (idToken) {
 			headers['Authorization'] = idToken
 			console.log('Including ID token (no Bearer prefix)')
+			console.log('Authorization header length:', idToken.length)
 		} else if (accessToken) {
 			headers['Authorization'] = accessToken
 			console.log('Including Access token (no Bearer prefix)')
+			console.log('Authorization header length:', accessToken.length)
+		} else {
+			console.log('WARNING: No token available for Authorization header!')
 		}
+
+		// DEBUG: Log final headers being sent
+		console.log('Final headers being sent:', {
+			'Content-Type': headers['Content-Type'],
+			'Authorization exists': !!headers['Authorization'],
+			'Authorization length': (headers['Authorization'] as string)?.length || 0,
+			'Authorization preview': headers['Authorization'] ? `${(headers['Authorization'] as string).substring(0, 30)}...` : 'N/A'
+		})
 
 		// Send GET request to AWS API Gateway
 		const apiResponse = await fetch(url, {
@@ -230,10 +270,12 @@ export async function GET(request: NextRequest) {
 		})
 
 		console.log('AWS Response Status:', apiResponse.status)
+		console.log('AWS Response Headers:', Object.fromEntries(apiResponse.headers.entries()))
 
 		// Get response text
 		const responseText = await apiResponse.text()
 		console.log('AWS Response Text:', responseText)
+		console.log('=== LISTS API DEBUG END ===')
 
 		if (!apiResponse.ok) {
 			console.error('AWS API Gateway returned error status:', apiResponse.status)
@@ -250,7 +292,17 @@ export async function GET(request: NextRequest) {
 				{
 					error: 'Failed to fetch lists',
 					details: errorData,
-					status: apiResponse.status
+					status: apiResponse.status,
+					debug: {
+						hadUser: !!user,
+						userId: user?.userId,
+						hadIdToken: !!idToken,
+						idTokenLength: idToken?.length || 0,
+						idTokenParts: idToken?.split('.').length || 0,
+						hadAccessToken: !!accessToken,
+						apiGatewayUrl: apiGatewayUrl,
+						requestedUrl: url
+					}
 				},
 				{ status: apiResponse.status }
 			)
