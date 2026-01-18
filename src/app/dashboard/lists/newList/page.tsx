@@ -41,6 +41,7 @@ export default function NewListPage() {
 		try {
 			const response = await fetch('/api/lists', {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json'
 				},

@@ -204,6 +204,7 @@ export default function Lists() {
 			// Fetch all lists
 			const response = await fetch('/api/lists', {
 				method: 'GET',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -223,6 +224,7 @@ export default function Lists() {
 					try {
 						const itemsResponse = await fetch(`/api/lists/items?listId=${list.id}`, {
 							method: 'GET',
+							credentials: 'include',
 							headers: {
 								'Content-Type': 'application/json'
 							}
