@@ -266,7 +266,7 @@ export default function Lists() {
 				<div className="flex items-center mr-4 gap-4">
 					<div className="flex items-center">
 						<UserCircleIcon className="w-6 mr-1" />
-						<h2>{user?.name}</h2>
+						<h2>{user?.name || user?.username}</h2>
 					</div>
 					<div className="h-6 w-px bg-slate-400"></div>
 					<Link

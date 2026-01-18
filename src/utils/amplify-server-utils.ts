@@ -1,5 +1,5 @@
 import { NextServer, createServerRunner } from '@aws-amplify/adapter-nextjs'
-import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth/server'
+import { fetchAuthSession, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth/server'
 import { cookies } from 'next/headers'
 import type { ResourcesConfig } from 'aws-amplify'
 
@@ -71,11 +71,13 @@ export async function getAuthenticatedUser(): Promise<AuthUser | null> {
 				}
 
 				const currentUser = await getCurrentUser(contextSpec)
+				const userAttributes = await fetchUserAttributes(contextSpec)
 				const groups = session.tokens.accessToken.payload['cognito:groups']
 
 				const user: AuthUser = {
 					userId: currentUser.userId,
 					username: currentUser.username,
+					name: userAttributes.name,
 					isAdmin: Boolean(groups && Array.isArray(groups) && groups.includes('Admins')),
 					idToken: session.tokens.idToken?.toString(),
 					accessToken: session.tokens.accessToken?.toString()
