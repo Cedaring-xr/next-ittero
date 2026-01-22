@@ -1,0 +1,123 @@
+{
+	"runs": [
+		{
+			"id": "run-001",
+			"name": "Sprint 24 - Regression Test",
+			"startDate": "2026-01-15T08:00:00Z",
+			"endDate": "2026-01-15T08:12:00Z",
+			"environment": "Staging",
+			"buildVersion": "v2.5.0",
+			"location": "staging",
+			"passed": true,
+			"suites": [
+				{
+					"id": "suite-001",
+					"name": "Authentication Tests",
+					"description": "Tests for login, logout, and session management",
+					"totalTests": 25,
+					"passedTests": 22,
+					"failedTests": 2,
+					"skippedTests": 1,
+					"blockedTests": 0,
+					"tests": []
+				},
+				{
+					"id": "suite-002",
+					"name": "API Tests",
+					"description": "Backend API endpoint tests",
+					"totalTests": 40,
+					"passedTests": 38,
+					"failedTests": 1,
+					"skippedTests": 1,
+					"blockedTests": 0,
+					"tests": []
+				},
+				{
+					"id": "suite-003",
+					"name": "UI Integration Tests",
+					"description": "End-to-end UI workflow tests",
+					"totalTests": 30,
+					"passedTests": 28,
+					"failedTests": 0,
+					"skippedTests": 2,
+					"blockedTests": 0,
+					"tests": []
+				}
+			]
+		},
+		{
+			"id": "run-002",
+			"name": "Sprint 23 - Full Suite",
+			"startDate": "2026-01-08T09:00:00Z",
+			"endDate": "2026-01-08T09:18:00Z",
+			"environment": "Production",
+			"buildVersion": "v2.4.2",
+			"location": "ci",
+			"passed": false,
+			"suites": [
+				{
+					"id": "suite-004",
+					"name": "Authentication Tests",
+					"description": "Tests for login, logout, and session management",
+					"totalTests": 25,
+					"passedTests": 24,
+					"failedTests": 1,
+					"skippedTests": 0,
+					"blockedTests": 0,
+					"tests": []
+				},
+				{
+					"id": "suite-005",
+					"name": "API Tests",
+					"description": "Backend API endpoint tests",
+					"totalTests": 40,
+					"passedTests": 39,
+					"failedTests": 1,
+					"skippedTests": 0,
+					"blockedTests": 0,
+					"tests": []
+				},
+				{
+					"id": "suite-006",
+					"name": "UI Integration Tests",
+					"description": "End-to-end UI workflow tests",
+					"totalTests": 30,
+					"passedTests": 29,
+					"failedTests": 1,
+					"skippedTests": 0,
+					"blockedTests": 0,
+					"tests": []
+				}
+			]
+		}
+	],
+	"summary": {
+		"totalTests": 285,
+		"passed": 265,
+		"failed": 12,
+		"skipped": 6,
+		"blocked": 2,
+		"passRate": 93.0,
+		"totalRuns": 2,
+		"passedRuns": 1,
+		"runPassRate": 50.0,
+		"byCategory": [
+			{ "category": "unit", "count": 120, "passed": 115, "failed": 3, "skipped": 2 },
+			{ "category": "api", "count": 52, "passed": 48, "failed": 3, "skipped": 1 },
+			{ "category": "integration", "count": 55, "passed": 52, "failed": 2, "skipped": 1 },
+			{ "category": "e2e", "count": 28, "passed": 25, "failed": 2, "skipped": 1 },
+			{ "category": "component", "count": 85, "passed": 82, "failed": 1, "skipped": 2 },
+			{ "category": "accessibility", "count": 18, "passed": 17, "failed": 0, "skipped": 1 },
+			{ "category": "regression", "count": 40, "passed": 38, "failed": 1, "skipped": 1 },
+			{ "category": "performance", "count": 8, "passed": 8, "failed": 0, "skipped": 0 },
+			{ "category": "load", "count": 4, "passed": 4, "failed": 0, "skipped": 0 },
+			{ "category": "data-integrity", "count": 3, "passed": 3, "failed": 0, "skipped": 0 }
+		],
+		"coverage": {
+			"unit": 87.5,
+			"component": 92.3,
+			"api": 78.4
+		}
+	},
+	"lastUpdated": "2026-01-18T10:30:00Z"
+}

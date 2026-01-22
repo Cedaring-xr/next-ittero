@@ -46,6 +46,7 @@ node_modules/
 /playwright/.cache/
 /tests/.auth/*.json
 /tests/e2e/stats/outputs/*.json
+test-results.json
 
 #SST / OpenNext
 .sst/
