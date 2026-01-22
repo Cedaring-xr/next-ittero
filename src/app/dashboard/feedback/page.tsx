@@ -21,7 +21,7 @@ export default async function Feedback() {
         <div className="flex items-center mr-4 gap-4">
           <div className="flex items-center">
             <UserCircleIcon className="w-6 mr-1" />
-            <h2>{user?.username}</h2>
+            <h2>{user?.name || user?.username}</h2>
           </div>
         </div>
       </div>

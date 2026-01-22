@@ -16,10 +16,18 @@ export default {
   				path: '.',
 				environment: {
 					NEXT_PUBLIC_STAGE: stage,
+					JOURNAL_API_GATEWAY_URL:
+						stage === "prod"
+						? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod/entry"
+						: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging/entry",
 					TASKS_API_GATEWAY_LISTS_URL:
     					stage === "prod"
-      				? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod"
-      				: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging",
+      				? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod/lists"
+      				: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging/lists",
+					TASKS_API_GATEWAY_ITEMS_URL:
+						stage === "prod"
+						? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod/tasks"
+						: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging/tasks",
 					},
 
 				customDomain: stage === "prod"

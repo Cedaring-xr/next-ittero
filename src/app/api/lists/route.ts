@@ -94,13 +94,13 @@ export async function POST(request: NextRequest) {
 			'Content-Type': 'application/json'
 		}
 
-		// Add Authorization header with ID token (Bearer format for AWS API Gateway)
+		// Add Authorization header with ID token (no Bearer prefix for AWS API Gateway)
 		if (idToken) {
-			headers['Authorization'] = `Bearer ${idToken}`
-			console.log('Including ID token in Authorization header')
+			headers['Authorization'] = idToken
+			console.log('Including ID token (no Bearer prefix)')
 		} else if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`
-			console.log('Including Access token in Authorization header')
+			headers['Authorization'] = accessToken
+			console.log('Including Access token (no Bearer prefix)')
 		} else {
 			console.warn('No Cognito token found')
 		}
@@ -214,13 +214,13 @@ export async function GET(request: NextRequest) {
 			'Content-Type': 'application/json'
 		}
 
-		// Add Authorization header with Bearer prefix (same as POST)
+		// Add Authorization header - token without Bearer prefix for GET (matches journal API)
 		if (idToken) {
-			headers['Authorization'] = `Bearer ${idToken}`
-			console.log('Including ID token with Bearer prefix')
+			headers['Authorization'] = idToken
+			console.log('Including ID token (no Bearer prefix)')
 		} else if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`
-			console.log('Including Access token with Bearer prefix')
+			headers['Authorization'] = accessToken
+			console.log('Including Access token (no Bearer prefix)')
 		}
 
 		// Send GET request to AWS API Gateway
