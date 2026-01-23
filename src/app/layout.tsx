@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Footer from '@/ui/info/footer'
 import ConfigureAmplifyClientSide from './amplify-cognito-config'
+import Providers from './providers'
 
 export const metadata: Metadata = {
 	title: 'List, Itterate, Improve',
@@ -23,7 +24,9 @@ export default function RootLayout({
 			<body className="font-inter antialiased bg-slate-700">
 				<>
 					<ConfigureAmplifyClientSide />
-					{children}
+					<Providers>
+						{children}
+					</Providers>
 				</>
 				<Footer />
 			</body>

@@ -16,7 +16,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import formatDate from '@/utils/helpers/date-and-time'
-import { fetchListsWithItems, type ListEntry } from '@/utils/api/lists'
+import { type ListEntry } from '@/utils/api/lists'
+import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 
 // Sortable List Item Component
 function SortableListItem({ list }: { list: ListEntry }) {
@@ -114,12 +115,20 @@ function SortableListItem({ list }: { list: ListEntry }) {
 
 export default function Lists() {
 	const user = useAuthUser()
-	const [userLists, setUserLists] = useState<ListEntry[]>([])
-	const [error, setError] = useState<string | null>()
-	const [isLoading, setIsLoading] = useState<boolean>(true)
-
-	// used for sending api calls via api/routes
 	const router = useRouter()
+
+	// Fetch lists with React Query
+	const { data: fetchedLists, isLoading, error: queryError } = useListsWithItems()
+
+	// Local state for drag and drop reordering
+	const [userLists, setUserLists] = useState<ListEntry[]>([])
+
+	// Update local state when data is fetched
+	useEffect(() => {
+		if (fetchedLists) {
+			setUserLists(fetchedLists)
+		}
+	}, [fetchedLists])
 
 	// Drag and drop sensors
 	const sensors = useSensors(
@@ -155,25 +164,7 @@ export default function Lists() {
 		router.push('/dashboard/lists/items')
 	}
 
-	const handleFetchLists = async () => {
-		setIsLoading(true)
-		setError(null)
-
-		try {
-			const listsWithItems = await fetchListsWithItems()
-			setUserLists(listsWithItems)
-			console.log('Lists and items fetched successfully')
-		} catch (err) {
-			console.error('Error fetching lists:', err)
-			setError(err instanceof Error ? err.message : 'Failed to fetch user lists')
-		} finally {
-			setIsLoading(false)
-		}
-	}
-
-	useEffect(() => {
-		handleFetchLists()
-	}, [])
+	const error = queryError ? (queryError as Error).message : null
 
 	return (
 		<main>

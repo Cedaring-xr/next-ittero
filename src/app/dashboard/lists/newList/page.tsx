@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
-import { createList } from '@/utils/api/lists'
+import { useCreateList } from '@/app/hooks/use-lists-queries'
 
 export default function NewListPage() {
 	const [listName, setListName] = useState('')
@@ -11,9 +11,9 @@ export default function NewListPage() {
 	const [category, setCategory] = useState('')
 	const [tags, setTags] = useState<string[]>([])
 	const [currentTag, setCurrentTag] = useState('')
-	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const router = useRouter()
+	const createListMutation = useCreateList()
 
 	const handleAddTag = () => {
 		if (currentTag.trim() && !tags.includes(currentTag.trim())) {
@@ -35,24 +35,22 @@ export default function NewListPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		setIsLoading(true)
 		setError(null)
 
 		try {
-			const data = await createList({
+			await createListMutation.mutateAsync({
 				title: listName,
 				description: listDescription,
 				category: category,
 				tags: tags
 			})
 
-			console.log('List created successfully:', data)
+			console.log('List created successfully')
 			// Redirect back to lists page on success
 			router.push('/dashboard/lists')
 		} catch (err) {
 			console.error('Error creating list:', err)
 			setError(err instanceof Error ? err.message : 'Failed to create list')
-			setIsLoading(false)
 		}
 	}
 
@@ -172,17 +170,17 @@ export default function NewListPage() {
 						variant="primary"
 						size="lg"
 						fullWidth
-						disabled={!listName.trim() || isLoading}
-						isLoading={isLoading}
+						disabled={!listName.trim() || createListMutation.isPending}
+						isLoading={createListMutation.isPending}
 					>
-						{isLoading ? 'Creating...' : 'Create List'}
+						{createListMutation.isPending ? 'Creating...' : 'Create List'}
 					</ElegantButton>
 					<ElegantButton
 						type="button"
 						variant="secondary"
 						size="lg"
 						onClick={() => window.history.back()}
-						disabled={isLoading}
+						disabled={createListMutation.isPending}
 					>
 						Cancel
 					</ElegantButton>

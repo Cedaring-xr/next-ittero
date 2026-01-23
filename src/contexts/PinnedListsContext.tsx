@@ -1,6 +1,8 @@
 'use client'
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { fetchLists, type ListEntry } from '@/utils/api/lists'
+import { createContext, useContext, ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { type ListEntry } from '@/utils/api/lists'
+import { useLists, listKeys } from '@/app/hooks/use-lists-queries'
 
 interface PinnedListsContextType {
 	pinnedLists: ListEntry[]
@@ -14,30 +16,15 @@ interface PinnedListsContextType {
 const PinnedListsContext = createContext<PinnedListsContextType | undefined>(undefined)
 
 export function PinnedListsProvider({ children }: { children: ReactNode }) {
-	const [pinnedLists, setPinnedLists] = useState<ListEntry[]>([])
-	const [isLoading, setIsLoading] = useState(true)
+	const queryClient = useQueryClient()
 
-	const fetchPinnedLists = async () => {
-		setIsLoading(true)
-		try {
-			const lists = await fetchLists()
+	// Fetch lists with React Query
+	const { data: lists = [], isLoading, refetch } = useLists()
 
-			// TODO: Once 'pinned' property is added to the database schema,
-			// filter by: lists.filter(list => list.pinned && !list.archived)
-			// For now, we'll use the first 3 lists as pinned
-			const topLists = lists.slice(0, 3)
-			setPinnedLists(topLists)
-		} catch (error) {
-			console.error('Error fetching pinned lists:', error)
-			setPinnedLists([])
-		} finally {
-			setIsLoading(false)
-		}
-	}
-
-	useEffect(() => {
-		fetchPinnedLists()
-	}, [])
+	// TODO: Once 'pinned' property is added to the database schema,
+	// filter by: lists.filter(list => list.pinned && !list.archived)
+	// For now, we'll use the first 3 lists as pinned
+	const pinnedLists = lists.slice(0, 3)
 
 	const isPinned = (listId: string): boolean => {
 		return pinnedLists.some((list) => list.id === listId)
@@ -53,8 +40,8 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 
 			// if (!response.ok) throw new Error('Failed to pin list')
 
-			// For now, just refresh the list
-			await fetchPinnedLists()
+			// Refetch lists using React Query
+			await queryClient.invalidateQueries({ queryKey: listKeys.lists() })
 			console.log(`Pinned list: ${listId}`)
 		} catch (error) {
 			console.error('Error pinning list:', error)
@@ -72,19 +59,17 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 
 			// if (!response.ok) throw new Error('Failed to unpin list')
 
-			// Optimistically update UI
-			setPinnedLists((prev) => prev.filter((list) => list.id !== listId))
+			// Refetch lists using React Query
+			await queryClient.invalidateQueries({ queryKey: listKeys.lists() })
 			console.log(`Unpinned list: ${listId}`)
 		} catch (error) {
 			console.error('Error unpinning list:', error)
-			// Revert on error
-			await fetchPinnedLists()
 			throw error
 		}
 	}
 
 	const refreshPinnedLists = async () => {
-		await fetchPinnedLists()
+		await refetch()
 	}
 
 	return (
