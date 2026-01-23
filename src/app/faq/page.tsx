@@ -1,13 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
-import { lusitana } from '@/ui/fonts'
 import { HiOutlineClipboardList } from 'react-icons/hi'
 
 export default function FAQpage() {
 	return (
 		<>
 			<>
-				<div className={`${lusitana.className} font-bold flex flex-col p-6 gap-6`}>
+				<div className="font-lusitana font-bold flex flex-col p-6 gap-6">
 					<Link href="/">
 						<div className="bg-gray-50 text-gray-900 rounded-lg h-[100px] hover:border-2 hover:border-indigo-700 pt-6 pl-4 flex hover:text-indigo-700">
 							<h3 className="md:text-xl mt-2">Home</h3>

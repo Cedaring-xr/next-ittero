@@ -1,5 +1,4 @@
 'use client'
-import { lusitana } from '@/ui/fonts'
 import JournalEntryForm from './journal-entry-form'
 import Banner from '@/ui/info/banner'
 
@@ -8,7 +7,7 @@ export default function NewJournal() {
 	return (
 		<main className="max-w-5xl mx-auto">
 			<div className="mb-6">
-				<h1 className={`${lusitana.className} text-2xl md:text-3xl font-bold text-black mb-2`}>
+				<h1 className="font-lusitana text-2xl md:text-3xl font-bold text-black mb-2">
 					Quick Journal Entry
 				</h1>
 				<p className="text-gray-600 text-sm">

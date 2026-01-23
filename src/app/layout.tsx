@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { inter } from '@/ui/fonts'
 import Footer from '@/ui/info/footer'
 import ConfigureAmplifyClientSide from './amplify-cognito-config'
 
@@ -16,7 +15,12 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${inter.className} antialiased bg-slate-700`}>
+			<head>
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lusitana:wght@400;700&family=Corinthia:wght@400;700&display=swap" rel="stylesheet" />
+			</head>
+			<body className="font-inter antialiased bg-slate-700">
 				<>
 					<ConfigureAmplifyClientSide />
 					{children}

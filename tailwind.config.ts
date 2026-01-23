@@ -9,6 +9,11 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				inter: ['Inter', 'sans-serif'],
+				lusitana: ['Lusitana', 'serif'],
+				corinthia: ['Corinthia', 'cursive'],
+			},
 			gridTemplateColumns: {
 				'13': 'repeat(13, minmax(0, 1fr))'
 			},
