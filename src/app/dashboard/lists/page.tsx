@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { FolderPlusIcon, ArrowsUpDownIcon, UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -15,40 +15,8 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-
-type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
-
-interface TodoItem {
-	id: string
-	text: string
-	listId: string
-	priority: Priority
-	dueDate: string
-	completed: boolean
-	createdAt: string
-	updatedAt: string
-}
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-	category: string
-	tags: string[]
-	archived: boolean
-	createdAt: string
-	updatedAt: string
-	items?: TodoItem[]
-}
-
-// Format timestamp to MM-DD-YYYY
-const formatDate = (timestamp: string) => {
-	const date = new Date(timestamp)
-	const day = date.getDate().toString().padStart(2, '0')
-	const month = (date.getMonth() + 1).toString().padStart(2, '0')
-	const year = date.getFullYear()
-	return `${month}-${day}-${year}`
-}
+import formatDate from '@/utils/helpers/date-and-time'
+import { fetchListsWithItems, type ListEntry } from '@/utils/api/lists'
 
 // Sortable List Item Component
 function SortableListItem({ list }: { list: ListEntry }) {
@@ -179,15 +147,7 @@ export default function Lists() {
 		}
 	}
 
-	const handleCategoryCreate = () => {
-		// open modal for creating a category
-		// todo: create modal component
-	}
-
-	const handleCategoryModify = () => {}
-
 	const handleCreateNewList = () => {
-		// copy code from create page or create a re-usable component
 		router.push('/dashboard/lists/newList')
 	}
 
@@ -200,49 +160,7 @@ export default function Lists() {
 		setError(null)
 
 		try {
-			// Fetch all lists
-			const response = await fetch('/api/lists', {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch lists')
-			}
-
-			const lists = data.lists || []
-
-			// Fetch items for each list
-			const listsWithItems = await Promise.all(
-				lists.map(async (list: ListEntry) => {
-					try {
-						const itemsResponse = await fetch(`/api/lists/items?listId=${list.id}`, {
-							method: 'GET',
-							credentials: 'include',
-							headers: {
-								'Content-Type': 'application/json'
-							}
-						})
-
-						const itemsData = await itemsResponse.json()
-
-						if (itemsResponse.ok) {
-							return { ...list, items: itemsData.items || [] }
-						} else {
-							return { ...list, items: [] }
-						}
-					} catch (err) {
-						console.error(`Error fetching items for list ${list.id}:`, err)
-						return { ...list, items: [] }
-					}
-				})
-			)
-
+			const listsWithItems = await fetchListsWithItems()
 			setUserLists(listsWithItems)
 			console.log('Lists and items fetched successfully')
 		} catch (err) {
@@ -290,26 +208,6 @@ export default function Lists() {
 				>
 					Create New List
 				</ElegantButton>
-
-				<ElegantButton
-					variant="secondary"
-					size="lg"
-					icon={<FolderPlusIcon className="h-6 w-6" />}
-					onClick={handleCategoryCreate}
-					className="h-12"
-				>
-					Create New Category
-				</ElegantButton>
-
-				<ElegantButton
-					variant="secondary"
-					size="lg"
-					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
-					onClick={handleCategoryModify}
-					className="h-12"
-				>
-					Re-arrange Categories
-				</ElegantButton>
 				<ElegantButton
 					variant="secondary"
 					size="lg"
@@ -338,9 +236,6 @@ export default function Lists() {
 							<div className="flex gap-4">
 								<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
 									Create New List
-								</ElegantButton>
-								<ElegantButton variant="secondary" size="lg" onClick={handleCategoryCreate}>
-									Create Category
 								</ElegantButton>
 							</div>
 						</div>

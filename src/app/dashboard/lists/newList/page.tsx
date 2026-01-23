@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
+import { createList } from '@/utils/api/lists'
 
 export default function NewListPage() {
 	const [listName, setListName] = useState('')
@@ -38,25 +39,12 @@ export default function NewListPage() {
 		setError(null)
 
 		try {
-			const response = await fetch('/api/lists', {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					title: listName,
-					description: listDescription,
-					category: category,
-					tags: tags
-				})
+			const data = await createList({
+				title: listName,
+				description: listDescription,
+				category: category,
+				tags: tags
 			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to create list')
-			}
 
 			console.log('List created successfully:', data)
 			// Redirect back to lists page on success

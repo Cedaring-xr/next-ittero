@@ -1,17 +1,6 @@
 'use client'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-	category: string
-	tags: string[]
-	archived: boolean
-	pinned?: boolean
-	createdAt: string
-	updatedAt: string
-}
+import { fetchLists, type ListEntry } from '@/utils/api/lists'
 
 interface PinnedListsContextType {
 	pinnedLists: ListEntry[]
@@ -31,23 +20,13 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 	const fetchPinnedLists = async () => {
 		setIsLoading(true)
 		try {
-			const response = await fetch('/api/lists', {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
+			const lists = await fetchLists()
 
-			if (response.ok) {
-				const data = await response.json()
-				const lists = data.lists || []
-
-				// TODO: Once 'pinned' property is added to the database schema,
-				// filter by: lists.filter(list => list.pinned && !list.archived)
-				// For now, we'll use the first 3 lists as pinned
-				const topLists = lists.slice(0, 3)
-				setPinnedLists(topLists)
-			}
+			// TODO: Once 'pinned' property is added to the database schema,
+			// filter by: lists.filter(list => list.pinned && !list.archived)
+			// For now, we'll use the first 3 lists as pinned
+			const topLists = lists.slice(0, 3)
+			setPinnedLists(topLists)
 		} catch (error) {
 			console.error('Error fetching pinned lists:', error)
 			setPinnedLists([])

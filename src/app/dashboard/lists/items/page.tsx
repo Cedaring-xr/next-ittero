@@ -2,24 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { PlusIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
-
-type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
-
-interface TodoItem {
-	id: string
-	text: string
-	listId: string
-	priority: Priority
-	dueDate: string
-	completed: boolean
-	createdAt: Date
-}
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-}
+import { fetchLists, createListItem, type TodoItem, type ListEntry } from '@/utils/api/lists'
 
 export default function TodoItemsPage() {
 	const [todos, setTodos] = useState<TodoItem[]>([])
@@ -36,23 +19,10 @@ export default function TodoItemsPage() {
 	const [error, setError] = useState<string | null>(null)
 
 	// Fetch user's lists
-	const fetchLists = async () => {
+	const handleFetchLists = async () => {
 		try {
-			const response = await fetch('/api/lists', {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch lists')
-			}
-
-			setUserLists(data.lists || [])
+			const lists = await fetchLists()
+			setUserLists(lists)
 		} catch (err) {
 			console.error('Error fetching lists:', err)
 		}
@@ -60,7 +30,7 @@ export default function TodoItemsPage() {
 
 	// Fetch lists on component mount
 	useEffect(() => {
-		fetchLists()
+		handleFetchLists()
 	}, [])
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -78,21 +48,7 @@ export default function TodoItemsPage() {
 				completed: false
 			}
 
-			// Send POST request to API
-			const response = await fetch('/api/lists/items', {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(todoData)
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to create todo item')
-			}
+			const data = await createListItem(todoData)
 
 			console.log('Todo item created successfully:', data)
 
@@ -104,7 +60,8 @@ export default function TodoItemsPage() {
 				priority: todoData.priority,
 				dueDate: todoData.dueDate,
 				completed: false,
-				createdAt: new Date(data.data.createdAt || Date.now())
+				createdAt: data.data.createdAt || new Date().toISOString(),
+				updatedAt: data.data.updatedAt || new Date().toISOString()
 			}
 			setTodos([...todos, newTodo])
 
