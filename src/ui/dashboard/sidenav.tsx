@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import NavLinks from '@/ui/dashboard/nav-links'
 import AcmeLogo from '@/ui/acme-logo'
-import { corinthia } from '@/ui/fonts'
 import LogoutForm from '@/ui/dashboard/logout-form'
 import clsx from 'clsx'
 import {
@@ -74,7 +73,7 @@ export default function SideNav() {
 				>
 					<div>
 						{isCollapsed ? (
-							<div className={`${corinthia.className} text-[76px] text-white leading-none ml-2`}>
+							<div className="font-corinthia text-[76px] text-white leading-none ml-2">
 								<h1>I</h1>
 							</div>
 						) : (

@@ -11,7 +11,6 @@ import Link from 'next/link'
 import { getAuthenticatedUser } from '@/utils/amplify-server-utils'
 import UserCircleIcon from '@heroicons/react/24/outline/UserCircleIcon'
 import CogIcon from '@heroicons/react/24/outline/CogIcon'
-import { lusitana } from '@/ui/fonts'
 
 export default async function Dashboard() {
 	const user = await getAuthenticatedUser()
@@ -38,7 +37,7 @@ export default async function Dashboard() {
 					</Link>
 				</div>
 			</div>
-			<div className={`${lusitana.className} font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6`}>
+			<div className="font-lusitana font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
 				<Link href="/dashboard/lists/newList">
 					<div className="relative">
 						<svg

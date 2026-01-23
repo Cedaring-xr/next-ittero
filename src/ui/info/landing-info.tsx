@@ -1,5 +1,4 @@
 import React from 'react'
-import { lusitana } from '@/ui/fonts'
 import {
 	BookOpenIcon,
 	ListBulletIcon,
@@ -43,7 +42,7 @@ function LandingInfo() {
 	]
 
 	return (
-		<div className={`${lusitana.className} py-16 px-4`}>
+		<div className="font-lusitana py-16 px-4">
 			<div className="max-w-7xl mx-auto">
 				{/* Header */}
 				<div className="text-center mb-16">

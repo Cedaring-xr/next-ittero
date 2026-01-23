@@ -1,7 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { ArrowLeftIcon, BookOpenIcon, ChartBarIcon, ListBulletIcon } from '@heroicons/react/24/outline'
-import { lusitana } from '@/ui/fonts'
 import ElegantButton from '@/ui/elegant-button'
 import JournalForm from './journalForm'
 import ListsForm from './listsForm'
@@ -15,7 +14,7 @@ export default function DemoPage() {
 			<div className="bg-gradient-to-r from-[#1e3a5f] to-slate-900 border-b-2 border-slate-600 px-6 py-4">
 				<div className="max-w-7xl mx-auto flex items-center justify-between">
 					<div>
-						<h1 className={`${lusitana.className} text-2xl md:text-3xl text-white font-bold`}>
+						<h1 className="font-lusitana text-2xl md:text-3xl text-white font-bold">
 							Ittero Demo
 						</h1>
 						<p className="text-gray-300 text-sm mt-1">Explore features without signing up</p>

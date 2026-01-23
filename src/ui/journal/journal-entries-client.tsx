@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { MdRefresh } from 'react-icons/md'
 import { HiOutlineBookOpen } from 'react-icons/hi'
 import Pagination from '@/ui/pagination'
-import { lusitana } from '@/ui/fonts'
 
 interface JournalEntry {
 	id: string
@@ -85,7 +84,7 @@ export default function JournalEntriesClient() {
 	return (
 		<>
 			<h3 className="text-black text-3xl mt-4 ml-4">Journal Entries</h3>
-			<div className={`${lusitana.className} font-bold p-6`}>
+			<div className="font-lusitana font-bold p-6">
 				<div className="mb-6">
 					<Link className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md" href="/dashboard/journal/newJournal">Create new Entry</Link>
 				</div>

@@ -1,5 +1,4 @@
 'use client'
-import { lusitana } from '@/ui/fonts'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
@@ -322,7 +321,7 @@ export default function Lists() {
 				</ElegantButton>
 			</div>
 			<h3 className="text-black text-3xl">Current Lists</h3>
-			<div className={`${lusitana.className} font-bold p-6`}>
+			<div className="font-lusitana font-bold p-6">
 				<div>
 					{isLoading ? (
 						// Loading state

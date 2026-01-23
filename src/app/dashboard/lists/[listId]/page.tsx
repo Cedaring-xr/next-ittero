@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { lusitana } from '@/ui/fonts'
 import {
 	ArrowLeftIcon,
 	CheckIcon,
@@ -306,7 +305,7 @@ export default function ListDetailPage(): JSX.Element {
 				{/* List Header */}
 				<div className="flex justify-between items-start mb-4">
 					<div className="flex items-center gap-3">
-						<h1 className={`${lusitana.className} text-3xl font-bold text-white`}>{list.title}</h1>
+						<h1 className="font-lusitana text-3xl font-bold text-white">{list.title}</h1>
 						<button
 							onClick={handleTogglePin}
 							className="p-2 rounded-md hover:bg-slate-700 transition-colors group"

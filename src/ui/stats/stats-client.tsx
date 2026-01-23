@@ -2,7 +2,6 @@
 import ElegantButton from '@/ui/elegant-button'
 import { PlusIcon, ChartBarIcon, BellIcon } from '@heroicons/react/24/outline'
 import React, { useState } from 'react'
-import { lusitana } from '@/ui/fonts'
 import { HiOutlinePresentationChartBar, HiOutlineBookOpen, HiOutlineClipboardList } from 'react-icons/hi'
 import { useListsStats } from '@/app/hooks/use-stats-queries'
 import { useJournalStats, formatTime } from '@/app/hooks/use-journal-queries'
@@ -63,7 +62,7 @@ export default function StatsClient({ username }: StatsClientProps) {
 				<div className="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
 					<div className="flex items-center gap-3 mb-6">
 						<HiOutlineBookOpen className="h-8 w-8 text-indigo-400" />
-						<h3 className={`${lusitana.className} text-2xl font-bold text-white`}>
+						<h3 className="font-lusitana text-2xl font-bold text-white">
 							Journal Entry Statistics
 						</h3>
 					</div>
@@ -202,7 +201,7 @@ export default function StatsClient({ username }: StatsClientProps) {
 				<div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
 					<div className="flex items-center gap-3 mb-6">
 						<HiOutlineClipboardList className="h-8 w-8 text-emerald-400" />
-						<h3 className={`${lusitana.className} text-2xl font-bold text-white`}>
+						<h3 className="font-lusitana text-2xl font-bold text-white">
 							Lists & Tasks Statistics
 						</h3>
 					</div>

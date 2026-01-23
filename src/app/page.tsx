@@ -2,7 +2,6 @@
 import AcmeLogo from '@/ui/acme-logo'
 import { ArrowRightIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-import { lusitana } from '@/ui/fonts'
 import Image from 'next/image'
 import LandingInfo from '@/ui/info/landing-info'
 
@@ -43,9 +42,7 @@ export default function Page() {
 							border: '1px solid rgba(241, 245, 249, 0.18)'
 						}}
 					>
-						<p
-							className={`${lusitana.className} text-2xl md:text-4xl md:leading-normal text-center text-[#f1f5f9]`}
-						>
+						<p className="font-lusitana text-2xl md:text-4xl md:leading-normal text-center text-[#f1f5f9]">
 							<strong>Welcome to Ittero App</strong>
 						</p>
 						<Link

@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { PlusIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
-import { lusitana } from '@/ui/fonts'
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
 
@@ -154,7 +153,7 @@ export default function TodoItemsPage() {
 
 	return (
 		<div className="max-w-4xl mx-auto p-6">
-			<h1 className={`${lusitana.className} text-3xl font-bold mb-6 text-white`}>
+			<h1 className="font-lusitana text-3xl font-bold mb-6 text-white">
 				Todo Items
 			</h1>
 
