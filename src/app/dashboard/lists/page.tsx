@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { FolderPlusIcon, ArrowsUpDownIcon, UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -15,40 +15,9 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-
-type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
-
-interface TodoItem {
-	id: string
-	text: string
-	listId: string
-	priority: Priority
-	dueDate: string
-	completed: boolean
-	createdAt: string
-	updatedAt: string
-}
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-	category: string
-	tags: string[]
-	archived: boolean
-	createdAt: string
-	updatedAt: string
-	items?: TodoItem[]
-}
-
-// Format timestamp to MM-DD-YYYY
-const formatDate = (timestamp: string) => {
-	const date = new Date(timestamp)
-	const day = date.getDate().toString().padStart(2, '0')
-	const month = (date.getMonth() + 1).toString().padStart(2, '0')
-	const year = date.getFullYear()
-	return `${month}-${day}-${year}`
-}
+import formatDate from '@/utils/helpers/date-and-time'
+import { type ListEntry } from '@/utils/api/lists'
+import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 
 // Sortable List Item Component
 function SortableListItem({ list }: { list: ListEntry }) {
@@ -146,12 +115,20 @@ function SortableListItem({ list }: { list: ListEntry }) {
 
 export default function Lists() {
 	const user = useAuthUser()
-	const [userLists, setUserLists] = useState<ListEntry[]>([])
-	const [error, setError] = useState<string | null>()
-	const [isLoading, setIsLoading] = useState<boolean>(true)
-
-	// used for sending api calls via api/routes
 	const router = useRouter()
+
+	// Fetch lists with React Query
+	const { data: fetchedLists, isLoading, error: queryError } = useListsWithItems()
+
+	// Local state for drag and drop reordering
+	const [userLists, setUserLists] = useState<ListEntry[]>([])
+
+	// Update local state when data is fetched
+	useEffect(() => {
+		if (fetchedLists) {
+			setUserLists(fetchedLists)
+		}
+	}, [fetchedLists])
 
 	// Drag and drop sensors
 	const sensors = useSensors(
@@ -179,15 +156,7 @@ export default function Lists() {
 		}
 	}
 
-	const handleCategoryCreate = () => {
-		// open modal for creating a category
-		// todo: create modal component
-	}
-
-	const handleCategoryModify = () => {}
-
 	const handleCreateNewList = () => {
-		// copy code from create page or create a re-usable component
 		router.push('/dashboard/lists/newList')
 	}
 
@@ -195,67 +164,7 @@ export default function Lists() {
 		router.push('/dashboard/lists/items')
 	}
 
-	const handleFetchLists = async () => {
-		setIsLoading(true)
-		setError(null)
-
-		try {
-			// Fetch all lists
-			const response = await fetch('/api/lists', {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch lists')
-			}
-
-			const lists = data.lists || []
-
-			// Fetch items for each list
-			const listsWithItems = await Promise.all(
-				lists.map(async (list: ListEntry) => {
-					try {
-						const itemsResponse = await fetch(`/api/lists/items?listId=${list.id}`, {
-							method: 'GET',
-							credentials: 'include',
-							headers: {
-								'Content-Type': 'application/json'
-							}
-						})
-
-						const itemsData = await itemsResponse.json()
-
-						if (itemsResponse.ok) {
-							return { ...list, items: itemsData.items || [] }
-						} else {
-							return { ...list, items: [] }
-						}
-					} catch (err) {
-						console.error(`Error fetching items for list ${list.id}:`, err)
-						return { ...list, items: [] }
-					}
-				})
-			)
-
-			setUserLists(listsWithItems)
-			console.log('Lists and items fetched successfully')
-		} catch (err) {
-			console.error('Error fetching lists:', err)
-			setError(err instanceof Error ? err.message : 'Failed to fetch user lists')
-		} finally {
-			setIsLoading(false)
-		}
-	}
-
-	useEffect(() => {
-		handleFetchLists()
-	}, [])
+	const error = queryError ? (queryError as Error).message : null
 
 	return (
 		<main>
@@ -290,26 +199,6 @@ export default function Lists() {
 				>
 					Create New List
 				</ElegantButton>
-
-				<ElegantButton
-					variant="secondary"
-					size="lg"
-					icon={<FolderPlusIcon className="h-6 w-6" />}
-					onClick={handleCategoryCreate}
-					className="h-12"
-				>
-					Create New Category
-				</ElegantButton>
-
-				<ElegantButton
-					variant="secondary"
-					size="lg"
-					icon={<ArrowsUpDownIcon className="h-6 w-6" />}
-					onClick={handleCategoryModify}
-					className="h-12"
-				>
-					Re-arrange Categories
-				</ElegantButton>
 				<ElegantButton
 					variant="secondary"
 					size="lg"
@@ -338,9 +227,6 @@ export default function Lists() {
 							<div className="flex gap-4">
 								<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
 									Create New List
-								</ElegantButton>
-								<ElegantButton variant="secondary" size="lg" onClick={handleCategoryCreate}>
-									Create Category
 								</ElegantButton>
 							</div>
 						</div>

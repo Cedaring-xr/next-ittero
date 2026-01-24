@@ -2,74 +2,28 @@
 import React, { useState, useEffect } from 'react'
 import { PlusIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
+import { type TodoItem, type ListEntry } from '@/utils/api/lists'
+import { useLists, useCreateListItem } from '@/app/hooks/use-lists-queries'
 
 type Priority = 'urgent' | 'high' | 'medium' | 'low' | 'none'
-
-interface TodoItem {
-	id: string
-	text: string
-	listId: string
-	priority: Priority
-	dueDate: string
-	completed: boolean
-	createdAt: Date
-}
-
-interface ListEntry {
-	id: string
-	title: string
-	description: string
-}
 
 export default function TodoItemsPage() {
 	const [todos, setTodos] = useState<TodoItem[]>([])
 	const [inputValue, setInputValue] = useState('')
 	const [priority, setPriority] = useState<Priority>('none')
 	const [dueDate, setDueDate] = useState('')
-
-	// Lists state
-	const [userLists, setUserLists] = useState<ListEntry[]>([])
 	const [selectedList, setSelectedList] = useState<string>('')
-
-	// Form state for API submission
-	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	// Fetch user's lists
-	const fetchLists = async () => {
-		try {
-			const response = await fetch('/api/lists', {
-				method: 'GET',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to fetch lists')
-			}
-
-			setUserLists(data.lists || [])
-		} catch (err) {
-			console.error('Error fetching lists:', err)
-		}
-	}
-
-	// Fetch lists on component mount
-	useEffect(() => {
-		fetchLists()
-	}, [])
+	// Fetch lists with React Query
+	const { data: userLists = [] } = useLists()
+	const createItemMutation = useCreateListItem()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		setIsLoading(true)
 		setError(null)
 
 		try {
-			// Prepare data for API submission
 			const todoData = {
 				text: inputValue.trim(),
 				listId: selectedList,
@@ -78,21 +32,7 @@ export default function TodoItemsPage() {
 				completed: false
 			}
 
-			// Send POST request to API
-			const response = await fetch('/api/lists/items', {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(todoData)
-			})
-
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Failed to create todo item')
-			}
+			const data = await createItemMutation.mutateAsync(todoData)
 
 			console.log('Todo item created successfully:', data)
 
@@ -104,7 +44,8 @@ export default function TodoItemsPage() {
 				priority: todoData.priority,
 				dueDate: todoData.dueDate,
 				completed: false,
-				createdAt: new Date(data.data.createdAt || Date.now())
+				createdAt: data.data.createdAt || new Date().toISOString(),
+				updatedAt: data.data.updatedAt || new Date().toISOString()
 			}
 			setTodos([...todos, newTodo])
 
@@ -116,8 +57,6 @@ export default function TodoItemsPage() {
 		} catch (err) {
 			console.error('Error creating todo:', err)
 			setError(err instanceof Error ? err.message : 'Failed to create todo item')
-		} finally {
-			setIsLoading(false)
 		}
 	}
 
@@ -260,10 +199,10 @@ export default function TodoItemsPage() {
 							size="lg"
 							fullWidth
 							icon={<PlusIcon className="w-5 h-5" />}
-							disabled={!inputValue.trim() || !selectedList || isLoading}
-							isLoading={isLoading}
+							disabled={!inputValue.trim() || !selectedList || createItemMutation.isPending}
+							isLoading={createItemMutation.isPending}
 						>
-							{isLoading ? 'Creating...' : 'Add Todo Item'}
+							{createItemMutation.isPending ? 'Creating...' : 'Add Todo Item'}
 						</ElegantButton>
 					</div>
 				</form>
