@@ -13,6 +13,7 @@
     "test:unit:ui": "vitest --ui",
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test -c playwright.config.ts",
+    "test:api": "playwright test --project=api",
     "test:component": "playwright test -c playwright-ct.config.ts",
     "test:smoke": "playwright test -c playwright.config.ts --grep @smoke",
     "test:regression": "playwright test -c playwright.config.ts --grep @regression",
