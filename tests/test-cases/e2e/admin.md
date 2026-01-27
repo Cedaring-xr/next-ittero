@@ -69,7 +69,7 @@ Admin sees admin-specific dashboard content.
 
 ---
 
-### ADMN-011: Admin User Management
+### ADMN-004: Admin User Management
 **Status:** `[Future Content]`
 **Priority:** Low
 **Description:**

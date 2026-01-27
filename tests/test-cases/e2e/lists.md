@@ -9,7 +9,7 @@ For tests to work properly, the following test accounts are needed:
 
 | Account Type | Environment Variable | Description |
 |-------------|---------------------|-------------|
-| Admin | `PLAYWRIGHT_TEST_ADMIN_EMAIL` & `PLAYWRIGHT_TEST_ADMIN_PASSWORD` |
+| Admin | `PLAYWRIGHT_TEST_ADMIN_EMAIL` |
 
 ### LIST-001: Navigate to Lists Page
 **Status:** `[PLANNED]`
@@ -18,12 +18,13 @@ For tests to work properly, the following test accounts are needed:
 Verify that authenticated users can navigate to the lists page.
 **Preconditions:**
 - User is logged in
+- User has previously created lists
 **Test Steps:**
 1. From dashboard, click "Lists" in sidenav
 2. Verify URL changes to /dashboard/lists
 3. Verify lists page is displayed
 **Expected Result:**
-User sees the lists page with any existing lists.
+User sees the lists page with existing lists.
 **Playwright File:** - 
 
 ---
@@ -46,7 +47,7 @@ User sees the new list creation form.
 ---
 
 ## List Creation
-### LIST-010: Create New List
+### LIST-003: Create New List
 **Status:** `[PLANNED]`
 **Priority:** High
 **Description:**
@@ -65,9 +66,9 @@ New list is created and visible in the lists page.
 
 ---
 
-### LIST-011: Create List with Empty Name
+### LIST-004: Create List with Empty Name
 **Status:** `[PLANNED]`
-**Priority:** Medium
+**Priority:** Low
 **Description:**
 Verify that list creation requires a name.
 **Preconditions:**
@@ -84,7 +85,7 @@ Form validation prevents creation without a name.
 ---
 
 ## List Management
-### LIST-020: View List Details
+### LIST-005: View List Details
 **Status:** `[PLANNED]`
 **Priority:** High
 **Description:**
@@ -97,12 +98,12 @@ Verify that users can view an individual list.
 2. Click on a list
 3. Verify list details page is displayed
 **Expected Result:**
-User sees the list with its items.
+User sees the list with its tasks.
 **Playwright File:** -
 
 ---
 
-### LIST-021: Delete List
+### LIST-006: Delete List
 **Status:** `[PLANNED]`
 **Priority:** High
 **Description:**
@@ -122,7 +123,7 @@ List is deleted and removed from the lists page.
 
 ---
 
-### LIST-022: Pin List to Sidebar
+### LIST-007: Pin List to Sidebar
 **Status:** `[PLANNED]`
 **Priority:** Medium
 **Description:**
@@ -140,7 +141,7 @@ List appears in the sidebar pinned lists section.
 
 ---
 
-### LIST-023: Unpin List from Sidebar
+### LIST-008: Unpin List from Sidebar
 **Status:** `[PLANNED]`
 **Priority:** Medium
 **Description:**
@@ -153,80 +154,4 @@ Verify that users can unpin a list from the sidebar.
 2. Verify list is removed from pinned section
 **Expected Result:**
 List is removed from the sidebar pinned lists section.
-**Playwright File:** -
-
----
-
-## List Items
-### LIST-030: Add Item to List
-**Status:** `[PLANNED]`
-**Priority:** High
-**Description:**
-Verify that users can add items to a list.
-**Preconditions:**
-- User is logged in
-- A list exists
-**Test Steps:**
-1. Navigate to a list
-2. Enter item text
-3. Submit/add item
-4. Verify item appears in list
-**Expected Result:**
-New item is added and visible in the list.
-**Playwright File:** -
-
----
-
-### LIST-031: Complete List Item
-**Status:** `[PLANNED]`
-**Priority:** High
-**Description:**
-Verify that users can mark list items as complete.
-**Preconditions:**
-- User is logged in
-- A list with at least one item exists
-**Test Steps:**
-1. Navigate to a list with items
-2. Click checkbox or complete button on an item
-3. Verify item is marked as complete
-**Expected Result:**
-Item shows as completed (checked/strikethrough).
-**Playwright File:** -
-
----
-
-### LIST-032: Delete List Item
-**Status:** `[PLANNED]`
-**Priority:** High
-**Description:**
-Verify that users can delete list items.
-**Preconditions:**
-- User is logged in
-- A list with at least one item exists
-**Test Steps:**
-1. Navigate to a list with items
-2. Click delete on an item
-3. Verify item is removed from list
-**Expected Result:**
-Item is deleted and no longer visible.
-**Playwright File:** -
-
----
-
-### LIST-033: Edit List Item
-**Status:** `[PLANNED]`
-**Priority:** Medium
-**Description:**
-Verify that users can edit list item text.
-**Preconditions:**
-- User is logged in
-- A list with at least one item exists
-**Test Steps:**
-1. Navigate to a list with items
-2. Click edit on an item
-3. Modify item text
-4. Save changes
-5. Verify item text is updated
-**Expected Result:**
-Item text is updated with new value.
 **Playwright File:** -
