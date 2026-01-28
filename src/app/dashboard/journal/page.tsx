@@ -3,6 +3,7 @@ import { HiOutlineBookOpen } from 'react-icons/hi'
 import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import { getAuthenticatedUser } from '@/utils/amplify-server-utils'
 import JournalEntriesClient from '@/ui/journal/journal-entries-client'
+import JournalActivityChart from '@/ui/journal/journal-activity-chart'
 
 export default async function JournalPage() {
 	const user = await getAuthenticatedUser()
@@ -30,7 +31,8 @@ export default async function JournalPage() {
 					</Link>
 				</div>
 			</div>
-			<JournalEntriesClient />
+			<JournalActivityChart />
+		<JournalEntriesClient />
 		</main>
 	)
 }
