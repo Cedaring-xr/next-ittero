@@ -67,15 +67,18 @@ export async function POST(request: NextRequest) {
 			...(tag && { tag: tag.trim() })
 		}
 
-		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
+		const apiGatewayUrl = process.env.API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
-			console.error('AWS_API_GATEWAY_URL is not configured')
+			console.error('API_GATEWAY_URL is not configured')
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
+		// Build URL for /entries endpoint
+		const url = `${apiGatewayUrl}/entries`
+
 		// Send POST request to AWS API Gateway
-		console.log('Sending to AWS API Gateway:', apiGatewayUrl)
+		console.log('Sending to AWS API Gateway:', url)
 		console.log('Journal Entry Data:', journalEntryData)
 
 		// Build headers with Authorization token
@@ -94,7 +97,7 @@ export async function POST(request: NextRequest) {
 			console.warn('No Cognito token found')
 		}
 
-		const apiResponse = await fetch(apiGatewayUrl, {
+		const apiResponse = await fetch(url, {
 			method: 'POST',
 			headers: headers,
 			body: JSON.stringify(journalEntryData)
@@ -176,10 +179,10 @@ export async function GET(request: NextRequest) {
 		console.log('ID Token exists:', !!idToken)
 
 		// Get AWS API Gateway URL from environment variables
-		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
+		const apiGatewayUrl = process.env.API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
-			console.error('AWS_API_GATEWAY_URL is not configured')
+			console.error('API_GATEWAY_URL is not configured')
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
@@ -188,8 +191,8 @@ export async function GET(request: NextRequest) {
 		const limit = searchParams.get('limit') || '30'
 		const nextToken = searchParams.get('nextToken')
 
-		// Build URL with query parameters
-		let url = `${apiGatewayUrl}?user=${user.userId}&limit=${limit}`
+		// Build URL for /entries endpoint with query parameters
+		let url = `${apiGatewayUrl}/entries?user=${user.userId}&limit=${limit}`
 		if (nextToken) {
 			url += `&nextToken=${encodeURIComponent(nextToken)}`
 		}
