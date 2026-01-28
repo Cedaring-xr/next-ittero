@@ -19,15 +19,15 @@ export async function GET(request: NextRequest) {
 		const idToken = user.idToken
 		const accessToken = user.accessToken
 
-		const apiGatewayUrl = process.env.JOURNAL_API_GATEWAY_URL
+		const apiGatewayUrl = process.env.API_GATEWAY_URL
 
 		if (!apiGatewayUrl) {
-			console.error('JOURNAL_API_GATEWAY_URL is not configured')
+			console.error('API_GATEWAY_URL is not configured')
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
 		// Build URL for count request
-		const url = `${apiGatewayUrl}/count?user=${user.userId}`
+		const url = `${apiGatewayUrl}/entries/count?user=${user.userId}`
 
 		console.log('=== Journal Count Debug ===')
 		console.log('User ID:', user.userId)

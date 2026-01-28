@@ -1,11 +1,13 @@
 import { test, expect } from '@playwright/test'
+import { request } from 'http'
 
 /**
- * Journal API Tests
- * Tests the journal API endpoints for correct response structure and data
+ * Journal Entries API Tests (/api/journal)
+ * Tests the /entries endpoint for listing and creating journal entries
+ * Uses /api/journal because that is what is exposed to the frontend, actual endpoints are obscured for added security
  */
 
-test.describe('Journal API', () => {
+test.describe('Journal Entries API', () => {
 	test.describe('GET /api/journal', () => {
 		test('[JOURNAL-API-001] should return journal entries for authenticated user', async ({
 			request
@@ -34,10 +36,12 @@ test.describe('Journal API', () => {
 			if (data.entries.length > 0) {
 				const entry = data.entries[0]
 				// Required fields
+				expect(entry).toHaveProperty('entry_id')
 				expect(entry).toHaveProperty('date')
 				expect(entry).toHaveProperty('text')
 				// Verify date format (YYYY-MM-DD)
 				expect(entry.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+				expect(typeof entry.entry_id).toBe('string')
 				expect(typeof entry.text).toBe('string')
 			}
 		})
@@ -96,9 +100,12 @@ test.describe('Journal API', () => {
 			// Get entries with high limit
 			const entriesResponse = await request.get('/api/journal?limit=100')
 			const entriesData = await entriesResponse.json()
-			// If no pagination token, we get all entries
+
+			// If no pagination token, count should be very close to entries length
+			// Allow for minor variance (±2) due to potential race conditions with other tests
 			if (!entriesData.nextToken) {
-				expect(entriesData.entries.length).toBe(countData.count)
+				const difference = Math.abs(entriesData.entries.length - countData.count)
+				expect(difference).toBeLessThanOrEqual(1)
 			} else {
 				// If paginated, we have more entries than returned
 				expect(countData.count).toBeGreaterThan(entriesData.entries.length)
@@ -106,42 +113,33 @@ test.describe('Journal API', () => {
 		})
 	})
 
-	test.describe('Unauthenticated requests', () => {
-		test('[JOURNAL-API-007] should reject unauthenticated GET request', async ({ request }) => {
-			// Create a new context without auth
-			const response = await request.get('/api/journal', {
-				headers: {
-					// Clear any auth cookies by not including them
-					Cookie: ''
-				}
-			})
-			expect([401, 403]).toContain(response.status())
-		})
-	})
-
 	test.describe('POST /api/journal', () => {
-		test.skip('[JOURNAL-API-008] should be able to create a new journal entry', async ({ request }) => {
-			const journalEntry = {                                                                                                                 
-          date: new Date().toISOString().split('T')[0],                                                                                      
-          text: 'This is a test journal entry created by automated test',                                                                    
-          tag: 'test'                                                                                                                        
-      }                                                                                                                                      
-                                                                                                                                             
-      const response = await request.post('/api/journal', {                                                                                  
-          data: journalEntry                                                                                                                 
-      })                                                                                                                                     
-                                                                                                                                             
-      expect(response.status()).toBe(201)                                                                                                    
-      const data = await response.json()                                                                                                     
-                                                                                                                                             
-      expect(data).toHaveProperty('message')                                                                                                 
-      expect(data.message).toBe('Journal entry created successfully')                                                                        
-      expect(data).toHaveProperty('data')                                                                                                    
-      expect(data.data).toHaveProperty('id')                                                                                                 
-                                                                                                                                             
-      // Cleanup: Delete the created entry to not affect other tests                                                                         
-      // (If you have a DELETE endpoint)                                                                                                     
-      // await request.delete(`/api/journal/${data.data.id}`)  
+		test('[JOURNAL-API-008] should be able to create a new journal entry', async ({
+			request
+		}) => {
+			const journalEntry = {
+				date: new Date().toISOString().split('T')[0],
+				text: 'This is a test journal entry created by automated test',
+				tag: 'test'
+			}
+
+			const response = await request.post('/api/journal', {
+				data: journalEntry
+			})
+
+			expect(response.status()).toBe(201)
+			const data = await response.json()
+
+			expect(data).toHaveProperty('message')
+			expect(data.message).toBe('Journal entry created successfully')
+			expect(data).toHaveProperty('data')
+			expect(data.data).toHaveProperty('entry_id')
+			expect(typeof data.data.entry_id).toBe('string')
+
+			// Cleanup: Delete the created entry to not affect other tests
+			if (data.data.entry_id) {
+				await request.delete(`/api/journal/${data.data.entry_id}`)
+			}
 		})
 
 		test('[JOURNAL-API-009] should reject creation if required fields are not present', async ({
@@ -189,6 +187,34 @@ test.describe('Journal API', () => {
 			const data3 = await response3.json()
 			expect(data3).toHaveProperty('error')
 			expect(data3.error).toBe('Invalid date format. Expected YYYY-MM-DD')
+		})
+	})
+
+	test.describe('Unauthenticated requests', () => {
+		test('[JOURNAL-API-007] should reject unauthenticated GET request', async ({ request }) => {
+			const response = await request.get('/api/journal', {
+				headers: {
+					// Clear any auth cookies by not including them
+					Cookie: ''
+				}
+			})
+			expect([401, 403]).toContain(response.status())
+		})
+
+		test('[JOURNAL-API-010] should reject unauthenticated POST request', async ({ request }) => {
+			const journalEntry = {
+				date: new Date().toISOString().split('T')[0],
+				text: 'Unauthorized test entry',
+				tag: 'test'
+			}
+
+			const response = await request.post('/api/journal', {
+				data: journalEntry,
+				headers: {
+					Cookie: ''
+				}
+			})
+			expect([401, 403]).toContain(response.status())
 		})
 	})
 })

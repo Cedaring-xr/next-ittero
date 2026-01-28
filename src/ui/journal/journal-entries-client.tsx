@@ -20,65 +20,69 @@ export default function JournalEntriesClient() {
 	const [error, setError] = useState<string | null>(null)
 	const [nextToken, setNextToken] = useState<string | null>(null)
 
-	const fetchJournalEntries = useCallback(async (isLoadMore = false) => {
-		if (isLoadMore) {
-			setLoadingMore(true)
-		} else {
-			setLoading(true)
-		}
-		setError(null)
-
-		try {
-			// Build URL with pagination parameters
-			let url = '/api/journal?limit=10'
-			if (isLoadMore && nextToken) {
-				url += `&nextToken=${encodeURIComponent(nextToken)}`
-			}
-
-			const response = await fetch(url, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			})
-
-			if (!response.ok) {
-				throw new Error('Failed to fetch journal entries')
-			}
-
-			const data = await response.json()
-			const fetchedEntries = data.entries || []
-
-			// Sort entries in reverse chronological order (newest first)
-			const sortedEntries = fetchedEntries.sort((a: JournalEntry, b: JournalEntry) => {
-				return new Date(b.date).getTime() - new Date(a.date).getTime()
-			})
-
-			// Update entries - append if loading more, replace if refreshing
+	const fetchJournalEntries = useCallback(
+		async (isLoadMore = false, tokenToUse: string | null = null) => {
 			if (isLoadMore) {
-				setEntries((prevEntries) => [...prevEntries, ...sortedEntries])
+				setLoadingMore(true)
 			} else {
-				setEntries(sortedEntries)
+				setLoading(true)
 			}
+			setError(null)
 
-			// Update nextToken for pagination
-			setNextToken(data.nextToken || null)
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'An error occurred')
-			console.error('Error fetching journal entries:', err)
-		} finally {
-			setLoading(false)
-			setLoadingMore(false)
-		}
-	}, [nextToken])
+			try {
+				// Build URL with pagination parameters
+				let url = '/api/journal?limit=10'
+				if (isLoadMore && tokenToUse) {
+					url += `&nextToken=${encodeURIComponent(tokenToUse)}`
+				}
+
+				const response = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				})
+
+				if (!response.ok) {
+					throw new Error('Failed to fetch journal entries')
+				}
+
+				const data = await response.json()
+				const fetchedEntries = data.entries || []
+
+				// Sort entries in reverse chronological order (newest first)
+				const sortedEntries = fetchedEntries.sort((a: JournalEntry, b: JournalEntry) => {
+					return new Date(b.date).getTime() - new Date(a.date).getTime()
+				})
+
+				// Update entries - append if loading more, replace if refreshing
+				if (isLoadMore) {
+					setEntries((prevEntries) => [...prevEntries, ...sortedEntries])
+				} else {
+					setEntries(sortedEntries)
+				}
+
+				// Update nextToken for pagination
+				setNextToken(data.nextToken || null)
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'An error occurred')
+				console.error('Error fetching journal entries:', err)
+			} finally {
+				setLoading(false)
+				setLoadingMore(false)
+			}
+		},
+		[]
+	)
 
 	// Auto-fetch entries on component mount
 	useEffect(() => {
 		fetchJournalEntries()
-	}, [fetchJournalEntries])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	const handleLoadMore = () => {
-		fetchJournalEntries(true)
+		fetchJournalEntries(true, nextToken)
 	}
 
 	return (
