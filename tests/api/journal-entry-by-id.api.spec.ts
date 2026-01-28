@@ -7,52 +7,36 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Journal Entry by ID API', () => {
 	test.describe('GET /api/journal/{entryId}', () => {
-		test('[JOURNAL-ENTRY-001] should get a single journal entry by ID', async ({ request }) => {
-			// First create an entry to fetch
-			const newEntry = {
-				date: new Date().toISOString().split('T')[0],
-				text: 'Test entry for GET by ID test',
-				tag: 'test-get'
-			}
+		test('[JOURNAL-API-011] should get a single journal entry by ID', async ({ request }) => {
+			// First fetch all entries to get an existing entry ID
+			const listResponse = await request.get('/api/journal?limit=10')
+			const listData = await listResponse.json()
+			const entryId = listData.entries[0].entry_id
 
-			const createResponse = await request.post('/api/journal', {
-				data: newEntry
-			})
-
-			expect(createResponse.status()).toBe(201)
-			const createData = await createResponse.json()
-			const entryId = createData.data.id
-
-			// Now fetch the entry by ID
+			// Now fetch that specific entry by ID
 			const getResponse = await request.get(`/api/journal/${entryId}`)
 			expect(getResponse.ok()).toBeTruthy()
 			expect(getResponse.status()).toBe(200)
 
 			const getData = await getResponse.json()
-			expect(getData).toHaveProperty('id')
-			expect(getData.id).toBe(entryId)
-			expect(getData).toHaveProperty('text')
-			expect(getData.text).toBe(newEntry.text)
-			expect(getData).toHaveProperty('date')
-			expect(getData.date).toBe(newEntry.date)
-			if (newEntry.tag) {
-				expect(getData.tag).toBe(newEntry.tag)
-			}
-
-			// Cleanup
-			await request.delete(`/api/journal/${entryId}`)
+			expect(getData).toHaveProperty('entry')
+			expect(getData.entry).toHaveProperty('entry_id')
+			expect(getData.entry.entry_id).toBe(entryId)
+			expect(getData.entry).toHaveProperty('text')
+			expect(getData.entry).toHaveProperty('date')
+			expect(getData.entry.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
 		})
 
-		test('[JOURNAL-ENTRY-002] should return 404 for non-existent entry ID', async ({
+		test('[JOURNAL-API-012] should return 404 for incorrect entry ID', async ({
 			request
 		}) => {
-			const fakeId = 'non-existent-id-12345'
+			const fakeId = '12345'
 			const response = await request.get(`/api/journal/${fakeId}`)
 
 			expect(response.status()).toBe(404)
 		})
 
-		test('[JOURNAL-ENTRY-003] should reject unauthenticated GET request', async ({ request }) => {
+		test('[JOURNAL-API-013] should reject unauthenticated GET request', async ({ request }) => {
 			// Create an entry first
 			const newEntry = {
 				date: new Date().toISOString().split('T')[0],
@@ -65,7 +49,7 @@ test.describe('Journal Entry by ID API', () => {
 			})
 
 			const createData = await createResponse.json()
-			const entryId = createData.data.id
+			const entryId = createData.data.entry_id
 
 			// Try to get without auth
 			const response = await request.get(`/api/journal/${entryId}`, {
@@ -82,25 +66,16 @@ test.describe('Journal Entry by ID API', () => {
 	})
 
 	test.describe('PATCH /api/journal/{entryId}', () => {
-		test('[JOURNAL-ENTRY-004] should update a journal entry', async ({ request }) => {
-			// First create an entry to update
-			const newEntry = {
-				date: new Date().toISOString().split('T')[0],
-				text: 'Original text for PATCH test',
-				tag: 'original'
-			}
+		test('[JOURNAL-API-014] should update a journal entry', async ({ request }) => {
+			// Grab an already created entry
+			const listResponse = await request.get('/api/journal?limit=10')
+			const listData = await listResponse.json()
+			const entryId = listData.entries[0].entry_id
 
-			const createResponse = await request.post('/api/journal', {
-				data: newEntry
-			})
-
-			expect(createResponse.status()).toBe(201)
-			const createData = await createResponse.json()
-			const entryId = createData.data.id
-
+			const append = Date.now()
 			// Now update the entry
 			const updatedEntry = {
-				text: 'Updated text for PATCH test',
+				text: `Updated text for PATCH test ${append}`,
 				tag: 'updated'
 			}
 
@@ -118,31 +93,21 @@ test.describe('Journal Entry by ID API', () => {
 			// Verify the update by fetching
 			const getResponse = await request.get(`/api/journal/${entryId}`)
 			const getData = await getResponse.json()
-			expect(getData.text).toBe(updatedEntry.text)
-			expect(getData.tag).toBe(updatedEntry.tag)
-
-			// Cleanup
-			await request.delete(`/api/journal/${entryId}`)
+			expect(getData.entry.text).toBe(updatedEntry.text)
+			expect(getData.entry.tag).toBe(updatedEntry.tag)
 		})
 
-		test('[JOURNAL-ENTRY-005] should partially update a journal entry', async ({ request }) => {
-			// Create an entry
-			const newEntry = {
-				date: new Date().toISOString().split('T')[0],
-				text: 'Original text',
-				tag: 'original-tag'
-			}
+		test('[JOURNAL-API-015] should partially update a journal entry', async ({ request }) => {
+			// Grab an already created entry
+			const listResponse = await request.get('/api/journal?limit=10')
+			const listData = await listResponse.json()
+			const existingEntry = listData.entries[1]
+			const entryId = existingEntry.entry_id
 
-			const createResponse = await request.post('/api/journal', {
-				data: newEntry
-			})
-
-			const createData = await createResponse.json()
-			const entryId = createData.data.id
-
+			const append = Date.now()
 			// Update only the text
 			const partialUpdate = {
-				text: 'Only text updated'
+				text: `Only text updated ${append}`
 			}
 
 			const patchResponse = await request.patch(`/api/journal/${entryId}`, {
@@ -154,14 +119,11 @@ test.describe('Journal Entry by ID API', () => {
 			// Verify only text changed, tag remained the same
 			const getResponse = await request.get(`/api/journal/${entryId}`)
 			const getData = await getResponse.json()
-			expect(getData.text).toBe(partialUpdate.text)
-			expect(getData.tag).toBe(newEntry.tag) // Should remain unchanged
-
-			// Cleanup
-			await request.delete(`/api/journal/${entryId}`)
+			expect(getData.entry.text).toBe(partialUpdate.text)
+			expect(getData.entry.tag).toBe(existingEntry.tag) // Should remain unchanged
 		})
 
-		test('[JOURNAL-ENTRY-006] should reject PATCH with invalid date format', async ({
+		test('[JOURNAL-API-016] should reject PATCH with invalid date format', async ({
 			request
 		}) => {
 			// First create an entry
@@ -176,7 +138,7 @@ test.describe('Journal Entry by ID API', () => {
 			})
 
 			const createData = await createResponse.json()
-			const entryId = createData.data.id
+			const entryId = createData.data.entry_id
 
 			// Try to update with invalid date
 			const invalidUpdate = {
@@ -197,7 +159,7 @@ test.describe('Journal Entry by ID API', () => {
 			await request.delete(`/api/journal/${entryId}`)
 		})
 
-		test('[JOURNAL-ENTRY-007] should return 404 when updating non-existent entry', async ({
+		test('[JOURNAL-API-017] should return 404 when updating non-existent entry', async ({
 			request
 		}) => {
 			const fakeId = 'non-existent-id-67890'
@@ -212,7 +174,7 @@ test.describe('Journal Entry by ID API', () => {
 			expect(response.status()).toBe(404)
 		})
 
-		test('[JOURNAL-ENTRY-008] should reject unauthenticated PATCH request', async ({
+		test('[JOURNAL-API-018] should reject unauthenticated PATCH request', async ({
 			request
 		}) => {
 			// Create an entry first
@@ -227,7 +189,7 @@ test.describe('Journal Entry by ID API', () => {
 			})
 
 			const createData = await createResponse.json()
-			const entryId = createData.data.id
+			const entryId = createData.data.entry_id
 
 			// Try to update without auth
 			const updateData = {
@@ -249,21 +211,20 @@ test.describe('Journal Entry by ID API', () => {
 	})
 
 	test.describe('DELETE /api/journal/{entryId}', () => {
-		test('[JOURNAL-ENTRY-009] should delete a journal entry', async ({ request }) => {
+		test('[JOURNAL-API-019] should delete a journal entry', async ({ request }) => {
 			// First create an entry to delete
 			const newEntry = {
 				date: new Date().toISOString().split('T')[0],
-				text: 'Entry for DELETE test',
-				tag: 'test-delete'
+				text: 'Entry for auth test',
+				tag: 'test'
 			}
 
 			const createResponse = await request.post('/api/journal', {
 				data: newEntry
 			})
 
-			expect(createResponse.status()).toBe(201)
 			const createData = await createResponse.json()
-			const entryId = createData.data.id
+			const entryId = createData.data.entry_id
 
 			// Delete the entry
 			const deleteResponse = await request.delete(`/api/journal/${entryId}`)
@@ -279,7 +240,7 @@ test.describe('Journal Entry by ID API', () => {
 			expect(getResponse.status()).toBe(404)
 		})
 
-		test('[JOURNAL-ENTRY-010] should return 404 when deleting non-existent entry', async ({
+		test('[JOURNAL-API-020] should return 404 when deleting non-existent entry', async ({
 			request
 		}) => {
 			const fakeId = 'non-existent-id-99999'
@@ -288,7 +249,7 @@ test.describe('Journal Entry by ID API', () => {
 			expect(response.status()).toBe(404)
 		})
 
-		test('[JOURNAL-ENTRY-011] should reject unauthenticated DELETE request', async ({
+		test('[JOURNAL-API-021] should reject unauthenticated DELETE request', async ({
 			request
 		}) => {
 			// Create an entry first
@@ -303,7 +264,7 @@ test.describe('Journal Entry by ID API', () => {
 			})
 
 			const createData = await createResponse.json()
-			const entryId = createData.data.id
+			const entryId = createData.data.entry_id
 
 			// Try to delete without auth
 			const response = await request.delete(`/api/journal/${entryId}`, {

@@ -144,10 +144,32 @@ export async function POST(request: NextRequest) {
 			)
 		}
 
+		// Normalize response - handle different Lambda response structures
+		let normalizedData = responseData
+
+		// If Lambda returned the body as a string, parse it
+		if (responseData.body && typeof responseData.body === 'string') {
+			try {
+				normalizedData = JSON.parse(responseData.body)
+			} catch (e) {
+				normalizedData = responseData
+			}
+		}
+
+		// If Lambda wrapped it in a 'data' property, unwrap it
+		if (normalizedData.data && typeof normalizedData.data === 'object') {
+			normalizedData = normalizedData.data
+		}
+
+		// If it's an array with one item, use that item
+		if (Array.isArray(normalizedData) && normalizedData.length > 0) {
+			normalizedData = normalizedData[0]
+		}
+
 		return NextResponse.json(
 			{
 				message: 'Journal entry created successfully',
-				data: responseData
+				data: normalizedData
 			},
 			{ status: 201 }
 		)
