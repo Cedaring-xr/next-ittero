@@ -9,11 +9,22 @@ export async function middleware(request: NextRequest) {
 	const isOnAdminArea = request.nextUrl.pathname.startsWith('/dashboard/admins')
 
 	if (isOnDashboard) {
-		if (!user) return NextResponse.redirect(new URL('/auth/login', request.nextUrl))
-		if (isOnAdminArea && !user.isAdmin) return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
+		if (!user) {
+			const redirect = NextResponse.redirect(new URL('/auth/login', request.nextUrl))
+			redirect.headers.set('Cache-Control', 'no-store')
+			return redirect
+		}
+		if (isOnAdminArea && !user.isAdmin) {
+			const redirect = NextResponse.redirect(new URL('/dashboard', request.nextUrl))
+			redirect.headers.set('Cache-Control', 'no-store')
+			return redirect
+		}
+		response.headers.set('Cache-Control', 'no-store')
 		return response
 	} else if (user) {
-		return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
+		const redirect = NextResponse.redirect(new URL('/dashboard', request.nextUrl))
+		redirect.headers.set('Cache-Control', 'no-store')
+		return redirect
 	}
 }
 
