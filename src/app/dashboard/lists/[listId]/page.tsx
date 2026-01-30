@@ -14,6 +14,7 @@ import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
 import TaskFormFields from '@/ui/task-form-fields'
+import { formatDate } from '@/utils/helpers/date-and-time'
 import { usePinnedLists } from '@/contexts/PinnedListsContext'
 import {
 	useListDetails,
@@ -76,15 +77,6 @@ export default function ListDetailPage(): JSX.Element {
 
 	const isLoading = listLoading || itemsLoading
 	const error = listError || itemsError
-
-	// Format timestamp to DD-MM-YYYY
-	const formatDate = (timestamp: string) => {
-		const date = new Date(timestamp)
-		const day = date.getDate().toString().padStart(2, '0')
-		const month = (date.getMonth() + 1).toString().padStart(2, '0')
-		const year = date.getFullYear()
-		return `${day}-${month}-${year}`
-	}
 
 	// Format due date/time for display
 	const formatDueDate = (dueDate: string) => {
@@ -224,7 +216,7 @@ export default function ListDetailPage(): JSX.Element {
 		return (
 			<div className="flex flex-col items-center justify-center h-screen gap-4">
 				<p className="text-red-400 text-xl">{errorMessage}</p>
-				<ElegantButton variant="outline" onClick={handleBack}>
+				<ElegantButton variant="primary" onClick={handleBack}>
 					Back to Lists
 				</ElegantButton>
 			</div>
@@ -265,9 +257,8 @@ export default function ListDetailPage(): JSX.Element {
 
 	return (
 		<div className="max-w-6xl mx-auto p-6">
-			{/* Back Button */}
 			<ElegantButton
-				variant="outline"
+				variant="primary"
 				size="sm"
 				icon={<ArrowLeftIcon className="h-5 w-5" />}
 				onClick={handleBack}

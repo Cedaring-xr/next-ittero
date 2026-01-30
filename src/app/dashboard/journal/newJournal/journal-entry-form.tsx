@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { MdArrowRightAlt } from 'react-icons/md'
 import ElegantButton from '@/ui/elegant-button'
+import { getTodayDate, getDateDaysAgo } from '@/utils/helpers/date-and-time'
 
 export type JournalFormData = {
 	date: string
@@ -20,18 +21,7 @@ export default function JournalEntryForm() {
 	const [entryMode, setEntryMode] = useState<'bullets' | 'freeform'>('freeform')
 	const { register, handleSubmit, reset } = useForm<JournalFormData>()
 
-	// Get today's date in YYYY-MM-DD format
-	const getTodayDate = () => {
-		const today = new Date()
-		return today.toISOString().split('T')[0]
-	}
-
-	// Get date 3 days ago in YYYY-MM-DD format
-	const getMinDate = () => {
-		const date = new Date()
-		date.setDate(date.getDate() - 3)
-		return date.toISOString().split('T')[0]
-	}
+	const getMinDate = () => getDateDaysAgo(3)
 
 	async function onSubmit(data: JournalFormData) {
 		setLoading(true)

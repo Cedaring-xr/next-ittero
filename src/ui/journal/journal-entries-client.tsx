@@ -7,6 +7,7 @@ import { TrashIcon } from '@heroicons/react/24/outline'
 import Pagination from '@/ui/pagination'
 import JournalEntryModal from '@/ui/journal/journal-entry-modal'
 import ConfirmModal from '@/ui/confirm-modal'
+import { formatDateFromStr } from '@/utils/helpers/date-and-time'
 
 interface JournalEntry {
 	entry_id: string
@@ -185,7 +186,7 @@ export default function JournalEntriesClient() {
 								className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer"
 							>
 								<div className="flex justify-between items-start">
-									<span className="text-white text-sm">{entry.date}</span>
+									<span className="text-white text-sm">{formatDateFromStr(entry.date)}</span>
 									<div className="flex items-center gap-2">
 										{entry.tag && (
 											<span className="text-emerald-500 border-2 border-emerald-700 p-1 rounded-md">

@@ -15,7 +15,7 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import formatDate from '@/utils/helpers/date-and-time'
+import { formatDate } from '@/utils/helpers/date-and-time'
 import { type ListEntry } from '@/utils/api/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 
