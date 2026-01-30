@@ -20,6 +20,7 @@ test.describe('Journal Entries API', () => {
 			// Verify response structure
 			expect(data).toHaveProperty('entries')
 			expect(data).toHaveProperty('count')
+			expect(data).toHaveProperty('nextToken')
 			expect(Array.isArray(data.entries)).toBeTruthy()
 
 			// Verify count matches entries length (or is less if paginated)
