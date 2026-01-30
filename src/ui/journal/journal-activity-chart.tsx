@@ -15,30 +15,12 @@ export default function JournalActivityChart() {
 
 	return (
 		<div className="bg-slate-800 rounded-lg p-6 mb-6">
-			{/* Summary Cards */}
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-				<div className="bg-slate-700 rounded-lg p-4 text-center">
-					<p className="text-3xl font-bold text-rose-400">{stats.entriesThisMonth}</p>
-					<p className="text-sm text-gray-200 mt-1">This Month</p>
-				</div>
-				<div className="bg-slate-700 rounded-lg p-4 text-center">
-					<p className="text-3xl font-bold text-indigo-400">{stats.entriesThisWeek}</p>
-					<p className="text-sm text-gray-200 mt-1">This Week</p>
-				</div>
-				<div className="bg-slate-700 rounded-lg p-4 text-center">
-					<p className="text-3xl font-bold text-orange-400">{stats.currentStreak}</p>
-					<p className="text-sm text-gray-200 mt-1">Day Streak</p>
-				</div>
-				<div className="bg-slate-700 rounded-lg p-4 text-center">
-					<p className="text-3xl font-bold text-emerald-400">{stats.totalEntries}</p>
-					<p className="text-sm text-gray-200 mt-1">Total Entries</p>
-				</div>
-			</div>
+			
 
 			{/* Activity Heatmap */}
 			<div>
-				<h5 className="text-lg font-semibold text-white mb-4">{stats.currentMonth} Activity</h5>
-				<div className="flex flex-wrap gap-1.5">
+				<h5 className="text-lg font-semibold text-white mb-4 text-center">{stats.currentMonth} Activity</h5>
+				<div className="flex flex-wrap gap-1.5 justify-center">
 					{stats.activityData.map((dayData, i) => {
 						const day = i + 1
 						return (
