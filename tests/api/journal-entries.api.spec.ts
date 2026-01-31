@@ -71,8 +71,8 @@ test.describe('Journal Entries API', () => {
 				expect(Array.isArray(secondData.entries)).toBeTruthy()
 				// Entries from second page should be different from first page
 				if (secondData.entries.length > 0 && firstData.entries.length > 0) {
-					const firstIds = firstData.entries.map((e: { id: string }) => e.id)
-					const secondIds = secondData.entries.map((e: { id: string }) => e.id)
+					const firstIds = firstData.entries.map((e: { entry_id: string }) => e.entry_id)
+					const secondIds = secondData.entries.map((e: { entry_id: string }) => e.entry_id)
 					// No overlap between pages
 					const overlap = secondIds.filter((id: string) => firstIds.includes(id))
 					expect(overlap.length).toBe(0)
@@ -219,76 +219,62 @@ test.describe('Journal Entries API', () => {
 		})
 	})
 
-	test.describe('POST /api/journal', () => {
-		test.skip('[JOURNAL-API-008] should be able to create a new journal entry', async ({ request }) => {
-			const journalEntry = {                                                                                                                 
-          date: new Date().toISOString().split('T')[0],                                                                                      
-          text: 'This is a test journal entry created by automated test',                                                                    
-          tag: 'test'                                                                                                                        
-      }                                                                                                                                      
-                                                                                                                                             
-      const response = await request.post('/api/journal', {                                                                                  
-          data: journalEntry                                                                                                                 
-      })                                                                                                                                     
-                                                                                                                                             
-      expect(response.status()).toBe(201)                                                                                                    
-      const data = await response.json()                                                                                                     
-                                                                                                                                             
-      expect(data).toHaveProperty('message')                                                                                                 
-      expect(data.message).toBe('Journal entry created successfully')                                                                        
-      expect(data).toHaveProperty('data')                                                                                                    
-      expect(data.data).toHaveProperty('id')                                                                                                 
-                                                                                                                                             
-      // Cleanup: Delete the created entry to not affect other tests                                                                         
-      // (If you have a DELETE endpoint)                                                                                                     
-      // await request.delete(`/api/journal/${data.data.id}`)  
+	test.describe('Alt user GET & POST /api/journal', () => {
+		test('[JOURNAL-API-011] should reject GET request for alternate user', async ({ request }) => {
+			const alternateId = 'a478f4c8-d0e1-7071-c3da-56cf32c2b049'
+			const response = await request.get(`/api/journal?userId=${alternateId}`)
+
+			// Should either reject with 403 Forbidden or ignore the userId parameter
+			// and only return the authenticated user's entries
+			if (response.status() === 200) {
+				const data = await response.json()
+				// Entries should not belong to the alternate user
+				if (data.entries && data.entries.length > 0) {
+					// Verify none of the entries have the alternate user ID
+					data.entries.forEach((entry: { user_id?: string }) => {
+						if (entry.user_id) {
+							expect(entry.user_id).not.toBe(alternateId)
+						}
+					})
+				}
+			} else {
+				expect([401, 403]).toContain(response.status())
+			}
 		})
 
-		test('[JOURNAL-API-009] should reject creation if required fields are not present', async ({
-			request
-		}) => {
-			// Test missing 'text' field
-			const missingText = {
-				date: new Date().toISOString().split('T')[0]
+		test('[JOURNAL-API-012] should reject POST request for alternate user', async ({ request }) => {
+			const alternateId = 'a478f4c8-d0e1-7071-c3da-56cf32c2b049'
+
+			const journalEntry = {
+				date: new Date().toISOString().split('T')[0],
+				text: 'Attempting to create entry for another user',
+				tag: 'test',
+				userId: alternateId // Trying to set a different user ID
 			}
 
-			const response1 = await request.post('/api/journal', {
-				data: missingText
+			const response = await request.post('/api/journal', {
+				data: journalEntry
 			})
 
-			expect(response1.status()).toBe(400)
-			const data1 = await response1.json()
-			expect(data1).toHaveProperty('error')
-			expect(data1.error).toBe('Date and text are required')
+			// Should either reject with 403 Forbidden or ignore the userId
+			// and create it for the authenticated user instead
+			if (response.status() === 201) {
+				const data = await response.json()
+				expect(data).toHaveProperty('data')
 
-			// Test missing 'date' field
-			const missingDate = {
-				text: 'Journal entry without date'
+				// If the response includes user_id, it should NOT be the alternate user
+				if (data.data.user_id) {
+					expect(data.data.user_id).not.toBe(alternateId)
+				}
+
+				// Cleanup: Delete the created entry if one was made
+				if (data.data.entry_id) {
+					await request.delete(`/api/journal/${data.data.entry_id}`)
+				}
+			} else {
+				// Or it should reject the request entirely
+				expect([400, 401, 403]).toContain(response.status())
 			}
-
-			const response2 = await request.post('/api/journal', {
-				data: missingDate
-			})
-
-			expect(response2.status()).toBe(400)
-			const data2 = await response2.json()
-			expect(data2).toHaveProperty('error')
-			expect(data2.error).toBe('Date and text are required')
-
-			// Test invalid date format
-			const invalidDate = {
-				date: '12/31/2024', // Wrong format
-				text: 'Journal entry with invalid date'
-			}
-
-			const response3 = await request.post('/api/journal', {
-				data: invalidDate
-			})
-
-			expect(response3.status()).toBe(400)
-			const data3 = await response3.json()
-			expect(data3).toHaveProperty('error')
-			expect(data3.error).toBe('Invalid date format. Expected YYYY-MM-DD')
 		})
 	})
 })

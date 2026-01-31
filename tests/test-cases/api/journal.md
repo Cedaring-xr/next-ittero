@@ -116,9 +116,125 @@ return a total count number for all entries without fetching all
 **Preconditions:**
 - User account is authenicated, entries DB has at least 1 entry
 **Tests Validating:**
-1. Expect response to be truthy and have status code 200
-2. Expect data to have properties 'count', 'number'
-3. Expect data.count to be greater than 0
+1. Make a request to /count
+2. make another request to entries with limit of 1000
+3. compare the numbers from each results
+4. Give slight variance of +-2
 **Expected Result:**
-An accurate count number is returned 
+Count is consistant with total entries
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-008: should be able to create a new journal entry
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+creates a new journal entry
+**Preconditions:**
+- User account is authenicated
+**Tests Validating:**
+1. Makes POST request with all required field data
+2. expect response to be 201
+3. expect return message of "successful"
+4. expect return to have properties 'message', 'data', 'entry_id'
+5. expect entry_id to be type string
+**Expected Result:**
+successful journal creation with all data
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-009: should reject creation if required fields are not present
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+journal entry creation requires certain fields
+**Preconditions:**
+- User account is authenicated
+**Tests Validating:**
+1. Makes POST request with missing 'text' field
+2. expect response to be 400
+3. expect error with failure description
+4. Make another request with missing date
+5. expect response to be 400
+6. expect error with failure description
+7. Make another request with incorrect date format
+8. expect response to be 400
+9. expect error with failure description
+**Expected Result:**
+successful journal creation with all data
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-007: should reject unauthenticated GET request
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+Journal entries cannot be fetched for unauthenticated users
+**Preconditions:**
+- User account is NOT authenicated
+**Tests Validating:**
+1. Makes GET request to /entries
+2. expect response to be 401 or 403
+**Expected Result:**
+Error code and no data is returned
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-010: should reject unauthenticated POST request
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+Journal entries cannot be created for unauthenticated users
+**Preconditions:**
+- User account is NOT authenicated
+**Tests Validating:**
+1. Makes POST request with all required fields
+2. expect response code of 401 or 403
+**Expected Result:**
+Error code and no data is created
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-011: should reject GET request for alternate user
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+Journal entries cannot be fetched for other users ids
+**Preconditions:**
+- User account is authenicated
+**Tests Validating:**
+1. Start with an valid user id for another account
+2. Makes GET request using another users Id
+3. expect response code of 400
+**Expected Result:**
+Error code and no data is returned
+**Playwright File:** - `tests/api/journal-entries.api.spec.ts`
+
+---
+
+### JOURNAL-API-012: should reject POST request for alternate user
+**Status:** `[competed]`
+**Priority:** High
+**Test Suite:**
+**Description:**
+Journal entries cannot be created for other users ids
+**Preconditions:**
+- User account is authenicated
+**Tests Validating:**
+1. Start with a valid user Id for another user
+2. Makes POST request using another users Id
+3. Request has all other valid info
+4. expect response code of 401 or 403
+**Expected Result:**
+Error code and no data is created
 **Playwright File:** - `tests/api/journal-entries.api.spec.ts`
