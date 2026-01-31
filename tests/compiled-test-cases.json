@@ -1,0 +1,921 @@
+{
+  "generatedAt": "2026-01-30T19:40:50.040Z",
+  "totalTestCases": 42,
+  "categories": {
+    "a11y": {
+      "count": 0,
+      "testCases": []
+    },
+    "api": {
+      "count": 0,
+      "testCases": []
+    },
+    "e2e": {
+      "count": 42,
+      "testCases": [
+        {
+          "id": "ADMN-001",
+          "title": "Admin User Can Access Admin Area",
+          "status": "completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that users in the 'Admins' Cognito group can access the admin section.",
+          "preconditions": [
+            "User is logged in with an admin account (member of 'Admins' group in cognito)"
+          ],
+          "testSteps": [
+            "Start on dashboard of signed in user",
+            "From dashboard, click \"Admin Area\" in sidenav",
+            "Verify URL changes to /dashboard/admins",
+            "Verify admin page content is displayed"
+          ],
+          "expectedResult": "Admin user sees the admin section with \"Admin Access Only\" heading.",
+          "playwrightFile": "- `tests/admin/admin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/admin.md"
+        },
+        {
+          "id": "ADMN-002",
+          "title": "Non-Admin User Cannot Access Admin Area",
+          "status": "completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that regular users cannot access the admin section.",
+          "preconditions": [
+            "User is logged in with a non-admin account"
+          ],
+          "testSteps": [
+            "Start on dashboard of normal user",
+            "Verify \"Admin Area\" is not present in sidebar navigation",
+            "Attempt to navigate directly to /dashboard/admins",
+            "Verify access is denied or redirected"
+          ],
+          "expectedResult": "Non-admin user is redirected away from admin section or sees access denied message.",
+          "playwrightFile": "- `tests/admin/nonAdmin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/admin.md"
+        },
+        {
+          "id": "ADMN-003",
+          "title": "View Admin Dashboard",
+          "status": "Futre Content",
+          "priority": "low",
+          "description": "Verify admin dashboard displays relevant admin information.",
+          "preconditions": [
+            "User is logged in as admin"
+          ],
+          "testSteps": [
+            "Start on dashboard page for logged in admin user",
+            "Navigate to /dashboard/admins",
+            "Verify admin-specific content is displayed"
+          ],
+          "expectedResult": "Admin sees admin-specific dashboard content.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/admin.md"
+        },
+        {
+          "id": "ADMN-004",
+          "title": "Admin User Management",
+          "status": "Future Content",
+          "priority": "low",
+          "description": "Verify admins can view/manage users or acount management capabilities.",
+          "preconditions": [
+            "User is logged in as admin",
+            "User management feature exists",
+            "test user exists to manage"
+          ],
+          "testSteps": [
+            "Start on dashboard page for logged in admin account",
+            "Navigate to admin section",
+            "Access user management",
+            "Modify user features",
+            "Verify user account modification is successful"
+          ],
+          "expectedResult": "Admin can view and manage users account information",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/admin.md"
+        },
+        {
+          "id": "AUTH-001",
+          "title": "Navigate to Sign-In Page",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that users can navigate from the landing page to the sign-in page.",
+          "preconditions": [
+            "User is not logged in"
+          ],
+          "testSteps": [
+            "Navigate to the landing page (/)",
+            "Click \"Log In\" button",
+            "Verify URL changes to /auth/login",
+            "Verify sign-in form is displayed"
+          ],
+          "expectedResult": "User sees the sign-in page with \"Please sign in to continue.\" heading.",
+          "playwrightFile": "`tests/auth/signin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-002",
+          "title": "Sign-In with Valid Credentials",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that users can successfully sign in with valid email and password.",
+          "preconditions": [
+            "User has a valid account",
+            "User is not logged in"
+          ],
+          "testSteps": [
+            "Navigate to /auth/login",
+            "Enter valid email address",
+            "Enter valid password",
+            "Click \"Log In\" button",
+            "Verify redirect to dashboard"
+          ],
+          "expectedResult": "User is redirected to /dashboard and sees \"Your Dashboard\" heading.",
+          "playwrightFile": "`tests/auth/signin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-003",
+          "title": "Sign-Out from Dashboard",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that logged-in users can sign out successfully.",
+          "preconditions": [
+            "User is logged in and on dashboard"
+          ],
+          "testSteps": [
+            "From dashboard, click \"Sign Out\" button",
+            "Verify redirect to login page"
+          ],
+          "expectedResult": "User is redirected to /auth/login and sees sign-in form.",
+          "playwrightFile": "`tests/auth/signin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-004",
+          "title": "Sign-In with Invalid Credentials",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that sign-in fails with incorrect credentials and displays appropriate error.",
+          "preconditions": [
+            "User is not logged in"
+          ],
+          "testSteps": [
+            "Navigate to /auth/login",
+            "Enter valid email address",
+            "Enter incorrect password",
+            "Click \"Log In\" button",
+            "Verify error message is displayed"
+          ],
+          "expectedResult": "User remains on login page with error message displayed.",
+          "playwrightFile": "- `tests/auth/signin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-005",
+          "title": "Navigate to Sign-Up Page",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that users can navigate to the sign-up page from login.",
+          "preconditions": [
+            "User is not logged in"
+          ],
+          "testSteps": [
+            "Navigate to /auth/login",
+            "Click \"Don't have an account? Sign up.\" link",
+            "Verify URL changes to /auth/signup"
+          ],
+          "expectedResult": "User sees the sign-up form.",
+          "playwrightFile": "- `tests/auth/signup.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-006",
+          "title": "Sign-Up with Valid Information",
+          "status": "Skipped don't feel like creating new account with emails or removing test account in cognito",
+          "priority": "high",
+          "description": "Verify that new users can create an account.",
+          "preconditions": [
+            "Email is not already registered"
+          ],
+          "testSteps": [
+            "Navigate to /auth/signup",
+            "Enter valid email address",
+            "Enter valid password",
+            "Submit form",
+            "Verify redirect to confirmation page"
+          ],
+          "expectedResult": "User is redirected to confirm signup page.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-007",
+          "title": "Unauthenticated Access to Dashboard Redirects to Login",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that unauthenticated users cannot access protected routes.",
+          "preconditions": [
+            "User is not logged in"
+          ],
+          "testSteps": [
+            "Attempt to navigate directly to /dashboard",
+            "Verify redirect to /auth/login"
+          ],
+          "expectedResult": "User is redirected to login page.",
+          "playwrightFile": "- `tests/auth/signup.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "AUTH-008",
+          "title": "Authenticated Access to Login Redirects to Dashboard",
+          "status": "Completed",
+          "priority": "medium",
+          "testSuite": "smoke",
+          "description": "Verify that authenticated users are redirected away from auth pages.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /auth/login while logged in",
+            "Verify redirect to /dashboard"
+          ],
+          "expectedResult": "User is redirected to dashboard.",
+          "playwrightFile": "- `tests/auth/signin.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/auth.md"
+        },
+        {
+          "id": "JRNL-001",
+          "title": "Navigate to Journal Page",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that authenticated users can view loaded entries",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "From dashboard, click \"Journal\" in sidenav",
+            "Verify URL changes to /dashboard/journal",
+            "Verify journal page is displayed"
+          ],
+          "expectedResult": "User sees the journal page with existing entries.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-002",
+          "title": "Navigate to New Journal Entry Page",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can navigate to create a new journal entry.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal",
+            "Click \"New Entry\" button (or equivalent)",
+            "Verify URL changes to /dashboard/journal/newJournal"
+          ],
+          "expectedResult": "User sees the new journal entry form.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-003",
+          "title": "Create New Journal Entry",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can create a new journal entry.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal/newJournal",
+            "Enter journal entry title",
+            "Enter journal entry content",
+            "Submit form",
+            "Verify redirect to journal page or entry detail",
+            "Verify new entry appears"
+          ],
+          "expectedResult": "New journal confirmation message is shown",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-004",
+          "title": "Create Journal Entry with Empty Content",
+          "status": "PLANNED",
+          "priority": "low",
+          "description": "Verify that journal creation validates required fields.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal/newJournal",
+            "Leave content field empty",
+            "Attempt to submit form",
+            "Verify validation error"
+          ],
+          "expectedResult": "Form validation prevents creation without required content.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-005",
+          "title": "Create only one journal entry per day",
+          "status": "Future Content",
+          "priority": "medium",
+          "description": "Verify that user is limited to a single entry per calendar day",
+          "preconditions": [
+            "User is logged in",
+            "journal entry exists on day that needs duplicate"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal/newJournal",
+            "create initial entry",
+            "Attempt to submit form for exact same date",
+            "Verify validation error with description message"
+          ],
+          "expectedResult": "Form validation prevents multiple entry creation on same date",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-006",
+          "title": "View Journal Entry",
+          "status": "Future Cotent",
+          "priority": "high",
+          "description": "Verify that users can view an individual journal entry.",
+          "preconditions": [
+            "User is logged in",
+            "At least one journal entry exists"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal",
+            "Click on a journal entry",
+            "Verify entry detail is displayed"
+          ],
+          "expectedResult": "User sees the full journal entry content.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-007",
+          "title": "Edit Journal Entry",
+          "status": "Future Content",
+          "priority": "high",
+          "description": "Verify that users can edit an existing journal entry.",
+          "preconditions": [
+            "User is logged in",
+            "At least one journal entry exists"
+          ],
+          "testSteps": [
+            "Navigate to a journal entry",
+            "Click edit button",
+            "Modify entry content",
+            "Save changes",
+            "Verify content is updated"
+          ],
+          "expectedResult": "Journal entry is updated with new content.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-008",
+          "title": "Delete Journal Entry",
+          "status": "Future Content",
+          "priority": "high",
+          "description": "Verify that users can delete a journal entry.",
+          "preconditions": [
+            "User is logged in",
+            "At least one journal entry exists"
+          ],
+          "testSteps": [
+            "Navigate to a journal entry",
+            "Click delete button",
+            "Confirm deletion",
+            "Verify redirect to journal page",
+            "Verify entry no longer appears"
+          ],
+          "expectedResult": "Journal entry is deleted and removed from the journal page.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "JRNL-009",
+          "title": "Journal Entries Display in reverse Chronological Order",
+          "status": "PLANNED",
+          "priority": "low",
+          "description": "Verify that journal entries are displayed in correct order.",
+          "preconditions": [
+            "User is logged in",
+            "Multiple journal entries exist"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/journal",
+            "Verify entries are sorted by date (newest first or as designed)"
+          ],
+          "expectedResult": "Journal entries appear in chronological order.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/journal.md"
+        },
+        {
+          "id": "LIST-001",
+          "title": "Navigate to Lists Page",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that authenticated users can navigate to the lists page.",
+          "preconditions": [
+            "User is logged in",
+            "User has previously created lists"
+          ],
+          "testSteps": [
+            "From dashboard, click \"Lists\" in sidenav",
+            "Verify URL changes to /dashboard/lists",
+            "Verify lists page is displayed"
+          ],
+          "expectedResult": "User sees the lists page with existing lists.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-002",
+          "title": "Navigate to New List Page",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can navigate to create a new list.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/lists",
+            "Click \"New List\" button (or equivalent)",
+            "Verify URL changes to /dashboard/lists/newList"
+          ],
+          "expectedResult": "User sees the new list creation form.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-003",
+          "title": "Create New List",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can create a new list.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/lists/newList",
+            "Enter list name",
+            "Submit form",
+            "Verify redirect to new list or lists page",
+            "Verify new list appears in list"
+          ],
+          "expectedResult": "New list is created and visible in the lists page.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-004",
+          "title": "Create List with Empty Name",
+          "status": "PLANNED",
+          "priority": "low",
+          "description": "Verify that list creation requires a name.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/lists/newList",
+            "Leave name field empty",
+            "Attempt to submit form",
+            "Verify validation error"
+          ],
+          "expectedResult": "Form validation prevents creation without a name.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-005",
+          "title": "View List Details",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can view an individual list.",
+          "preconditions": [
+            "User is logged in",
+            "At least one list exists"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/lists",
+            "Click on a list",
+            "Verify list details page is displayed"
+          ],
+          "expectedResult": "User sees the list with its tasks.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-006",
+          "title": "Delete List",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can delete a list.",
+          "preconditions": [
+            "User is logged in",
+            "At least one list exists"
+          ],
+          "testSteps": [
+            "Navigate to a list detail page",
+            "Click delete button",
+            "Confirm deletion",
+            "Verify redirect to lists page",
+            "Verify list no longer appears"
+          ],
+          "expectedResult": "List is deleted and removed from the lists page.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-007",
+          "title": "Pin List to Sidebar",
+          "status": "PLANNED",
+          "priority": "medium",
+          "description": "Verify that users can pin a list to the sidebar.",
+          "preconditions": [
+            "User is logged in",
+            "At least one unpinned list exists"
+          ],
+          "testSteps": [
+            "Navigate to a list",
+            "Click pin button",
+            "Verify list appears in sidebar under \"Pinned Lists\""
+          ],
+          "expectedResult": "List appears in the sidebar pinned lists section.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "LIST-008",
+          "title": "Unpin List from Sidebar",
+          "status": "PLANNED",
+          "priority": "medium",
+          "description": "Verify that users can unpin a list from the sidebar.",
+          "preconditions": [
+            "User is logged in",
+            "At least one pinned list exists"
+          ],
+          "testSteps": [
+            "In sidebar, click unpin button on a pinned list",
+            "Verify list is removed from pinned section"
+          ],
+          "expectedResult": "List is removed from the sidebar pinned lists section.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/lists.md"
+        },
+        {
+          "id": "NAV-001",
+          "title": "Links functional on dashboard page",
+          "status": "Completed",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that",
+          "preconditions": [
+            "User is logged in with an admin account (member of 'Admins' group in cognito)"
+          ],
+          "testSteps": [
+            "Start on dashboard of signed in user",
+            "From dashboard, check links in sidebar",
+            "Check links from main sections",
+            "click \"create new List\"",
+            "Verify URL, then go back",
+            "Click \"view active lists\"",
+            "Verify URL, then go back",
+            "Click \"write quick journal\"",
+            "Verify URL, then go back",
+            "Click \"view journal entries\"",
+            "Verify URL, then go back",
+            "Click \"stats & Review\"",
+            "Verify URL, then go back",
+            "Click \"feedback\"",
+            "Verify URL, then go back"
+          ],
+          "expectedResult": "Admin user sees the admin section with \"Admin Access Only\" heading.",
+          "playwrightFile": "- `tests/navigation/mainNavigation.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/navigation.md"
+        },
+        {
+          "id": "NAV-002",
+          "title": "Navigate through main pages",
+          "status": "Planned",
+          "priority": "high",
+          "testSuite": "smoke",
+          "description": "Verify that main page navigation works and pages load",
+          "preconditions": [
+            "User is logged in with an admin account (member of 'Admins' group in cognito)"
+          ],
+          "testSteps": [
+            "Start on dashboard of signed in user",
+            "From dashboard, click \"View active lists\"",
+            "Verify URL changes to /dashboard/lists",
+            "click \"create new list\"",
+            "Verify URL changes to /dashboard/lists/newList",
+            "Click lists on sidebar",
+            "Click create task",
+            "Verify URL changes to /dashboard/lists/items",
+            "Click Journal on Sidebar",
+            "Verify URL changes to /dashboard/journal",
+            "click \"create new entry\"",
+            "Verify URL changes to /dashboard/journal/newJournal",
+            "Click stats on sidebar",
+            "Verify URL changes to /dashboard/stats",
+            "click home on sidebar",
+            "Verify URL changes to /dashboard"
+          ],
+          "expectedResult": "Admin user is able to navigate through main pages and each page loads",
+          "playwrightFile": "- `tests/navigation/mainNavigation.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/navigation.md"
+        },
+        {
+          "id": "PROF-001",
+          "title": "Navigate to Profile Settings",
+          "status": "Completed",
+          "priority": "med",
+          "testSuite": "smoke",
+          "description": "Verify that authenticated users can navigate to their profile settings page from sidebar.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "From dashboard, click \"Profile\" in sidenav",
+            "Verify URL changes to /dashboard/profile",
+            "Verify \"Profile Settings\" heading is displayed"
+          ],
+          "expectedResult": "User sees the profile settings page with all settings sections visible.",
+          "playwrightFile": "`tests/profile/profile-settings.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-002",
+          "title": "View Profile Information",
+          "status": "Completed",
+          "priority": "med",
+          "testSuite": "smoke",
+          "description": "Verify that user profile page is accessible from the header icon",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard",
+            "Verify user's name is displayed",
+            "Click gears settings icon",
+            "Verify that page navigates to /profile"
+          ],
+          "expectedResult": "Profile page is accessible from header gear icon",
+          "playwrightFile": "`tests/profile/profile-settings.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-003",
+          "title": "Update Name of user",
+          "status": "Completed",
+          "priority": "med",
+          "description": "Verify that user is able to update their username from the profile setting page",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/profile",
+            "Input generated random name in username field",
+            "Click \"Update Name\" button",
+            "navigate back to dashboard page",
+            "Verify that username is updated",
+            "Return to profile and reset name"
+          ],
+          "expectedResult": "Username successfully updates and is visible on other pages",
+          "playwrightFile": "- `tests/profile/profile-update.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-004",
+          "title": "blank field does not update username",
+          "status": "Completed",
+          "priority": "med",
+          "description": "Verify that users cannot have a blank username",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/profile",
+            "Enter current password",
+            "Enter new password",
+            "Confirm new password",
+            "Click \"Update Password\" button",
+            "Sign out and sign in with new password"
+          ],
+          "expectedResult": "Error message apears notifying user that blank field does not work",
+          "playwrightFile": "- `tests/profile/profile-update.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-005",
+          "title": "Change Timezone",
+          "status": "Future Content",
+          "priority": "low",
+          "description": "Verify that users can change their timezone setting.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/profile",
+            "Select new timezone from dropdown",
+            "Click \"Save Settings\" button",
+            "Verify timezone is saved"
+          ],
+          "expectedResult": "Timezone preference is updated.",
+          "playwrightFile": "- `tests/profile/profile-update.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-006",
+          "title": "Change theme settings",
+          "status": "Future Content",
+          "priority": "low",
+          "description": "Verify that users can change accent color.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/profile",
+            "Click desired accent color button",
+            "Click \"Save Theme\" button",
+            "Verify accent color is applied"
+          ],
+          "expectedResult": "Application uses selected accent color.",
+          "playwrightFile": "- `tests/profile/profile-update.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "PROF-007",
+          "title": "Change notification settings",
+          "status": "Future Content",
+          "priority": "low",
+          "description": "Verify that users can toggle different notification settings.",
+          "preconditions": [
+            "User is logged in"
+          ],
+          "testSteps": [
+            "Navigate to /dashboard/profile",
+            "Verify notifications section",
+            "Toggle different settings",
+            "Verify result???"
+          ],
+          "expectedResult": "Users are able to select notification setting that they desire",
+          "playwrightFile": "- `tests/profile/profile-update.spec.ts`",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/profile.md"
+        },
+        {
+          "id": "TASK-001",
+          "title": "Add task to List",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can add items to a list.",
+          "preconditions": [
+            "User is logged in",
+            "A list exists"
+          ],
+          "testSteps": [
+            "Navigate to a list",
+            "Enter item text",
+            "Submit/add item",
+            "Verify item appears in list"
+          ],
+          "expectedResult": "New item is added and visible in the list.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/tasks.md"
+        },
+        {
+          "id": "TASK-002",
+          "title": "Complete List Item",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can mark list items as complete.",
+          "preconditions": [
+            "User is logged in",
+            "A list with at least one item exists"
+          ],
+          "testSteps": [
+            "Navigate to a list with items",
+            "Click checkbox or complete button on an item",
+            "Verify item is marked as complete"
+          ],
+          "expectedResult": "Item shows as completed (checked/strikethrough).",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/tasks.md"
+        },
+        {
+          "id": "TASK-003",
+          "title": "Delete List Item",
+          "status": "PLANNED",
+          "priority": "high",
+          "description": "Verify that users can delete list items.",
+          "preconditions": [
+            "User is logged in",
+            "A list with at least one item exists"
+          ],
+          "testSteps": [
+            "Navigate to a list with items",
+            "Click delete on an item",
+            "Verify item is removed from list"
+          ],
+          "expectedResult": "Item is deleted and no longer visible.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/tasks.md"
+        },
+        {
+          "id": "TASK-004",
+          "title": "Edit List Item",
+          "status": "Future Content",
+          "priority": "medium",
+          "description": "Verify that users can edit list item text.",
+          "preconditions": [
+            "User is logged in",
+            "A list with at least one item exists"
+          ],
+          "testSteps": [
+            "Navigate to a list with items",
+            "Click edit on an item",
+            "Modify item text",
+            "Save changes",
+            "Verify item text is updated"
+          ],
+          "expectedResult": "Item text is updated with new value.",
+          "playwrightFile": "",
+          "category": "e2e",
+          "filePath": "tests/test-cases/e2e/tasks.md"
+        }
+      ]
+    }
+  },
+  "statusSummary": {
+    "completed": 2,
+    "Futre Content": 1,
+    "Future Content": 8,
+    "Completed": 12,
+    "Skipped don't feel like creating new account with emails or removing test account in cognito": 1,
+    "PLANNED": 16,
+    "Future Cotent": 1,
+    "Planned": 1
+  },
+  "prioritySummary": {
+    "high": 25,
+    "low": 8,
+    "medium": 5,
+    "med": 4
+  }
+}

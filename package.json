@@ -21,6 +21,7 @@
     "test:a11y-full": "playwright test -c playwright.config.ts --grep @a11y-full",
     "test:all": "npm run test:unit:run && npm run test:component && npm run test:e2e",
     "test:generate-results": "tsx scripts/generate-test-results.ts",
+    "test:compile-cases": "tsx scripts/compile-test-cases.ts",
     "deploy:staging": "npx sst@2 deploy --stage staging --no-interactive",
     "deploy:prod": "npx sst@2 deploy --stage prod --no-interactive"
   },

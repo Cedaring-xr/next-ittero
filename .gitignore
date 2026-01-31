@@ -47,6 +47,7 @@ node_modules/
 /tests/.auth/*.json
 /tests/e2e/stats/outputs/*.json
 test-results.json
+compiled-test-cases.json
 
 #SST / OpenNext
 .sst/

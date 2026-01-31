@@ -20,6 +20,7 @@ test.describe('Journal Entries API', () => {
 			// Verify response structure
 			expect(data).toHaveProperty('entries')
 			expect(data).toHaveProperty('count')
+			expect(data).toHaveProperty('nextToken')
 			expect(Array.isArray(data.entries)).toBeTruthy()
 
 			// Verify count matches entries length (or is less if paginated)
@@ -70,8 +71,8 @@ test.describe('Journal Entries API', () => {
 				expect(Array.isArray(secondData.entries)).toBeTruthy()
 				// Entries from second page should be different from first page
 				if (secondData.entries.length > 0 && firstData.entries.length > 0) {
-					const firstIds = firstData.entries.map((e: { id: string }) => e.id)
-					const secondIds = secondData.entries.map((e: { id: string }) => e.id)
+					const firstIds = firstData.entries.map((e: { entry_id: string }) => e.entry_id)
+					const secondIds = secondData.entries.map((e: { entry_id: string }) => e.entry_id)
 					// No overlap between pages
 					const overlap = secondIds.filter((id: string) => firstIds.includes(id))
 					expect(overlap.length).toBe(0)
@@ -215,6 +216,65 @@ test.describe('Journal Entries API', () => {
 				}
 			})
 			expect([401, 403]).toContain(response.status())
+		})
+	})
+
+	test.describe('Alt user GET & POST /api/journal', () => {
+		test('[JOURNAL-API-011] should reject GET request for alternate user', async ({ request }) => {
+			const alternateId = 'a478f4c8-d0e1-7071-c3da-56cf32c2b049'
+			const response = await request.get(`/api/journal?userId=${alternateId}`)
+
+			// Should either reject with 403 Forbidden or ignore the userId parameter
+			// and only return the authenticated user's entries
+			if (response.status() === 200) {
+				const data = await response.json()
+				// Entries should not belong to the alternate user
+				if (data.entries && data.entries.length > 0) {
+					// Verify none of the entries have the alternate user ID
+					data.entries.forEach((entry: { user_id?: string }) => {
+						if (entry.user_id) {
+							expect(entry.user_id).not.toBe(alternateId)
+						}
+					})
+				}
+			} else {
+				expect([401, 403]).toContain(response.status())
+			}
+		})
+
+		test('[JOURNAL-API-012] should reject POST request for alternate user', async ({ request }) => {
+			const alternateId = 'a478f4c8-d0e1-7071-c3da-56cf32c2b049'
+
+			const journalEntry = {
+				date: new Date().toISOString().split('T')[0],
+				text: 'Attempting to create entry for another user',
+				tag: 'test',
+				userId: alternateId // Trying to set a different user ID
+			}
+
+			const response = await request.post('/api/journal', {
+				data: journalEntry
+			})
+
+			// Should either reject with 403 Forbidden or ignore the userId
+			// and create it for the authenticated user instead
+			if (response.status() === 201) {
+				const data = await response.json()
+				expect(data).toHaveProperty('data')
+
+				// If the response includes user_id, it should NOT be the alternate user
+				if (data.data.user_id) {
+					expect(data.data.user_id).not.toBe(alternateId)
+				}
+
+				// Cleanup: Delete the created entry if one was made
+				if (data.data.entry_id) {
+					await request.delete(`/api/journal/${data.data.entry_id}`)
+				}
+			} else {
+				// Or it should reject the request entirely
+				expect([400, 401, 403]).toContain(response.status())
+			}
 		})
 	})
 })
