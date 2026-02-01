@@ -75,3 +75,8 @@ body {
 .purple-banner .close {
 	color: #a10505;
 }
+
+.shadow {
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18),
+    0 2px 4px rgba(0, 0, 0, 0.12);;
+}
