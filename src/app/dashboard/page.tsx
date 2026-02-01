@@ -55,7 +55,10 @@ export default async function Dashboard() {
 							<rect width="100" height="8" fill="url(#grad1)" />
 							<path d="M 0 4 Q 25 0, 50 4 T 100 4" stroke="#60a5fa" strokeWidth="0.5" fill="none" />
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlineClipboardCheck className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">Create New List</h3>
 						</div>
@@ -82,7 +85,10 @@ export default async function Dashboard() {
 							<circle cx="70" cy="4" r="1" fill="#a78bfa" />
 							<circle cx="90" cy="4" r="1" fill="#a78bfa" />
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlineClipboardList className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">View Active Lists</h3>
 						</div>
@@ -111,7 +117,10 @@ export default async function Dashboard() {
 								strokeLinecap="round"
 							/>
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlinePencil className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">Write Quick Journal</h3>
 						</div>
@@ -139,7 +148,10 @@ export default async function Dashboard() {
 								fill="none"
 							/>
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlineBookOpen className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">View Journal Entries</h3>
 						</div>
@@ -169,7 +181,10 @@ export default async function Dashboard() {
 							<rect x="75" y="3" width="3" height="5" fill="#f472b6" />
 							<rect x="90" y="5" width="3" height="3" fill="#f472b6" />
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlinePresentationChartBar className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">Stats & Review</h3>
 						</div>
@@ -194,7 +209,10 @@ export default async function Dashboard() {
 							<path d="M 40 4 Q 45 1, 50 4 T 60 4" stroke="#22d3ee" strokeWidth="1" fill="none" />
 							<path d="M 70 4 Q 75 1, 80 4 T 90 4" stroke="#22d3ee" strokeWidth="1" fill="none" />
 						</svg>
-						<div className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400">
+						<div
+							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
+							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
+						>
 							<HiOutlineAnnotation className="h-[30px] w-[30px]" />
 							<h3 className="text-lg mt-1 ml-3">User Feedback</h3>
 						</div>
