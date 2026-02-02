@@ -1,6 +1,113 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticatedUser } from '@/utils/amplify-server-utils'
 
+/*
+ * GET /api/lists/items/[itemId] - Get a single todo item by ID
+ * PATCH /api/lists/items/[itemId] - Update a todo item by ID
+ * DELETE /api/lists/items/[itemId] - Delete a todo item by ID
+ */
+
+/**
+ * GET - Fetch a single todo item by ID
+ * Params:
+ *   - itemId: string (from URL params) - Todo item ID
+ *
+ * Fetches from AWS API Gateway and returns the todo item
+ */
+export async function GET(
+	request: NextRequest,
+	{ params }: { params: { itemId: string } }
+) {
+	try {
+		const response = NextResponse.next()
+		const user = await authenticatedUser({ request, response })
+
+		if (!user) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+		}
+
+		const { itemId } = params
+
+		if (!itemId) {
+			return NextResponse.json({ error: 'Item ID is required' }, { status: 400 })
+		}
+
+		const apiGatewayUrl = process.env.TASKS_API_GATEWAY_ITEMS_URL
+
+		if (!apiGatewayUrl) {
+			console.error('TASKS_API_GATEWAY_ITEMS_URL is not configured')
+			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
+		}
+
+		// Build URL for single item with user parameter
+		const url = `${apiGatewayUrl}/${itemId}?user=${user.userId}`
+
+		console.log('Fetching todo item:', url)
+
+		const idToken = user.idToken
+		const accessToken = user.accessToken
+
+		const headers: HeadersInit = {
+			'Content-Type': 'application/json'
+		}
+
+		if (idToken) {
+			headers['Authorization'] = idToken
+		} else if (accessToken) {
+			headers['Authorization'] = accessToken
+		}
+
+		const apiResponse = await fetch(url, {
+			method: 'GET',
+			headers: headers
+		})
+
+		console.log('AWS Response Status:', apiResponse.status)
+
+		const responseText = await apiResponse.text()
+		console.log('AWS Response Text:', responseText)
+
+		if (!apiResponse.ok) {
+			console.error('AWS API Gateway returned error status:', apiResponse.status)
+
+			let errorData
+			try {
+				errorData = JSON.parse(responseText)
+			} catch (e) {
+				errorData = { rawResponse: responseText }
+			}
+
+			return NextResponse.json(
+				{
+					error: 'Failed to fetch todo item',
+					details: errorData,
+					status: apiResponse.status
+				},
+				{ status: apiResponse.status }
+			)
+		}
+
+		let responseData
+		try {
+			responseData = JSON.parse(responseText)
+		} catch (e) {
+			console.error('Failed to parse AWS response as JSON:', responseText)
+			return NextResponse.json(
+				{ error: 'Invalid response from AWS API Gateway', details: responseText },
+				{ status: 500 }
+			)
+		}
+
+		return NextResponse.json(responseData, { status: 200 })
+	} catch (error) {
+		console.error('Error fetching todo item:', error)
+		return NextResponse.json(
+			{ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+			{ status: 500 }
+		)
+	}
+}
+
 /**
  * PATCH - Update a todo item (mark complete, edit fields, etc.)
  * Params:
