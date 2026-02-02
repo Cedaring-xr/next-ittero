@@ -1,32 +1,22 @@
 'use client'
 import Link from 'next/link'
 import JournalEntryForm from './journal-entry-form'
-import Banner from '@/ui/info/banner'
-import ElegantButton from '@/ui/elegant-button'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
-import router from 'next/router'
 
 export default function NewJournal() {
-
-	const handleBack = () => {
-		router.push('/dashboard/journal')
-	}
-
 	return (
 		<main className="max-w-5xl mx-auto">
 			<div className="flex mb-6 justify-between">
 				<h1 className="font-lusitana text-2xl md:text-3xl font-bold text-black mb-2">
 					Quick Journal Entry
 				</h1>
-				<ElegantButton
-				variant="primary"
-				size="sm"
-				icon={<ArrowLeftIcon className="h-5 w-5" />}
-				onClick={handleBack}
-				className="mb-6"
-			>
-				Back to Lists
-			</ElegantButton>
+				<Link
+					href="/dashboard/journal"
+					className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md transition-all duration-200 mb-6"
+				>
+					<ArrowLeftIcon className="h-5 w-5" />
+					<span>Back to Journal</span>
+				</Link>
 				
 			</div>
 			
