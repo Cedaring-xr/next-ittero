@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 			<div
 				className="flex min-h-screen flex-col md:flex-row"
 				style={{
-					background: 'radial-gradient(ellipse at center, #e2e8f0 0%, #e2e8f0 45%, #9ca3af 75%, #6b7280 100%)'
+					background: 'radial-gradient(ellipse at center, #ffffff 0%, #f8fafc 45%, #f1f5f9 75%, #e2e8f0 100%)'
 				}}
 			>
 				<div className="flex-none">

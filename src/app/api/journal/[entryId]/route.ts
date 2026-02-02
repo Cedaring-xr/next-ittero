@@ -32,8 +32,8 @@ export async function GET(
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Build URL for single entry
-		const url = `${apiGatewayUrl}/entries/${entryId}`
+		// Build URL for single entry with user parameter
+		const url = `${apiGatewayUrl}/entries/${entryId}?user=${user.userId}`
 
 		console.log('Fetching journal entry:', url)
 
@@ -142,8 +142,8 @@ export async function PATCH(
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Build URL for updating entry
-		const url = `${apiGatewayUrl}/entries/${entryId}`
+		// Build URL for updating entry with user parameter
+		const url = `${apiGatewayUrl}/entries/${entryId}?user=${user.userId}`
 
 		console.log('Updating journal entry:', url)
 		console.log('Update data:', body)
@@ -244,8 +244,8 @@ export async function DELETE(
 			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
 		}
 
-		// Build URL for deleting entry
-		const url = `${apiGatewayUrl}/entries/${entryId}`
+		// Build URL for deleting entry with user parameter
+		const url = `${apiGatewayUrl}/entries/${entryId}?user=${user.userId}`
 
 		console.log('Deleting journal entry:', url)
 

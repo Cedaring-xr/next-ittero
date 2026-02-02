@@ -1,9 +1,7 @@
 import {
-	HiOutlineClipboardList,
 	HiDocumentText,
 	HiOutlinePencil,
 	HiOutlinePresentationChartBar,
-	HiOutlineClipboardCheck,
 	HiOutlineBookOpen,
 	HiOutlineAnnotation
 } from 'react-icons/hi'
@@ -11,6 +9,8 @@ import Link from 'next/link'
 import { getAuthenticatedUser } from '@/utils/amplify-server-utils'
 import UserCircleIcon from '@heroicons/react/24/outline/UserCircleIcon'
 import CogIcon from '@heroicons/react/24/outline/CogIcon'
+import { SparklesIcon, ClipboardDocumentListIcon, PencilSquareIcon, BookOpenIcon } from '@heroicons/react/24/solid'
+import DashboardCard from '@/ui/dashboard/dashboard-card'
 
 export default async function Dashboard() {
 	const user = await getAuthenticatedUser()
@@ -38,125 +38,57 @@ export default async function Dashboard() {
 				</div>
 			</div>
 			<div className="font-lusitana font-bold grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
-				<Link href="/dashboard/lists/newList">
-					<div className="relative">
-						<svg
-							className="absolute -top-2 left-0 w-full h-2"
-							viewBox="0 0 100 8"
-							preserveAspectRatio="none"
-						>
-							<defs>
-								<linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-									<stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 0.8 }} />
-									<stop offset="50%" style={{ stopColor: '#06b6d4', stopOpacity: 0.9 }} />
-									<stop offset="100%" style={{ stopColor: '#3b82f6', stopOpacity: 0.8 }} />
-								</linearGradient>
-							</defs>
-							<rect width="100" height="8" fill="url(#grad1)" />
-							<path d="M 0 4 Q 25 0, 50 4 T 100 4" stroke="#60a5fa" strokeWidth="0.5" fill="none" />
-						</svg>
-						<div
-							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
-							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
-						>
-							<HiOutlineClipboardCheck className="h-[30px] w-[30px]" />
-							<h3 className="text-lg mt-1 ml-3">Create New List</h3>
-						</div>
-					</div>
-				</Link>
-				<Link href="/dashboard/lists">
-					<div className="relative">
-						<svg
-							className="absolute -top-2 left-0 w-full h-2"
-							viewBox="0 0 100 8"
-							preserveAspectRatio="none"
-						>
-							<defs>
-								<linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-									<stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.8 }} />
-									<stop offset="50%" style={{ stopColor: '#06b6d4', stopOpacity: 0.9 }} />
-									<stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.8 }} />
-								</linearGradient>
-							</defs>
-							<rect width="100" height="8" fill="url(#grad2)" />
-							<circle cx="10" cy="4" r="1" fill="#a78bfa" />
-							<circle cx="30" cy="4" r="1" fill="#a78bfa" />
-							<circle cx="50" cy="4" r="1" fill="#a78bfa" />
-							<circle cx="70" cy="4" r="1" fill="#a78bfa" />
-							<circle cx="90" cy="4" r="1" fill="#a78bfa" />
-						</svg>
-						<div
-							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
-							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
-						>
-							<HiOutlineClipboardList className="h-[30px] w-[30px]" />
-							<h3 className="text-lg mt-1 ml-3">View Active Lists</h3>
-						</div>
-					</div>
-				</Link>
+				<DashboardCard
+					href="/dashboard/lists/newList"
+					imageSrc="https://mray-dev-resources.s3.us-east-2.amazonaws.com/ittero/flatirons.png"
+					title="Create New List"
+					icon={<SparklesIcon />}
+					iconColor="text-yellow-400"
+					glowColor="md:hover:shadow-blue-500/50 active:shadow-blue-500/50"
+				/>
+				<DashboardCard
+					href="/dashboard/lists"
+					imageSrc="https://mray-dev-resources.s3.us-east-2.amazonaws.com/ittero/summit-outline.png"
+					title={
+						<>
+							View Active
+							<br />
+							Lists
+						</>
+					}
+					icon={<ClipboardDocumentListIcon />}
+					iconColor="text-yellow-400"
+					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
+				/>
 				<div className="md:col-span-2 border-t-2 border-slate-600 my-4"></div>
-				<Link href="/dashboard/journal/newJournal">
-					<div className="relative">
-						<svg
-							className="absolute -top-2 left-0 w-full h-2"
-							viewBox="0 0 100 8"
-							preserveAspectRatio="none"
-						>
-							<defs>
-								<linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
-									<stop offset="0%" style={{ stopColor: '#10b981', stopOpacity: 0.8 }} />
-									<stop offset="50%" style={{ stopColor: '#14b8a6', stopOpacity: 0.9 }} />
-									<stop offset="100%" style={{ stopColor: '#10b981', stopOpacity: 0.8 }} />
-								</linearGradient>
-							</defs>
-							<rect width="100" height="8" fill="url(#grad3)" />
-							<path
-								d="M 5 6 L 20 2 M 25 6 L 40 2 M 45 6 L 60 2 M 65 6 L 80 2 M 85 6 L 95 3"
-								stroke="#34d399"
-								strokeWidth="0.8"
-								strokeLinecap="round"
-							/>
-						</svg>
-						<div
-							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
-							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
-						>
-							<HiOutlinePencil className="h-[30px] w-[30px]" />
-							<h3 className="text-lg mt-1 ml-3">Write Quick Journal</h3>
-						</div>
-					</div>
-				</Link>
-				<Link href="/dashboard/journal">
-					<div className="relative">
-						<svg
-							className="absolute -top-2 left-0 w-full h-2"
-							viewBox="0 0 100 8"
-							preserveAspectRatio="none"
-						>
-							<defs>
-								<linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="0%">
-									<stop offset="0%" style={{ stopColor: '#f59e0b', stopOpacity: 0.8 }} />
-									<stop offset="50%" style={{ stopColor: '#eab308', stopOpacity: 0.9 }} />
-									<stop offset="100%" style={{ stopColor: '#f59e0b', stopOpacity: 0.8 }} />
-								</linearGradient>
-							</defs>
-							<rect width="100" height="8" fill="url(#grad4)" />
-							<path
-								d="M 0 4 L 15 2 L 30 6 L 45 3 L 60 5 L 75 2 L 90 6 L 100 4"
-								stroke="#fbbf24"
-								strokeWidth="0.6"
-								fill="none"
-							/>
-						</svg>
-						<div
-							className="text-gray-100 h-[80px] bg-slate-800 border-2 border-slate-600 pt-4 pl-4 flex transition-colors hover:bg-slate-700 hover:text-blue-400"
-							style={{ boxShadow: '0 6px 14px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)' }}
-						>
-							<HiOutlineBookOpen className="h-[30px] w-[30px]" />
-							<h3 className="text-lg mt-1 ml-3">View Journal Entries</h3>
-						</div>
-					</div>
-				</Link>
+				<DashboardCard
+					href="/dashboard/journal/newJournal"
+					imageSrc="https://mray-dev-resources.s3.us-east-2.amazonaws.com/ittero/wave-outline.png"
+					title={
+						<>
+							Write Quick
+							<br />
+							Journal
+						</>
+					}
+					icon={<PencilSquareIcon />}
+					iconColor="text-yellow-400"
+					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
+				/>
+				<DashboardCard
+					href="/dashboard/journal"
+					imageSrc="https://mray-dev-resources.s3.us-east-2.amazonaws.com/ittero/meditation-outline.png"
+					title={
+						<>
+							View Journal
+							<br />
+							Entries
+						</>
+					}
+					icon={<BookOpenIcon />}
+					iconColor="text-yellow-400"
+					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
+				/>
 				<div className="md:col-span-2 border-t-2 border-slate-600 my-4"></div>
 				<Link href="/dashboard/stats">
 					<div className="relative">

@@ -17,6 +17,15 @@ interface JournalEntry {
 	tag?: string
 }
 
+interface FullEntry {
+	entry_id: string
+	date: string
+	text: string
+	tag?: string
+	user_id?: string
+	createdAt?: string
+}
+
 export default function JournalEntriesClient() {
 	const [entries, setEntries] = useState<JournalEntry[]>([])
 	const [loading, setLoading] = useState(true)
@@ -56,7 +65,17 @@ export default function JournalEntriesClient() {
 				}
 
 				const data = await response.json()
+				console.log('Full API response:', data)
+				console.log('data.entries:', data.entries)
+
 				const fetchedEntries = data.entries || []
+				console.log('fetchedEntries:', fetchedEntries)
+				console.log('fetchedEntries length:', fetchedEntries.length)
+
+				if (fetchedEntries.length > 0) {
+					console.log('First entry structure:', fetchedEntries[0])
+					console.log('First entry keys:', Object.keys(fetchedEntries[0]))
+				}
 
 				// Sort entries in reverse chronological order (newest first)
 				const sortedEntries = fetchedEntries.sort((a: JournalEntry, b: JournalEntry) => {
@@ -109,7 +128,7 @@ export default function JournalEntriesClient() {
 		fetchJournalEntries(true, nextToken)
 	}
 
-	const handleModalUpdate = (updated: { date: string; text: string; tag?: string }) => {
+	const handleModalUpdate = (updated: FullEntry) => {
 		setEntries((prev) =>
 			prev.map((e) =>
 				e.entry_id === selectedEntryId
@@ -179,10 +198,14 @@ export default function JournalEntriesClient() {
 								<MdRefresh className={`w-6 h-6 text-white ${loading ? 'animate-spin' : ''}`} />
 							</button>
 						</div>
-						{entries.map((entry, index) => (
+						{entries.map((entry) => (
 							<div
-								key={index}
-								onClick={() => setSelectedEntryId(entry.entry_id)}
+								key={entry.entry_id}
+								onClick={() => {
+									console.log('Entry clicked, entry_id:', entry.entry_id)
+									setSelectedEntryId(entry.entry_id)
+									console.log('selectedEntryId set to:', entry.entry_id)
+								}}
 								className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg transition-all cursor-pointer"
 							>
 								<div className="flex justify-between items-start">
@@ -222,6 +245,7 @@ export default function JournalEntriesClient() {
 				)}
 			</div>
 
+			{console.log('Current selectedEntryId:', selectedEntryId)}
 			{selectedEntryId && (
 				<JournalEntryModal
 					entryId={selectedEntryId}
