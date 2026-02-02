@@ -150,6 +150,55 @@ export function useToggleItemCompletion(listId: string) {
 	})
 }
 
+// Update item mutation
+export function useUpdateItem(listId: string) {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async ({
+			itemId,
+			updates
+		}: {
+			itemId: string
+			updates: Partial<Omit<TodoItem, 'id' | 'listId' | 'createdAt' | 'updatedAt'>>
+		}) => {
+			const response = await fetch(`/api/lists/items/${itemId}`, {
+				method: 'PATCH',
+				credentials: 'include',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(updates)
+			})
+
+			if (!response.ok) {
+				throw new Error('Failed to update item')
+			}
+
+			return response.json()
+		},
+		// Optimistic update
+		onMutate: async ({ itemId, updates }) => {
+			await queryClient.cancelQueries({ queryKey: ['items', listId] })
+
+			const previousItems = queryClient.getQueryData(['items', listId])
+
+			queryClient.setQueryData(['items', listId], (old: TodoItem[] | undefined) => {
+				if (!old) return old
+				return old.map((item) => (item.id === itemId ? { ...item, ...updates } : item))
+			})
+
+			return { previousItems }
+		},
+		onError: (err, variables, context) => {
+			if (context?.previousItems) {
+				queryClient.setQueryData(['items', listId], context.previousItems)
+			}
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ['items', listId] })
+		}
+	})
+}
+
 // Delete item mutation
 export function useDeleteItem(listId: string) {
 	const queryClient = useQueryClient()

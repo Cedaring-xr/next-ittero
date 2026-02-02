@@ -14,6 +14,7 @@ import ElegantButton from '@/ui/elegant-button'
 import Modal from '@/ui/modal'
 import ConfirmModal from '@/ui/confirm-modal'
 import TaskFormFields from '@/ui/task-form-fields'
+import TaskItemModal from '@/ui/lists/task-item-modal'
 import { formatDate } from '@/utils/helpers/date-and-time'
 import { usePinnedLists } from '@/contexts/PinnedListsContext'
 import {
@@ -74,6 +75,7 @@ export default function ListDetailPage(): JSX.Element {
 	const [itemToDelete, setItemToDelete] = useState<string | null>(null)
 	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
 	const [isCompletedExpanded, setIsCompletedExpanded] = useState<boolean>(false)
+	const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
 
 	const isLoading = listLoading || itemsLoading
 	const error = listError || itemsError
@@ -140,6 +142,16 @@ export default function ListDetailPage(): JSX.Element {
 	const handleDeleteCancel = () => {
 		setDeleteConfirmOpen(false)
 		setItemToDelete(null)
+	}
+
+	const handleItemClick = (itemId: string) => {
+		setSelectedItemId(itemId)
+	}
+
+	const handleModalUpdate = (updated: TodoItem) => {
+		// The React Query cache will be automatically updated by the mutation
+		// We just need to close the modal
+		setSelectedItemId(null)
 	}
 
 	const handleTogglePin = async () => {
@@ -359,11 +371,15 @@ export default function ListDetailPage(): JSX.Element {
 							{activeTodos.map((item) => (
 								<div
 									key={item.id}
-									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors"
+									onClick={() => handleItemClick(item.id)}
+									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors cursor-pointer"
 								>
 									<div className="flex items-start gap-2">
 										<button
-											onClick={() => handleToggleComplete(item.id)}
+											onClick={(e) => {
+												e.stopPropagation()
+												handleToggleComplete(item.id)
+											}}
 											className="flex-shrink-0 w-5 h-5 mt-0.5 border-2 border-gray-400 rounded hover:border-indigo-500 transition-colors"
 											aria-label="Mark as complete"
 										/>
@@ -387,7 +403,10 @@ export default function ListDetailPage(): JSX.Element {
 											)}
 										</div>
 										<button
-											onClick={() => handleDeleteClick(item.id)}
+											onClick={(e) => {
+												e.stopPropagation()
+												handleDeleteClick(item.id)
+											}}
 											className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 											aria-label="Delete todo"
 										>
@@ -428,11 +447,15 @@ export default function ListDetailPage(): JSX.Element {
 							{completedTodos.map((item) => (
 								<div
 									key={item.id}
-									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors"
+									onClick={() => handleItemClick(item.id)}
+									className="bg-slate-700 rounded-md p-3 hover:bg-slate-600 transition-colors cursor-pointer"
 								>
 									<div className="flex items-start gap-2">
 										<button
-											onClick={() => handleToggleComplete(item.id)}
+											onClick={(e) => {
+												e.stopPropagation()
+												handleToggleComplete(item.id)
+											}}
 											className="flex-shrink-0 w-5 h-5 mt-0.5 bg-green-500 rounded flex items-center justify-center hover:bg-green-600 transition-colors"
 											aria-label="Mark as incomplete"
 										>
@@ -458,7 +481,10 @@ export default function ListDetailPage(): JSX.Element {
 											)}
 										</div>
 										<button
-											onClick={() => handleDeleteClick(item.id)}
+											onClick={(e) => {
+												e.stopPropagation()
+												handleDeleteClick(item.id)
+											}}
 											className="flex-shrink-0 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
 											aria-label="Delete todo"
 										>
@@ -528,6 +554,15 @@ export default function ListDetailPage(): JSX.Element {
 				variant="danger"
 				isLoading={deleteItemMutation.isPending}
 			/>
+
+			{/* Task Item Modal */}
+			{selectedItemId && (
+				<TaskItemModal
+					itemId={selectedItemId}
+					onClose={() => setSelectedItemId(null)}
+					onUpdate={handleModalUpdate}
+				/>
+			)}
 		</div>
 	)
 }
