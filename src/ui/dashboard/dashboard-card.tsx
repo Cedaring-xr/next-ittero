@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import React from 'react'
 
 interface DashboardCardProps {
 	href: string
 	imageSrc: string
 	title: React.ReactNode
 	icon: React.ReactNode
+	alt: string
 	iconColor: string
 	glowColor: string
 }
@@ -15,6 +17,7 @@ export default function DashboardCard({
 	imageSrc,
 	title,
 	icon,
+	alt,
 	iconColor,
 	glowColor
 }: DashboardCardProps) {
@@ -28,7 +31,7 @@ export default function DashboardCard({
 					width={800}
 					height={533}
 					className="w-full h-auto transition-transform duration-300"
-					alt={title}
+					alt={alt}
 					priority
 				/>
 				<div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 md:hover:opacity-100 active:opacity-100 transition-opacity duration-300"></div>

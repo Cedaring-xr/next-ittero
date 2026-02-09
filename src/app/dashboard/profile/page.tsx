@@ -8,6 +8,12 @@ import DeleteAccountForm from '@/ui/profile-settings/delete-account-form'
 import { getAuthenticatedUser } from '@/utils/amplify-server-utils'
 import UserCircleIcon from '@heroicons/react/24/outline/UserCircleIcon'
 import CogIcon from '@heroicons/react/24/outline/CogIcon'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+	title: 'Profile Settings - Ittero',
+	description: 'Manage your account settings, preferences, and notifications.'
+}
 
 export default async function Profile() {
 	const user = await getAuthenticatedUser()

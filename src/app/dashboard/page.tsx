@@ -43,6 +43,7 @@ export default async function Dashboard() {
 					imageSrc="https://mray-dev-resources.s3.us-east-2.amazonaws.com/ittero/flatirons.png"
 					title="Create New List"
 					icon={<SparklesIcon />}
+					alt="Flatiron mountain outline"
 					iconColor="text-yellow-400"
 					glowColor="md:hover:shadow-blue-500/50 active:shadow-blue-500/50"
 				/>
@@ -57,6 +58,7 @@ export default async function Dashboard() {
 						</>
 					}
 					icon={<ClipboardDocumentListIcon />}
+					alt="Mountain summit outline"
 					iconColor="text-yellow-400"
 					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
 				/>
@@ -72,6 +74,7 @@ export default async function Dashboard() {
 						</>
 					}
 					icon={<PencilSquareIcon />}
+					alt="Ocean wave outline"
 					iconColor="text-yellow-400"
 					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
 				/>
@@ -86,6 +89,7 @@ export default async function Dashboard() {
 						</>
 					}
 					icon={<BookOpenIcon />}
+					alt="Person meditating outline"
 					iconColor="text-yellow-400"
 					glowColor="md:hover:shadow-cyan-500/50 active:shadow-cyan-500/50"
 				/>
