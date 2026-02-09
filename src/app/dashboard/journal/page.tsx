@@ -4,6 +4,12 @@ import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
 import { getAuthenticatedUser } from '@/utils/amplify-server-utils'
 import JournalEntriesClient from '@/ui/journal/journal-entries-client'
 import JournalActivityChart from '@/ui/journal/journal-activity-chart'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+	title: 'Journal - Ittero',
+	description: 'View and manage your personal journal entries.'
+}
 
 export default async function JournalPage() {
 	const user = await getAuthenticatedUser()
