@@ -8,10 +8,19 @@ import { test, expect } from '@playwright/test'
 test.describe('Journal Entry by ID API', () => {
 	test.describe('GET /api/journal/{entryId}', () => {
 		test('[JOURNAL-API-013] should get a single journal entry by ID', async ({ request }) => {
-			// First fetch all entries to get an existing entry ID
-			const listResponse = await request.get('/api/journal?limit=10')
-			const listData = await listResponse.json()
-			const entryId = listData.entries[0].entry_id
+			// Create a new entry first
+			const newEntry = {
+				date: new Date().toISOString().split('T')[0],
+				text: 'Original text for PATCH test',
+				tag: 'original'
+			}
+
+			const createResponse = await request.post('/api/journal', {
+				data: newEntry
+			})
+
+			const createData = await createResponse.json()
+			const entryId = createData.data.entry_id
 
 			// Now fetch that specific entry by ID
 			const getResponse = await request.get(`/api/journal/${entryId}`)

@@ -1,87 +1,97 @@
-# Scripts
+# Accessibility Debug Scripts
 
-This directory contains utility scripts for the Ittero project.
+## debug-a11y.ts
 
-## Available Scripts
+A comprehensive tool for debugging accessibility violations in your application.
 
-### compile-test-cases.ts
+### Quick Start
 
-Compiles all test case documentation from `tests/test-cases/**/*.md` into a single JSON file.
-
-**Usage:**
 ```bash
-npm run test:compile-cases
+# Test a public page
+npx tsx scripts/debug-a11y.ts /auth/login
+
+# Test an authenticated page
+npx tsx scripts/debug-a11y.ts /dashboard --authenticated
+
+# Test with user interaction (e.g., trigger form validation)
+npx tsx scripts/debug-a11y.ts /auth/login --click "button:has-text('Log in')"
+
+# Filter by specific rule
+npx tsx scripts/debug-a11y.ts /auth/login --rule color-contrast
+
+# Filter by severity level
+npx tsx scripts/debug-a11y.ts /dashboard --authenticated --impact serious
 ```
 
-**Output:**
-- File: `tests/compiled-test-cases.json`
-- Format: Structured JSON with test cases organized by category
+### All Options
 
-**Output Structure:**
-```json
-{
-  "generatedAt": "2026-01-30T19:40:50.040Z",
-  "totalTestCases": 42,
-  "categories": {
-    "e2e": {
-      "count": 42,
-      "testCases": [
-        {
-          "id": "AUTH-001",
-          "title": "Navigate to Sign-In Page",
-          "status": "Completed",
-          "priority": "high",
-          "testSuite": "smoke",
-          "description": "...",
-          "preconditions": ["..."],
-          "testSteps": ["..."],
-          "expectedResult": "...",
-          "playwrightFile": "tests/auth/signin.spec.ts",
-          "category": "e2e",
-          "filePath": "tests/test-cases/e2e/auth.md"
-        }
-      ]
-    }
-  },
-  "statusSummary": {
-    "Completed": 12,
-    "Planned": 17,
-    "Future Content": 8,
-    "Skipped": 1
-  },
-  "prioritySummary": {
-    "high": 25,
-    "medium": 9,
-    "low": 8
-  }
-}
-```
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--authenticated` | Use logged-in user session | `--authenticated` |
+| `--admin` | Use admin session | `--admin` |
+| `--click "selector"` | Click element before scan | `--click "button:has-text('Submit')"` |
+| `--type "sel" "text"` | Type into input before scan | `--type "#email" "test@example.com"` |
+| `--rule "rule-id"` | Only show specific rule | `--rule color-contrast` |
+| `--impact "level"` | Filter by severity | `--impact serious` |
+| `--headless` | Run without visible browser | `--headless` |
 
-**Use Case:**
-- Share test case documentation with other projects
-- Generate reports from test case data
-- Track test coverage across different categories
-- Export test specifications for external tools
+### Common Use Cases
 
----
-
-### generate-test-results.ts
-
-Compiles test execution results into a single JSON file.
-
-**Usage:**
+#### 1. Debug form validation errors
 ```bash
-npm run test:generate-results
+npx tsx scripts/debug-a11y.ts /auth/signup --click "button:has-text('Create account')"
 ```
 
-**Output:**
-- File: `test-results.json`
-- Format: Test execution results with pass/fail status
+#### 2. Check color contrast issues
+```bash
+npx tsx scripts/debug-a11y.ts /dashboard --authenticated --rule color-contrast
+```
 
----
+#### 3. Debug authenticated pages
+```bash
+npx tsx scripts/debug-a11y.ts /dashboard/profile --authenticated
+```
 
-## Notes
+#### 4. Check for missing labels
+```bash
+npx tsx scripts/debug-a11y.ts /auth/login --rule label
+```
 
-- Both output files (`compiled-test-cases.json` and `test-results.json`) are included in `.gitignore`
-- Scripts use `tsx` to execute TypeScript directly without compilation
-- All scripts can be run from the project root using npm scripts
+#### 5. Find all critical issues
+```bash
+npx tsx scripts/debug-a11y.ts /dashboard --authenticated --impact critical
+```
+
+### Common Rule IDs
+
+- `color-contrast` - Text color doesn't contrast enough with background
+- `document-title` - Missing or empty page title
+- `html-has-lang` - Missing lang attribute on html element
+- `button-name` - Button missing accessible name
+- `image-alt` - Image missing alt text
+- `label` - Form input missing label
+- `link-name` - Link missing accessible text
+- `aria-required-attr` - Missing required ARIA attributes
+- `tabindex` - Tabindex value greater than 0
+
+### Output Explanation
+
+The script provides detailed information for each violation:
+
+- **Rule**: The accessibility rule that was violated
+- **Impact**: Severity level (critical, serious, moderate, minor)
+- **Description**: What the rule checks for
+- **Help**: How to fix the issue
+- **Learn more**: Link to full documentation
+- **Selector**: CSS selector to find the element
+- **HTML**: The actual HTML of the problematic element
+- **Failure**: Detailed explanation of what's wrong
+- **Fix suggestions**: Specific steps to resolve the issue
+
+### Tips
+
+1. **Run without --headless** (default) to keep the browser open for manual inspection
+2. **Use browser DevTools** (F12) while the browser is open to inspect elements
+3. **Start with --impact critical** to focus on the most important issues
+4. **Use --rule** to debug specific types of issues
+5. **Check the helpUrl** links for detailed WCAG documentation

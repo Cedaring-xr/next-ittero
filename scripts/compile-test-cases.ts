@@ -44,7 +44,7 @@ function parseTestCaseFile(filePath: string, category: string): TestCase[] {
 
 	// Split by test case headers (### TEST-ID: Title)
 	const testCasePattern = /^### ([A-Z]+-\d+): (.+)$/gm
-	const matches = [...content.matchAll(testCasePattern)]
+	const matches = Array.from(content.matchAll(testCasePattern))
 
 	for (let i = 0; i < matches.length; i++) {
 		const match = matches[i]
@@ -112,7 +112,7 @@ function extractListItems(content: string, fieldName: string): string[] {
 
 	// Match both numbered (1. 2. 3.) and bulleted (- *) lists
 	const itemPattern = /^[\s]*(?:\d+\.|-)\s*(.+)$/gm
-	const itemMatches = [...listContent.matchAll(itemPattern)]
+	const itemMatches = Array.from(listContent.matchAll(itemPattern))
 
 	for (const itemMatch of itemMatches) {
 		items.push(itemMatch[1].trim())

@@ -15,7 +15,7 @@ function Footer() {
 							List, Iterate, Improve. Your personal journal and task management platform to help you track
 							progress, reflect on your journey, and achieve your goals.
 						</p>
-						<div className="text-xs text-gray-200">Version 1.02.1</div>
+						<div className="text-xs text-gray-300">Version 1.02.1</div>
 					</div>
 
 					{/* Quick Links */}
