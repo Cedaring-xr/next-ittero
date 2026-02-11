@@ -1,11 +1,15 @@
 'use client'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import { PlusIcon, XMarkIcon, UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
+import { HiOutlineClipboardList } from 'react-icons/hi'
 import ElegantButton from '@/ui/elegant-button'
 import { useCreateList } from '@/app/hooks/use-lists-queries'
+import useAuthUser from '@/app/hooks/user-auth-user'
 
 export default function NewListPage() {
+	const user = useAuthUser()
 	const [listName, setListName] = useState('')
 	const [listDescription, setListDescription] = useState('')
 	const [category, setCategory] = useState('')
@@ -55,10 +59,31 @@ export default function NewListPage() {
 	}
 
 	return (
-		<div className="max-w-3xl mx-auto p-6">
-			<h1 className="font-lusitana text-3xl font-bold mb-6 text-slate-900">Create New List</h1>
+		<main>
+			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
+				<div className="flex ml-4">
+					<HiOutlineClipboardList className="h-[30px] w-[30px]" />
+					<h1 className="md:text-xl ml-2">Create New List</h1>
+				</div>
+				<div className="flex items-center mr-4 gap-4">
+					<div className="flex items-center">
+						<UserCircleIcon className="w-6 mr-1" />
+						<h2>{user?.name || user?.username}</h2>
+					</div>
+					<div className="h-6 w-px bg-slate-400"></div>
+					<Link
+						id="profile-settings"
+						href="/dashboard/profile"
+						className="hover:text-[#39CCCC] transition-colors p-1 hover:bg-slate-800 rounded"
+						aria-label="Profile settings"
+					>
+						<CogIcon className="w-6 h-6" />
+					</Link>
+				</div>
+			</div>
 
-			<form onSubmit={handleSubmit} className="bg-slate-700 rounded-lg shadow-lg p-6 space-y-6">
+			<div className="max-w-3xl mx-auto p-6">
+				<form onSubmit={handleSubmit} className="bg-slate-700 rounded-lg shadow-lg p-6 space-y-6">
 				{/* List Name */}
 				<div>
 					<label htmlFor="listName" className="block text-sm font-medium text-gray-200 mb-2">
@@ -186,6 +211,7 @@ export default function NewListPage() {
 					</ElegantButton>
 				</div>
 			</form>
-		</div>
+			</div>
+		</main>
 	)
 }
