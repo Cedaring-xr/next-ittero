@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, CogIcon, TrashIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -18,9 +18,10 @@ import { CSS } from '@dnd-kit/utilities'
 import { formatDate } from '@/utils/helpers/date-and-time'
 import { type ListEntry } from '@/utils/api/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
+import ConfirmModal from '@/ui/confirm-modal'
 
 // Sortable List Item Component
-function SortableListItem({ list }: { list: ListEntry }) {
+function SortableListItem({ list, onDelete }: { list: ListEntry; onDelete: (e: React.MouseEvent, listId: string) => void }) {
 	const router = useRouter()
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: list.id
@@ -83,7 +84,16 @@ function SortableListItem({ list }: { list: ListEntry }) {
 						</div>
 						<h3 className="text-white font-bold text-xl md:text-2xl underline">{list.title}</h3>
 					</div>
-					<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+					<div className="flex items-center gap-2">
+						<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+						<button
+							onClick={(e) => onDelete(e, list.id)}
+							className="p-1.5 rounded hover:bg-slate-700 text-gray-400 hover:text-red-400 transition-colors"
+							aria-label="Delete list"
+						>
+							<TrashIcon className="w-4 h-4" />
+						</button>
+					</div>
 				</div>
 				<div className="flex justify-between mt-1 ml-8">
 					<p className="text-white mb-4 italic">{list.description}</p>
@@ -122,6 +132,8 @@ export default function Lists() {
 
 	// Local state for drag and drop reordering
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
+	const [listToDelete, setListToDelete] = useState<string | null>(null)
+	const [deleting, setDeleting] = useState(false)
 
 	// Update local state when data is fetched
 	useEffect(() => {
@@ -162,6 +174,42 @@ export default function Lists() {
 
 	const handleItemCreate = () => {
 		router.push('/dashboard/lists/items')
+	}
+
+	const handleDeleteClick = (e: React.MouseEvent, listId: string) => {
+		e.stopPropagation()
+		setListToDelete(listId)
+	}
+
+	const handleDeleteConfirm = async () => {
+		if (!listToDelete) return
+		setDeleting(true)
+
+		try {
+			const response = await fetch(`/api/lists/${listToDelete}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' }
+			})
+
+			if (!response.ok) {
+				throw new Error('Failed to delete list')
+			}
+
+			const data = await response.json()
+			console.log(`List deleted successfully. ${data.itemsDeleted} items deleted.`)
+
+			if (data.itemsFailed > 0) {
+				console.warn(`${data.itemsFailed} items failed to delete`)
+			}
+
+			setUserLists((prev) => prev.filter((list) => list.id !== listToDelete))
+			setListToDelete(null)
+		} catch (err) {
+			console.error('Error deleting list:', err)
+			setListToDelete(null)
+		} finally {
+			setDeleting(false)
+		}
 	}
 
 	const error = queryError ? (queryError as Error).message : null
@@ -236,7 +284,7 @@ export default function Lists() {
 							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 								<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
 									{userLists.map((list) => (
-										<SortableListItem key={list.id} list={list} />
+										<SortableListItem key={list.id} list={list} onDelete={handleDeleteClick} />
 									))}
 								</SortableContext>
 							</DndContext>
@@ -244,6 +292,17 @@ export default function Lists() {
 					)}
 				</div>
 			</div>
+
+			<ConfirmModal
+				isOpen={!!listToDelete}
+				onClose={() => setListToDelete(null)}
+				onConfirm={handleDeleteConfirm}
+				title="Delete List"
+				message="Are you sure you want to delete this list? All tasks in this list will also be permanently deleted. This action cannot be undone."
+				confirmText="Delete"
+				variant="danger"
+				isLoading={deleting}
+			/>
 		</main>
 	)
 }
