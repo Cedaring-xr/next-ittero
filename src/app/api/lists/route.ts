@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 		})
 
 		const body = await request.json()
-		const { title, description, category, tags } = body
+		const { title, description, category, tags, id, pinned, isSystem } = body
 
 		// Validation
 		if (!title) {
@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
 		const currentDate = new Date().toISOString()
 
 		// Prepare list data for AWS API Gateway
-		// Note: Lambda will generate the 'list-id' partition key
+		// Note: Lambda will generate the 'list-id' partition key unless 'id' is provided
 		// Note: DynamoDB expects 'name' field, but we use 'title' in the frontend API
-		const listData = {
+		const listData: any = {
 			user: user.userId,
 			name: title.trim(), // Required by DynamoDB
 			title: title.trim(), // Frontend field name
@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
 			createdAt: currentDate,
 			updatedAt: currentDate
 		}
+
+		// Optional fields
+		if (id) listData.id = id // Allow explicit ID (for system lists)
+		if (pinned !== undefined) listData.pinned = pinned
+		if (isSystem !== undefined) listData.isSystem = isSystem
 
 		const apiGatewayUrl = process.env.TASKS_API_GATEWAY_LISTS_URL
 
