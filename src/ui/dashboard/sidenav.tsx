@@ -16,6 +16,7 @@ import useAuthUser from '@/app/hooks/user-auth-user'
 import { usePinnedLists } from '@/contexts/PinnedListsContext'
 import { useState } from 'react'
 import ConfirmModal from '@/ui/confirm-modal'
+import ErrorAlert from '@/ui/error-alert'
 
 export default function SideNav() {
 	const user = useAuthUser()
@@ -23,6 +24,7 @@ export default function SideNav() {
 	const { pinnedLists, unpinList } = usePinnedLists()
 	const [unpinConfirmOpen, setUnpinConfirmOpen] = useState(false)
 	const [listToUnpin, setListToUnpin] = useState<{ id: string; title: string } | null>(null)
+	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
 	const handleUnpinClick = (e: React.MouseEvent, listId: string, listTitle: string) => {
 		e.preventDefault()
@@ -40,6 +42,9 @@ export default function SideNav() {
 			setListToUnpin(null)
 		} catch (error) {
 			console.error('Error unpinning list:', error)
+			setUnpinConfirmOpen(false)
+			setListToUnpin(null)
+			setErrorMessage(error instanceof Error ? error.message : 'Failed to unpin list')
 		}
 	}
 
@@ -49,12 +54,16 @@ export default function SideNav() {
 	}
 
 	return (
-		<nav aria-label='main navigation'
-			className={clsx(
-				'flex h-full flex-col transition-all duration-300 relative',
-				isCollapsed ? 'w-16' : 'w-full md:w-56'
-			)}
-		>
+		<>
+			{/* Error Alert */}
+			{errorMessage && <ErrorAlert message={errorMessage} onClose={() => setErrorMessage(null)} />}
+
+			<nav aria-label='main navigation'
+				className={clsx(
+					'flex h-full flex-col transition-all duration-300 relative',
+					isCollapsed ? 'w-16' : 'w-full md:w-56'
+				)}
+			>
 			<div className="flex h-full flex-col bg-gradient-to-br from-[#1e3a5f] to-slate-900">
 				<button
 					onClick={() => setIsCollapsed(!isCollapsed)}
@@ -104,13 +113,16 @@ export default function SideNav() {
 									>
 										<BsPinAngle className="w-5 h-5 flex-shrink-0" />
 										<span className="truncate flex-1">{list.title}</span>
-										<button
-											onClick={(e) => handleUnpinClick(e, list.id, list.title)}
-											className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-600 rounded"
-											title="Unpin from sidebar"
-										>
-											<XMarkIcon className="w-4 h-4" />
-										</button>
+										{/* Only show unpin button for non-system lists */}
+										{!list.isSystem && (
+											<button
+												onClick={(e) => handleUnpinClick(e, list.id, list.title)}
+												className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-600 rounded"
+												title="Unpin from sidebar"
+											>
+												<XMarkIcon className="w-4 h-4" />
+											</button>
+										)}
 									</Link>
 								))}
 							</div>
@@ -157,5 +169,6 @@ export default function SideNav() {
 				</div>
 			</div>
 		</nav>
+		</>
 	)
 }

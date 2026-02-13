@@ -22,6 +22,7 @@ import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 import DeleteListModal from '@/ui/delete-list-modal'
 import { useQueryClient } from '@tanstack/react-query'
 import { usePinnedLists } from '@/contexts/PinnedListsContext'
+import ErrorAlert from '@/ui/error-alert'
 
 // Sortable List Item Component
 function SortableListItem({
@@ -187,6 +188,7 @@ export default function Lists() {
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
 	const [listToDelete, setListToDelete] = useState<string | null>(null)
 	const [deleting, setDeleting] = useState(false)
+	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const unassignedCheckRef = React.useRef(false) // Prevent multiple simultaneous calls
 
 	// Update local state when data is fetched
@@ -297,7 +299,7 @@ export default function Lists() {
 		} catch (error) {
 			console.error('Error toggling pin:', error)
 			// Show error to user
-			alert(error instanceof Error ? error.message : 'Failed to update pin status')
+			setErrorMessage(error instanceof Error ? error.message : 'Failed to update pin status')
 		}
 	}
 
@@ -361,6 +363,9 @@ export default function Lists() {
 
 	return (
 		<main>
+			{/* Error Alert */}
+			{errorMessage && <ErrorAlert message={errorMessage} onClose={() => setErrorMessage(null)} />}
+
 			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
 				<div className="flex ml-4">
 					<HiOutlineClipboardList className="h-[30px] w-[30px]" />{' '}
