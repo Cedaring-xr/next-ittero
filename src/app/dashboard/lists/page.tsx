@@ -350,6 +350,9 @@ export default function Lists() {
 				})
 			}
 
+			// Invalidate queries to update sidebar and other components
+			await queryClient.invalidateQueries({ queryKey: ['lists'] })
+
 			setListToDelete(null)
 		} catch (err) {
 			console.error('Error deleting list:', err)
