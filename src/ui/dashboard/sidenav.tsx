@@ -87,10 +87,13 @@ export default function SideNav() {
 					{/* Pinned Lists Section */}
 					{!isCollapsed && pinnedLists.length > 0 && (
 						<div className="hidden md:block mt-8">
-							<div className="px-3 mb-2">
+							<div className="px-3 mb-2 flex items-center justify-between">
 								<h3 className="text-sm font-semibold text-gray-200 uppercase tracking-wider">
 									Pinned Lists
 								</h3>
+								<span className="text-xs text-gray-400">
+									{pinnedLists.length}/7
+								</span>
 							</div>
 							<div data-testid="sidebar-pinned-lists">
 								{pinnedLists.map((list) => (
