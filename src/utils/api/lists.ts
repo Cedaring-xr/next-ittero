@@ -23,6 +23,7 @@ export interface ListEntry {
 	tags: string[]
 	archived: boolean
 	pinned?: boolean
+	isSystem?: boolean // Marks system lists (e.g., "Unassigned Tasks") that cannot be deleted or renamed
 	createdAt: string
 	updatedAt: string
 	items?: TodoItem[]
@@ -155,6 +156,30 @@ export async function createListItem(itemData: {
 
 	if (!response.ok) {
 		throw new Error(data.error || 'Failed to create todo item')
+	}
+
+	return data
+}
+
+/**
+ * Gets or creates the system "Unassigned Tasks" list for the current user
+ * This list is automatically created on first access and cannot be deleted
+ * @returns Promise resolving to the unassigned list data
+ * @throws Error if the operation fails
+ */
+export async function getOrCreateUnassignedList(): Promise<{ list: ListEntry; created: boolean }> {
+	const response = await fetch('/api/lists/system/unassigned', {
+		method: 'GET',
+		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	})
+
+	const data = await response.json()
+
+	if (!response.ok) {
+		throw new Error(data.error || 'Failed to get or create unassigned list')
 	}
 
 	return data

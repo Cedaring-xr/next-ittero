@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { UserCircleIcon, CogIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, CogIcon, TrashIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -16,11 +16,13 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { formatDate } from '@/utils/helpers/date-and-time'
-import { type ListEntry } from '@/utils/api/lists'
+import { type ListEntry, getOrCreateUnassignedList } from '@/utils/api/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
+import DeleteListModal from '@/ui/delete-list-modal'
+import { useQueryClient } from '@tanstack/react-query'
 
 // Sortable List Item Component
-function SortableListItem({ list }: { list: ListEntry }) {
+function SortableListItem({ list, onDelete }: { list: ListEntry; onDelete: (e: React.MouseEvent, listId: string) => void }) {
 	const router = useRouter()
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: list.id
@@ -55,35 +57,65 @@ function SortableListItem({ list }: { list: ListEntry }) {
 	return (
 		<div ref={setNodeRef} style={style} {...attributes}>
 			<div
-				className="block mt-6 mb-2 p-4 bg-slate-800 border-4 border-slate-700 hover:border-indigo-500 hover:shadow-lg cursor-pointer transition-all"
+				className={`block mt-6 mb-2 p-4 border-4 transition-all ${
+					list.isSystem
+						? 'bg-slate-900 border-blue-600 hover:border-blue-500 cursor-pointer'
+						: 'bg-slate-800 border-slate-700 hover:border-indigo-500 hover:shadow-lg cursor-pointer'
+				}`}
 				onClick={handleClick}
 			>
 				<div className="flex justify-between items-start">
 					<div className="flex items-center gap-3 flex-1">
-						{/* Drag Handle */}
-						<div
-							{...listeners}
-							className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-white transition-colors"
-							onClick={(e) => e.preventDefault()}
-						>
-							<svg
-								className="w-5 h-5"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-								xmlns="http://www.w3.org/2000/svg"
+						{/* Drag Handle - only show for non-system lists */}
+						{!list.isSystem && (
+							<div
+								{...listeners}
+								className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-white transition-colors"
+								onClick={(e) => e.preventDefault()}
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M4 8h16M4 16h16"
-								/>
-							</svg>
-						</div>
+								<svg
+									className="w-5 h-5"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M4 8h16M4 16h16"
+									/>
+								</svg>
+							</div>
+						)}
+						{/* System list indicator */}
+						{list.isSystem && (
+							<div className="p-1 text-blue-400" title="System list - cannot be deleted">
+								<LockClosedIcon className="w-5 h-5" />
+							</div>
+						)}
 						<h3 className="text-white font-bold text-xl md:text-2xl underline">{list.title}</h3>
+						{/* System badge */}
+						{list.isSystem && (
+							<span className="px-2 py-1 text-xs font-semibold bg-blue-600 text-white rounded">
+								SYSTEM
+							</span>
+						)}
 					</div>
-					<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+					<div className="flex items-center gap-2">
+						<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+						{/* Only show delete button for non-system lists */}
+						{!list.isSystem && (
+							<button
+								onClick={(e) => onDelete(e, list.id)}
+								className="p-1.5 rounded hover:bg-slate-700 text-gray-400 hover:text-red-400 transition-colors"
+								aria-label="Delete list"
+							>
+								<TrashIcon className="w-4 h-4" />
+							</button>
+						)}
+					</div>
 				</div>
 				<div className="flex justify-between mt-1 ml-8">
 					<p className="text-white mb-4 italic">{list.description}</p>
@@ -116,12 +148,16 @@ function SortableListItem({ list }: { list: ListEntry }) {
 export default function Lists() {
 	const user = useAuthUser()
 	const router = useRouter()
+	const queryClient = useQueryClient()
 
-	// Fetch lists with React Query
-	const { data: fetchedLists, isLoading, error: queryError } = useListsWithItems()
+	// Fetch lists with React Query - refetch on mount to get fresh data when navigating back
+	const { data: fetchedLists, isLoading, error: queryError, refetch } = useListsWithItems()
 
 	// Local state for drag and drop reordering
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
+	const [listToDelete, setListToDelete] = useState<string | null>(null)
+	const [deleting, setDeleting] = useState(false)
+	const unassignedCheckRef = React.useRef(false) // Prevent multiple simultaneous calls
 
 	// Update local state when data is fetched
 	useEffect(() => {
@@ -129,6 +165,54 @@ export default function Lists() {
 			setUserLists(fetchedLists)
 		}
 	}, [fetchedLists])
+
+	// Refetch when component mounts (e.g., navigating back from list detail page)
+	useEffect(() => {
+		refetch()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	// Ensure the "Unassigned Tasks" system list exists for this user
+	useEffect(() => {
+		const ensureUnassignedList = async () => {
+			// Prevent multiple simultaneous calls
+			if (unassignedCheckRef.current) {
+				return
+			}
+			unassignedCheckRef.current = true
+
+			try {
+				// If we have fetchedLists data, check if unassigned list already exists
+				if (fetchedLists && fetchedLists.length > 0) {
+					const unassignedExists = fetchedLists.some(
+						(list) => list.isSystem === true && list.name === 'Unassigned Tasks'
+					)
+
+					if (unassignedExists) {
+						console.log('Unassigned list already exists (found in fetched data)')
+						return // No need to call the API
+					}
+				}
+
+				// Either fetchedLists is empty/failed, or unassigned list doesn't exist
+				// Call the endpoint to get or create it
+				const result = await getOrCreateUnassignedList()
+				if (result.created) {
+					console.log('Created unassigned list for user')
+				} else {
+					console.log('Unassigned list already exists')
+				}
+			} catch (err) {
+				console.error('Error ensuring unassigned list exists:', err)
+			}
+		}
+
+		// Only run once after initial load completes
+		if (!isLoading && fetchedLists !== undefined) {
+			ensureUnassignedList()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isLoading])
 
 	// Drag and drop sensors
 	const sensors = useSensors(
@@ -162,6 +246,67 @@ export default function Lists() {
 
 	const handleItemCreate = () => {
 		router.push('/dashboard/lists/items')
+	}
+
+	const handleDeleteClick = (e: React.MouseEvent, listId: string) => {
+		e.stopPropagation()
+		setListToDelete(listId)
+	}
+
+	const handleDeleteConfirm = async (mode: 'cascade' | 'reassign') => {
+		if (!listToDelete) return
+		setDeleting(true)
+
+		// Get the items from the list being deleted (before deletion)
+		const listBeingDeleted = userLists.find((list) => list.id === listToDelete)
+		const itemsToMove = listBeingDeleted?.items || []
+
+		try {
+			// For now, we only support cascade mode (reassign will be added in Phase 3)
+			const response = await fetch(`/api/lists/${listToDelete}?deleteMode=${mode}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' }
+			})
+
+			if (!response.ok) {
+				throw new Error('Failed to delete list')
+			}
+
+			const data = await response.json()
+
+			if (mode === 'cascade') {
+				console.log(`List deleted successfully. ${data.itemsDeleted} items deleted.`)
+				if (data.itemsFailed > 0) {
+					console.warn(`${data.itemsFailed} items failed to delete`)
+				}
+				// Remove the deleted list from state
+				setUserLists((prev) => prev.filter((list) => list.id !== listToDelete))
+			} else {
+				console.log(`List deleted. ${data.itemsReassigned || 0} items moved to Unassigned Tasks.`)
+				// Update state: remove deleted list and add items to Unassigned Tasks
+				setUserLists((prev) => {
+					return prev
+						.filter((list) => list.id !== listToDelete)
+						.map((list) => {
+							// Find the Unassigned Tasks list and add the items
+							if (list.isSystem && list.name === 'Unassigned Tasks') {
+								return {
+									...list,
+									items: [...(list.items || []), ...itemsToMove]
+								}
+							}
+							return list
+						})
+				})
+			}
+
+			setListToDelete(null)
+		} catch (err) {
+			console.error('Error deleting list:', err)
+			setListToDelete(null)
+		} finally {
+			setDeleting(false)
+		}
 	}
 
 	const error = queryError ? (queryError as Error).message : null
@@ -209,7 +354,12 @@ export default function Lists() {
 					Create tasks
 				</ElegantButton>
 			</div>
-			<h3 className="text-black text-3xl">Current Lists</h3>
+			<div className="flex items-center justify-between">
+				<h3 className="text-black text-3xl">Current Lists</h3>
+				<span className="text-gray-600 text-lg">
+					{isLoading ? '...' : `${fetchedLists?.length || 0} ${fetchedLists?.length === 1 ? 'list' : 'lists'}`}
+				</span>
+			</div>
 			<div className="font-lusitana font-bold p-6">
 				<div>
 					{isLoading ? (
@@ -236,7 +386,7 @@ export default function Lists() {
 							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 								<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
 									{userLists.map((list) => (
-										<SortableListItem key={list.id} list={list} />
+										<SortableListItem key={list.id} list={list} onDelete={handleDeleteClick} />
 									))}
 								</SortableContext>
 							</DndContext>
@@ -244,6 +394,14 @@ export default function Lists() {
 					)}
 				</div>
 			</div>
+
+			<DeleteListModal
+				isOpen={!!listToDelete}
+				onClose={() => setListToDelete(null)}
+				onConfirm={handleDeleteConfirm}
+				itemCount={userLists.find((list) => list.id === listToDelete)?.items?.length || 0}
+				isLoading={deleting}
+			/>
 		</main>
 	)
 }
