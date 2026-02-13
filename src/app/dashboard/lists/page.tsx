@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
 import { UserCircleIcon, CogIcon, TrashIcon, LockClosedIcon } from '@heroicons/react/24/outline'
+import { BsPinAngle, BsPinAngleFill } from 'react-icons/bs'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
 import useAuthUser from '@/app/hooks/user-auth-user'
@@ -20,9 +21,19 @@ import { type ListEntry, getOrCreateUnassignedList } from '@/utils/api/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 import DeleteListModal from '@/ui/delete-list-modal'
 import { useQueryClient } from '@tanstack/react-query'
+import { usePinnedLists } from '@/contexts/PinnedListsContext'
+import ErrorAlert from '@/ui/error-alert'
 
 // Sortable List Item Component
-function SortableListItem({ list, onDelete }: { list: ListEntry; onDelete: (e: React.MouseEvent, listId: string) => void }) {
+function SortableListItem({
+	list,
+	onDelete,
+	onTogglePin
+}: {
+	list: ListEntry
+	onDelete: (e: React.MouseEvent, listId: string) => void
+	onTogglePin: (e: React.MouseEvent, listId: string, currentPinned: boolean) => void
+}) {
 	const router = useRouter()
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: list.id
@@ -105,6 +116,25 @@ function SortableListItem({ list, onDelete }: { list: ListEntry; onDelete: (e: R
 					</div>
 					<div className="flex items-center gap-2">
 						<p className="text-white text-sm">{formatDate(list.updatedAt)}</p>
+						{/* Pin/Unpin button - all lists except system lists can be unpinned */}
+						{!list.isSystem && (
+							<button
+								onClick={(e) => onTogglePin(e, list.id, list.pinned || false)}
+								className={`p-1.5 rounded hover:bg-slate-700 transition-colors ${
+									list.pinned ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-400 hover:text-yellow-400'
+								}`}
+								aria-label={list.pinned ? 'Unpin list' : 'Pin list'}
+								title={list.pinned ? 'Unpin from sidebar' : 'Pin to sidebar'}
+							>
+								{list.pinned ? <BsPinAngleFill className="w-4 h-4" /> : <BsPinAngle className="w-4 h-4" />}
+							</button>
+						)}
+						{/* System lists show pinned indicator but no button */}
+						{list.isSystem && list.pinned && (
+							<div className="p-1.5 text-yellow-400" title="Always pinned">
+								<BsPinAngleFill className="w-4 h-4" />
+							</div>
+						)}
 						{/* Only show delete button for non-system lists */}
 						{!list.isSystem && (
 							<button
@@ -149,6 +179,7 @@ export default function Lists() {
 	const user = useAuthUser()
 	const router = useRouter()
 	const queryClient = useQueryClient()
+	const { pinList, unpinList, pinnedLists } = usePinnedLists()
 
 	// Fetch lists with React Query - refetch on mount to get fresh data when navigating back
 	const { data: fetchedLists, isLoading, error: queryError, refetch } = useListsWithItems()
@@ -157,6 +188,7 @@ export default function Lists() {
 	const [userLists, setUserLists] = useState<ListEntry[]>([])
 	const [listToDelete, setListToDelete] = useState<string | null>(null)
 	const [deleting, setDeleting] = useState(false)
+	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const unassignedCheckRef = React.useRef(false) // Prevent multiple simultaneous calls
 
 	// Update local state when data is fetched
@@ -253,6 +285,24 @@ export default function Lists() {
 		setListToDelete(listId)
 	}
 
+	const handleTogglePin = async (e: React.MouseEvent, listId: string, currentPinned: boolean) => {
+		e.stopPropagation()
+
+		try {
+			if (currentPinned) {
+				await unpinList(listId)
+			} else {
+				await pinList(listId)
+			}
+			// Refetch to get updated lists
+			await refetch()
+		} catch (error) {
+			console.error('Error toggling pin:', error)
+			// Show error to user
+			setErrorMessage(error instanceof Error ? error.message : 'Failed to update pin status')
+		}
+	}
+
 	const handleDeleteConfirm = async (mode: 'cascade' | 'reassign') => {
 		if (!listToDelete) return
 		setDeleting(true)
@@ -313,6 +363,9 @@ export default function Lists() {
 
 	return (
 		<main>
+			{/* Error Alert */}
+			{errorMessage && <ErrorAlert message={errorMessage} onClose={() => setErrorMessage(null)} />}
+
 			<div className="flex justify-between bg-gradient-to-br from-[#1e3a5f] to-slate-900 text-white px-6 py-4 -mx-6 -mt-6 mb-6 w-[calc(100%+3rem)]">
 				<div className="flex ml-4">
 					<HiOutlineClipboardList className="h-[30px] w-[30px]" />{' '}
@@ -356,9 +409,17 @@ export default function Lists() {
 			</div>
 			<div className="flex items-center justify-between">
 				<h3 className="text-black text-3xl">Current Lists</h3>
-				<span className="text-gray-600 text-lg">
-					{isLoading ? '...' : `${fetchedLists?.length || 0} ${fetchedLists?.length === 1 ? 'list' : 'lists'}`}
-				</span>
+				<div className="flex items-center gap-4">
+					<span className="text-gray-600 text-sm flex items-center gap-1">
+						<BsPinAngleFill className="w-4 h-4 text-yellow-500" />
+						<span className="font-semibold">
+							{isLoading ? '...' : `${pinnedLists.length}/7 pinned`}
+						</span>
+					</span>
+					<span className="text-gray-600 text-lg">
+						{isLoading ? '...' : `${fetchedLists?.length || 0} ${fetchedLists?.length === 1 ? 'list' : 'lists'}`}
+					</span>
+				</div>
 			</div>
 			<div className="font-lusitana font-bold p-6">
 				<div>
@@ -386,7 +447,12 @@ export default function Lists() {
 							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 								<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
 									{userLists.map((list) => (
-										<SortableListItem key={list.id} list={list} onDelete={handleDeleteClick} />
+										<SortableListItem
+											key={list.id}
+											list={list}
+											onDelete={handleDeleteClick}
+											onTogglePin={handleTogglePin}
+										/>
 									))}
 								</SortableContext>
 							</DndContext>

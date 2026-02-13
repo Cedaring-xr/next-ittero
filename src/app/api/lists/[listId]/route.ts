@@ -3,6 +3,7 @@ import { authenticatedUser } from '@/utils/amplify-server-utils'
 
 /**
  * GET - Fetch a specific list by ID
+ * PATCH - Update a specific list (e.g., pin/unpin, update title, etc.)
  * DELETE - Delete a specific list by ID
  * Params:
  *   - listId: string (from URL params)
@@ -112,6 +113,138 @@ export async function GET(request: NextRequest, { params }: { params: { listId: 
 		)
 	} catch (error) {
 		console.error('Error fetching list:', error)
+		return NextResponse.json(
+			{ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+			{ status: 500 }
+		)
+	}
+}
+
+/**
+ * PATCH - Update a specific list (e.g., toggle pinned status)
+ * Params:
+ *   - listId: string (from URL params)
+ * Body:
+ *   - pinned: boolean (optional) - Pin/unpin the list
+ *   - title: string (optional) - Update list title
+ *   - description: string (optional) - Update description
+ *   - category: string (optional) - Update category
+ *   - archived: boolean (optional) - Archive/unarchive
+ *   - tags: array (optional) - Update tags
+ *
+ * Validates:
+ *   - Maximum 7 pinned lists
+ *   - Cannot unpin system lists
+ */
+export async function PATCH(request: NextRequest, { params }: { params: { listId: string } }) {
+	try {
+		const response = NextResponse.next()
+
+		// Get authenticated user and session with tokens
+		const user = await authenticatedUser({ request, response })
+
+		if (!user) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+		}
+
+		const { listId } = params
+
+		if (!listId) {
+			return NextResponse.json({ error: 'List ID is required' }, { status: 400 })
+		}
+
+		// Parse request body
+		const body = await request.json()
+
+		// Get Cognito tokens
+		const idToken = user.idToken
+		const accessToken = user.accessToken
+
+		console.log('Updating list:', listId, 'for User ID:', user.userId)
+		console.log('Update data:', body)
+
+		// Get AWS API Gateway URL from environment variables
+		const apiGatewayUrl = process.env.TASKS_API_GATEWAY_LISTS_URL
+
+		if (!apiGatewayUrl) {
+			console.error('TASKS_API_GATEWAY_LISTS_URL is not configured')
+			return NextResponse.json({ error: 'API Gateway URL not configured' }, { status: 500 })
+		}
+
+		// Build URL with list ID and user for security
+		const url = `${apiGatewayUrl}/${listId}?user=${user.userId}`
+
+		console.log('Updating via AWS API Gateway:', url)
+
+		// Build headers with Authorization token
+		const headers: HeadersInit = {
+			'Content-Type': 'application/json'
+		}
+
+		// Add Authorization header
+		if (idToken) {
+			headers['Authorization'] = idToken
+			console.log('Including ID token')
+		} else if (accessToken) {
+			headers['Authorization'] = accessToken
+			console.log('Including Access token')
+		}
+
+		// Send PATCH request to AWS API Gateway
+		const apiResponse = await fetch(url, {
+			method: 'PATCH',
+			headers: headers,
+			body: JSON.stringify(body)
+		})
+
+		console.log('AWS Response Status:', apiResponse.status)
+
+		// Get response text
+		const responseText = await apiResponse.text()
+		console.log('AWS Response Text:', responseText)
+
+		if (!apiResponse.ok) {
+			console.error('AWS API Gateway returned error status:', apiResponse.status)
+
+			let errorData
+			try {
+				errorData = JSON.parse(responseText)
+			} catch (e) {
+				errorData = { rawResponse: responseText }
+			}
+
+			console.error('AWS API Gateway error data:', errorData)
+			return NextResponse.json(
+				{
+					error: errorData.error || 'Failed to update list',
+					message: errorData.message,
+					details: errorData
+				},
+				{ status: apiResponse.status }
+			)
+		}
+
+		// Parse successful response
+		let responseData
+		try {
+			responseData = JSON.parse(responseText)
+		} catch (e) {
+			console.error('Failed to parse AWS response as JSON:', responseText)
+			return NextResponse.json(
+				{ error: 'Invalid response from AWS API Gateway', details: responseText },
+				{ status: 500 }
+			)
+		}
+
+		return NextResponse.json(
+			{
+				message: responseData.message || 'List updated successfully',
+				list: responseData.list
+			},
+			{ status: 200 }
+		)
+	} catch (error) {
+		console.error('Error updating list:', error)
 		return NextResponse.json(
 			{ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
 			{ status: 500 }

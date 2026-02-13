@@ -21,10 +21,16 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 	// Fetch lists with React Query
 	const { data: lists = [], isLoading, refetch } = useLists()
 
-	// TODO: Once 'pinned' property is added to the database schema,
-	// filter by: lists.filter(list => list.pinned && !list.archived)
-	// For now, we'll use the first 3 lists as pinned
-	const pinnedLists = lists.slice(0, 3)
+	// Filter for pinned lists (max 7, sorted by createdAt - oldest first)
+	const pinnedLists = lists
+		.filter((list) => list.pinned === true && !list.archived)
+		.sort((a, b) => {
+			// Sort by createdAt - oldest pinned lists first
+			const dateA = new Date(a.createdAt).getTime()
+			const dateB = new Date(b.createdAt).getTime()
+			return dateA - dateB
+		})
+		.slice(0, 7) // Limit to 7 pinned lists
 
 	const isPinned = (listId: string): boolean => {
 		return pinnedLists.some((list) => list.id === listId)
@@ -32,13 +38,16 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 
 	const pinList = async (listId: string) => {
 		try {
-			// TODO: Implement API endpoint to update list pinned status
-			// const response = await fetch(`/api/lists/${listId}/pin`, {
-			// 	method: 'PATCH',
-			// 	headers: { 'Content-Type': 'application/json' }
-			// })
+			const response = await fetch(`/api/lists/${listId}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ pinned: true })
+			})
 
-			// if (!response.ok) throw new Error('Failed to pin list')
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(errorData.message || errorData.error || 'Failed to pin list')
+			}
 
 			// Refetch lists using React Query
 			await queryClient.invalidateQueries({ queryKey: listKeys.lists() })
@@ -51,13 +60,16 @@ export function PinnedListsProvider({ children }: { children: ReactNode }) {
 
 	const unpinList = async (listId: string) => {
 		try {
-			// TODO: Implement API endpoint to update list pinned status
-			// const response = await fetch(`/api/lists/${listId}/unpin`, {
-			// 	method: 'PATCH',
-			// 	headers: { 'Content-Type': 'application/json' }
-			// })
+			const response = await fetch(`/api/lists/${listId}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ pinned: false })
+			})
 
-			// if (!response.ok) throw new Error('Failed to unpin list')
+			if (!response.ok) {
+				const errorData = await response.json()
+				throw new Error(errorData.message || errorData.error || 'Failed to unpin list')
+			}
 
 			// Refetch lists using React Query
 			await queryClient.invalidateQueries({ queryKey: listKeys.lists() })
