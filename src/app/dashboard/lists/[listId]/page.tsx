@@ -54,6 +54,16 @@ export default function ListDetailPage(): JSX.Element {
 	const params = useParams()
 	const listId = params.listId as string
 
+	// Redirect virtual list IDs to their dedicated pages
+	if (listId === 'system_overdue') {
+		router.replace('/dashboard/lists/overdue')
+		return (
+			<div className="flex items-center justify-center h-screen">
+				<p className="text-white text-xl">Loading...</p>
+			</div>
+		)
+	}
+
 	// React Query hooks
 	const { data: list, isLoading: listLoading, error: listError } = useListDetails(listId)
 	const { data: items = [], isLoading: itemsLoading, error: itemsError } = useListItems(listId)

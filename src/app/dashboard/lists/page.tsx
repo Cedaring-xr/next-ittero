@@ -62,7 +62,8 @@ function SortableListItem({
 	const handleClick = () => {
 		// Only navigate if we weren't dragging
 		if (!isDraggingRef.current) {
-			router.push(`/dashboard/lists/${list.id}`)
+			const href = list.isVirtual ? '/dashboard/lists/overdue' : `/dashboard/lists/${list.id}`
+			router.push(href)
 		}
 	}
 

@@ -108,7 +108,7 @@ export default function SideNav() {
 								{pinnedLists.map((list) => (
 									<Link
 										key={list.id}
-										href={`/dashboard/lists/${list.id}`}
+										href={list.isVirtual ? `/dashboard/lists/overdue` : `/dashboard/lists/${list.id}`}
 										className="flex items-center gap-2 bg-slate-800 border-b-2 border-slate-600 px-3 py-2 text-sm text-gray-100 hover:bg-slate-700 hover:text-blue-400 transition-colors group relative"
 									>
 										<BsPinAngle className="w-5 h-5 flex-shrink-0" />
