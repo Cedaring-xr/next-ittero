@@ -24,9 +24,25 @@ export interface ListEntry {
 	archived: boolean
 	pinned?: boolean
 	isSystem?: boolean // Marks system lists (e.g., "Unassigned Tasks") that cannot be deleted or renamed
+	isVirtual?: boolean // Marks virtual/computed lists that exist only on the front-end (e.g., "Overdue Tasks")
 	createdAt: string
 	updatedAt: string
 	items?: TodoItem[]
+}
+
+// Virtual "Overdue Tasks" list - not stored in the database, computed on the front-end
+export const OVERDUE_LIST: ListEntry = {
+	id: 'system_overdue',
+	title: 'Overdue Tasks',
+	description: 'Tasks past their due date',
+	category: '',
+	tags: [],
+	archived: false,
+	pinned: true,
+	isSystem: true,
+	isVirtual: true,
+	createdAt: new Date(0).toISOString(), // Epoch - so it sorts predictably
+	updatedAt: new Date().toISOString()
 }
 
 /**

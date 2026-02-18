@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { formatDate } from '@/utils/helpers/date-and-time'
 import { type ListEntry, getOrCreateUnassignedList } from '@/utils/api/lists'
+import { injectOverdueList } from '@/utils/helpers/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 import DeleteListModal from '@/ui/delete-list-modal'
 import { useQueryClient } from '@tanstack/react-query'
@@ -191,10 +192,10 @@ export default function Lists() {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 	const unassignedCheckRef = React.useRef(false) // Prevent multiple simultaneous calls
 
-	// Update local state when data is fetched
+	// Update local state when data is fetched, injecting the computed overdue list
 	useEffect(() => {
 		if (fetchedLists) {
-			setUserLists(fetchedLists)
+			setUserLists(injectOverdueList(fetchedLists))
 		}
 	}, [fetchedLists])
 
@@ -329,24 +330,25 @@ export default function Lists() {
 				if (data.itemsFailed > 0) {
 					console.warn(`${data.itemsFailed} items failed to delete`)
 				}
-				// Remove the deleted list from state
-				setUserLists((prev) => prev.filter((list) => list.id !== listToDelete))
+				setUserLists((prev) => {
+					const realLists = prev
+						.filter((list) => !list.isVirtual) // Exclude virtual lists before computing
+						.filter((list) => list.id !== listToDelete)
+					return injectOverdueList(realLists)
+				})
 			} else {
 				console.log(`List deleted. ${data.itemsReassigned || 0} items moved to Unassigned Tasks.`)
-				// Update state: remove deleted list and add items to Unassigned Tasks
 				setUserLists((prev) => {
-					return prev
+					const realLists = prev
+						.filter((list) => !list.isVirtual) // Exclude virtual lists before computing
 						.filter((list) => list.id !== listToDelete)
 						.map((list) => {
-							// Find the Unassigned Tasks list and add the items
 							if (list.isSystem && list.name === 'Unassigned Tasks') {
-								return {
-									...list,
-									items: [...(list.items || []), ...itemsToMove]
-								}
+								return { ...list, items: [...(list.items || []), ...itemsToMove] }
 							}
 							return list
 						})
+					return injectOverdueList(realLists)
 				})
 			}
 
