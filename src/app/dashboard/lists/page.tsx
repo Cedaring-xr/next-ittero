@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineClipboardList, HiClipboardList } from 'react-icons/hi'
-import { UserCircleIcon, CogIcon, TrashIcon, LockClosedIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon, CogIcon, TrashIcon, LockClosedIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { BsPinAngle, BsPinAngleFill } from 'react-icons/bs'
 import ElegantButton from '@/ui/elegant-button'
 import { useRouter } from 'next/navigation'
@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { formatDate } from '@/utils/helpers/date-and-time'
 import { type ListEntry, getOrCreateUnassignedList } from '@/utils/api/lists'
+import { injectOverdueList } from '@/utils/helpers/lists'
 import { useListsWithItems } from '@/app/hooks/use-lists-queries'
 import DeleteListModal from '@/ui/delete-list-modal'
 import { useQueryClient } from '@tanstack/react-query'
@@ -61,7 +62,8 @@ function SortableListItem({
 	const handleClick = () => {
 		// Only navigate if we weren't dragging
 		if (!isDraggingRef.current) {
-			router.push(`/dashboard/lists/${list.id}`)
+			const href = list.isVirtual ? '/dashboard/lists/overdue' : `/dashboard/lists/${list.id}`
+			router.push(href)
 		}
 	}
 
@@ -189,12 +191,13 @@ export default function Lists() {
 	const [listToDelete, setListToDelete] = useState<string | null>(null)
 	const [deleting, setDeleting] = useState(false)
 	const [errorMessage, setErrorMessage] = useState<string | null>(null)
+	const [isSystemExpanded, setIsSystemExpanded] = useState(true)
 	const unassignedCheckRef = React.useRef(false) // Prevent multiple simultaneous calls
 
-	// Update local state when data is fetched
+	// Update local state when data is fetched, injecting the computed overdue list
 	useEffect(() => {
 		if (fetchedLists) {
-			setUserLists(fetchedLists)
+			setUserLists(injectOverdueList(fetchedLists))
 		}
 	}, [fetchedLists])
 
@@ -217,7 +220,7 @@ export default function Lists() {
 				// If we have fetchedLists data, check if unassigned list already exists
 				if (fetchedLists && fetchedLists.length > 0) {
 					const unassignedExists = fetchedLists.some(
-						(list) => list.isSystem === true && list.name === 'Unassigned Tasks'
+						(list) => list.isSystem === true && list.title === 'Unassigned Tasks'
 					)
 
 					if (unassignedExists) {
@@ -329,24 +332,25 @@ export default function Lists() {
 				if (data.itemsFailed > 0) {
 					console.warn(`${data.itemsFailed} items failed to delete`)
 				}
-				// Remove the deleted list from state
-				setUserLists((prev) => prev.filter((list) => list.id !== listToDelete))
+				setUserLists((prev) => {
+					const realLists = prev
+						.filter((list) => !list.isVirtual) // Exclude virtual lists before computing
+						.filter((list) => list.id !== listToDelete)
+					return injectOverdueList(realLists)
+				})
 			} else {
 				console.log(`List deleted. ${data.itemsReassigned || 0} items moved to Unassigned Tasks.`)
-				// Update state: remove deleted list and add items to Unassigned Tasks
 				setUserLists((prev) => {
-					return prev
+					const realLists = prev
+						.filter((list) => !list.isVirtual) // Exclude virtual lists before computing
 						.filter((list) => list.id !== listToDelete)
 						.map((list) => {
-							// Find the Unassigned Tasks list and add the items
-							if (list.isSystem && list.name === 'Unassigned Tasks') {
-								return {
-									...list,
-									items: [...(list.items || []), ...itemsToMove]
-								}
+							if (list.isSystem && list.title === 'Unassigned Tasks') {
+								return { ...list, items: [...(list.items || []), ...itemsToMove] }
 							}
 							return list
 						})
+					return injectOverdueList(realLists)
 				})
 			}
 
@@ -432,33 +436,75 @@ export default function Lists() {
 							<div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-indigo-600 mb-4"></div>
 							<p className="text-gray-600 text-lg">Loading your lists...</p>
 						</div>
-					) : !userLists.length ? (
-						// Empty state
-						<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
-							<HiOutlineClipboardList className="h-16 w-16 text-gray-400 mb-4" />
-							<p className="text-gray-700 text-xl mb-2">No Lists Yet</p>
-							<p className="text-gray-600 mb-6">Get started by creating your first list</p>
-							<div className="flex gap-4">
-								<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
-									Create New List
-								</ElegantButton>
-							</div>
-						</div>
 					) : (
-						// Lists display
 						<div id="list-container">
-							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-								<SortableContext items={userLists.map((list) => list.id)} strategy={verticalListSortingStrategy}>
-									{userLists.map((list) => (
-										<SortableListItem
-											key={list.id}
-											list={list}
-											onDelete={handleDeleteClick}
-											onTogglePin={handleTogglePin}
-										/>
-									))}
-								</SortableContext>
-							</DndContext>
+							{/* System Lists Accordion */}
+							{userLists.filter((l) => l.isSystem).length > 0 && (
+								<div className="mb-4">
+									<button
+										onClick={() => setIsSystemExpanded(!isSystemExpanded)}
+										className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 uppercase tracking-wide hover:text-gray-700 transition-colors mb-1"
+									>
+										{isSystemExpanded ? (
+											<ChevronDownIcon className="w-5 h-5" />
+										) : (
+											<ChevronRightIcon className="w-5 h-5" />
+										)}
+										System Lists ({userLists.filter((l) => l.isSystem).length})
+									</button>
+									{isSystemExpanded && (
+										<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={() => {}}>
+											<SortableContext
+												items={userLists.filter((l) => l.isSystem).map((l) => l.id)}
+												strategy={verticalListSortingStrategy}
+											>
+												{userLists
+													.filter((l) => l.isSystem)
+													.map((list) => (
+														<SortableListItem
+															key={list.id}
+															list={list}
+															onDelete={handleDeleteClick}
+															onTogglePin={handleTogglePin}
+														/>
+													))}
+											</SortableContext>
+										</DndContext>
+									)}
+								</div>
+							)}
+
+							{/* Regular Lists with DnD */}
+							{userLists.filter((l) => !l.isSystem).length === 0 ? (
+								<div className="flex flex-col items-center justify-center py-12 bg-slate-100 rounded-lg">
+									<HiOutlineClipboardList className="h-16 w-16 text-gray-400 mb-4" />
+									<p className="text-gray-700 text-xl mb-2">No Lists Yet</p>
+									<p className="text-gray-600 mb-6">Get started by creating your first list</p>
+									<div className="flex gap-4">
+										<ElegantButton variant="primary" size="lg" onClick={handleCreateNewList}>
+											Create New List
+										</ElegantButton>
+									</div>
+								</div>
+							) : (
+								<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+									<SortableContext
+										items={userLists.filter((l) => !l.isSystem).map((l) => l.id)}
+										strategy={verticalListSortingStrategy}
+									>
+										{userLists
+											.filter((l) => !l.isSystem)
+											.map((list) => (
+												<SortableListItem
+													key={list.id}
+													list={list}
+													onDelete={handleDeleteClick}
+													onTogglePin={handleTogglePin}
+												/>
+											))}
+									</SortableContext>
+								</DndContext>
+							)}
 						</div>
 					)}
 				</div>

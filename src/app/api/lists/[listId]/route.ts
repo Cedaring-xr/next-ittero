@@ -27,6 +27,11 @@ export async function GET(request: NextRequest, { params }: { params: { listId: 
 			return NextResponse.json({ error: 'List ID is required' }, { status: 400 })
 		}
 
+		// Virtual lists only exist on the front-end and have no database record
+		if (listId === 'system_overdue') {
+			return NextResponse.json({ error: 'Virtual lists cannot be fetched from the API' }, { status: 400 })
+		}
+
 		// Get Cognito tokens
 		const idToken = user.idToken
 		const accessToken = user.accessToken
@@ -153,6 +158,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { listId
 			return NextResponse.json({ error: 'List ID is required' }, { status: 400 })
 		}
 
+		// Virtual lists only exist on the front-end and cannot be updated via API
+		if (listId === 'system_overdue') {
+			return NextResponse.json({ error: 'Virtual lists cannot be updated via the API' }, { status: 400 })
+		}
+
 		// Parse request body
 		const body = await request.json()
 
@@ -268,6 +278,14 @@ export async function DELETE(
 
 		if (!listId) {
 			return NextResponse.json({ error: 'List ID is required' }, { status: 400 })
+		}
+
+		// PROTECTION: Block deletion of virtual system lists (they only exist on the front-end)
+		if (listId === 'system_overdue') {
+			return NextResponse.json(
+				{ error: 'System lists cannot be deleted' },
+				{ status: 403 }
+			)
 		}
 
 		// Get deleteMode from query params (default to 'cascade')
