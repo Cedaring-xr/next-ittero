@@ -27,35 +27,6 @@ body {
 	background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
-.banner {
-	width: 100%;
-	border-radius: 8px;
-	margin-top: 15px;
-	margin-bottom: 15px;
-	padding: 10px;
-	text-align: left;
-	border: 1px solid black;
-	box-shadow: 4px 8px 8px rgba(0, 0, 0, 0.38);
-}
-
-.green-banner {
-	background-color: rgb(138, 224, 138);
-}
-
-.indigo-banner {
-	background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-	color: white;
-}
-
-.teal-banner {
-	background: linear-gradient(135deg, #0c7e92 0%, #067591 100%);
-	color: white;
-}
-
-.purple-banner {
-	background: linear-gradient(135deg, #8216e7 0%, #640eb4 100%);
-	color: white;
-}
 
 .close {
 	font-weight: bold;
@@ -67,13 +38,6 @@ body {
 	outline: 2px solid currentColor;
 	border-radius: 4px;
 	opacity: 0.8;
-}
-
-.indigo-banner .close,
-.blue-banner .close,
-.teal-banner .close,
-.purple-banner .close {
-	color: #a10505;
 }
 
 .shadow {
