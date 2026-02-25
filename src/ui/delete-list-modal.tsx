@@ -98,10 +98,10 @@ export default function DeleteListModal({
 									</svg>
 								</div>
 								<div className="flex-1">
-									<p className="font-semibold text-white">Move Tasks to "Unassigned Tasks"</p>
+									<p className="font-semibold text-white">Move Tasks to &quot;Unassigned Tasks&quot;</p>
 									<p className="text-sm text-gray-400 mt-1">
 										Delete the list but keep all {itemCount} {itemCount === 1 ? 'task' : 'tasks'} in the
-										"Unassigned Tasks" list. You can organize them later.
+										&quot;Unassigned Tasks&quot; list. You can organize them later.
 									</p>
 								</div>
 							</div>
