@@ -54,17 +54,7 @@ export default function ListDetailPage(): JSX.Element {
 	const params = useParams()
 	const listId = params.listId as string
 
-	// Redirect virtual list IDs to their dedicated pages
-	if (listId === 'system_overdue') {
-		router.replace('/dashboard/lists/overdue')
-		return (
-			<div className="flex items-center justify-center h-screen">
-				<p className="text-white text-xl">Loading...</p>
-			</div>
-		)
-	}
-
-	// React Query hooks
+	// React Query hooks — must be called unconditionally before any early return
 	const { data: list, isLoading: listLoading, error: listError } = useListDetails(listId)
 	const { data: items = [], isLoading: itemsLoading, error: itemsError } = useListItems(listId)
 	const createItemMutation = useCreateItem(listId)
@@ -86,6 +76,16 @@ export default function ListDetailPage(): JSX.Element {
 	const [sortBy, setSortBy] = useState<'dueDate' | 'priority'>('priority')
 	const [isCompletedExpanded, setIsCompletedExpanded] = useState<boolean>(false)
 	const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+
+	// Redirect virtual list IDs to their dedicated pages
+	if (listId === 'system_overdue') {
+		router.replace('/dashboard/lists/overdue')
+		return (
+			<div className="flex items-center justify-center h-screen">
+				<p className="text-white text-xl">Loading...</p>
+			</div>
+		)
+	}
 
 	const isLoading = listLoading || itemsLoading
 	const error = listError || itemsError

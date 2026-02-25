@@ -187,7 +187,7 @@ export default function JournalEntriesClient() {
 					<div>
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-xl font-semibold text-black">
-								Total Journal Entries ({totalCount !== null ? totalCount : entries.length})
+								Jounal entries: past 30 days ({totalCount !== null ? totalCount : entries.length})
 							</h3>
 							<button
 								onClick={() => fetchJournalEntries(false)}
