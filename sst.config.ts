@@ -16,7 +16,7 @@ export default {
   				path: '.',
 				environment: {
 					NEXT_PUBLIC_STAGE: stage,
-					JOURNAL_API_GATEWAY_URL:
+					API_GATEWAY_URL:
 						stage === "prod"
 						? "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/prod/entry"
 						: "https://em3d616fz6.execute-api.us-east-1.amazonaws.com/staging/entry",
